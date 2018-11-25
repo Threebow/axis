@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"description": "An expressive web framework for node.js",
 	"main": "index.js",
+	"scripts": {
+		"nodemon": "nodemon ."
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/threebow/axis.git"
