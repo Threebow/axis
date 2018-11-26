@@ -16,6 +16,8 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
-		"express": "^4.16.4"
+		"express": "^4.16.4",
+		"mysql2": "^1.6.4",
+		"sequelize": "^4.41.2"
 	}
 }
