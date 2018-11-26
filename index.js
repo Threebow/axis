@@ -1,4 +1,8 @@
-const Server = require("./classes/server");
+//Import classes
+const App = require("./classes/app");
 const Controller = require("./classes/controller");
+const Router = require("./classes/router");
+const Database = require("./classes/database");
 
-module.exports = {Server, Controller};
+//Export
+module.exports = {App, Controller, Router, Database};
