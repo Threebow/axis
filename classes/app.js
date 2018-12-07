@@ -1,6 +1,7 @@
 const express = require("express"),
 	  fs = require("fs"),
-	  path = require("path");
+	  path = require("path"),
+	  requireAll = require("require-all");
 
 module.exports = function createServer() {
 	let app = express();
@@ -11,11 +12,11 @@ module.exports = function createServer() {
 	};
 
 	app.setControllers = (dir) => {
-		let files = fs.readdirSync(dir);
-		files.forEach(f => {
-			if(!f.endsWith("Controller.js")) return;
-			let Controller = require(path.join(dir, f));
-			app._controllers[path.basename(f, ".js")] = new Controller();
+		app._controllers = requireAll({
+			dirname: dir,
+			filter: /(.+Controller)\.js$/,
+			excludeDirs: /^\.(git|svn)$/,
+			resolve: (Controller) => new Controller()
 		});
 	};
 
