@@ -21,7 +21,7 @@ module.exports = function createServer() {
 
 	app.addRouter = (fn) => {
 		let router = fn(app._controllers, app._database.models);
-		app.use(router.router);
+		app.use(router._router);
 	};
 
 	return app;

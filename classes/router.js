@@ -2,11 +2,11 @@ const express = require("express");
 
 module.exports = class Router {
 	constructor() {
-		this.router = express.Router();
+		this._router = express.Router();
 	}
 
 	get(path, fn, bindings) {
-		this.router.get(path, async (req, res) => {
+		this._router.get(path, async (req, res) => {
 			let models = {};
 
 			for(let i in bindings) {
