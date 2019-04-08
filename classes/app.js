@@ -34,8 +34,7 @@ module.exports = function createServer(settings) {
 
 	app.addRouter = (fn) => {
 		let router = fn(app._controllers, app._database.models);
-		let r = router.register();
-		app.use(r);
+		app.use(router._register(express.Router()));
 	};
 
 	app.printRoutes = () => util.printRoutes(app);

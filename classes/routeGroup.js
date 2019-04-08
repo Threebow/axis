@@ -34,7 +34,9 @@ module.exports = class RouteGroup {
 		this.routes.forEach(route => route._register(router));
 
 		//Apply the sub-router to the main router
-		root.use(this.url, router);
+		let r = root || self;
+		r.use(this.url, router);
+		return r;
 	}
 };
 
