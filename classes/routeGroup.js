@@ -27,10 +27,10 @@ module.exports = class RouteGroup {
 		//Create a new sub-router to represent this route group
 		let router = express.Router();
 
-		//Recursively mount each child group assigned to this one
+		//Recursively mount each child group assigned to sub-router
 		this.children.forEach(child => child._register(router));
 
-		//Register actual routes
+		//Register actual routes to the sub-router
 		this.routes.forEach(route => route._register(router));
 
 		//Apply the sub-router to the main router
