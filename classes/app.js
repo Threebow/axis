@@ -3,7 +3,8 @@ const express = require("express"),
 	  bodyParser = require("body-parser"),
 	  cookieParser = require("cookie-parser"),
 	  session = require("express-session"),
-	  flash = require("express-flash");
+	  flash = require("express-flash"),
+	  util = require("../util");
 
 module.exports = function createServer(settings) {
 	let app = express();
@@ -36,6 +37,8 @@ module.exports = function createServer(settings) {
 		let r = router.register();
 		app.use(r);
 	};
+
+	app.printRoutes = () => util.printRoutes(app);
 
 	//Set stuff up
 	app.setDatabase(settings.database);
