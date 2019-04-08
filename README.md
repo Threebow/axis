@@ -5,7 +5,7 @@ Axis is an expressive, unopinionated, and minimal web framework for Node.js. The
 
 The combination of these libraries, utilities, and tools allow developers to make complex web applications very quickly and efficiently.
 
-##What it uses
+## What it uses
 - [Express](https://github.com/expressjs/express): main backend framework for web
 - [Objection.js](https://github.com/Vincit/objection.js) and [Knex](https://github.com/tgriesser/knex): ultra-lightweight ORM and query builder
 - [Passport](https://github.com/jaredhanson/passport): for authentication
