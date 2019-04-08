@@ -3,7 +3,7 @@ module.exports = class Controller {
 		this.models = app._database.models;
 	}
 
-	render(view) {
-		return (req, res) => res.render(view);
+	render(...args) {
+		return (req, res) => res.render(...args);
 	}
 };
