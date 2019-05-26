@@ -4,6 +4,7 @@ module.exports = class Route {
 		this.path = path;
 		this.actionFn = action;
 		this.bindings = [];
+		this._name = "";
 	}
 
 	/*---------------------------------------------------------------------------
@@ -12,7 +13,18 @@ module.exports = class Route {
 	---------------------------------------------------------------------------*/
 	bind(name, model) {
 		this.bindings.push({name, model});
+		return this;
 	}
+
+
+	/*---------------------------------------------------------------------------
+		Names this route so it can be retrieved
+	---------------------------------------------------------------------------*/
+	name(name) {
+		this._name = name;
+		return this;
+	}
+
 
 
 	/*---------------------------------------------------------------------------
