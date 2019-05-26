@@ -1,13 +1,10 @@
 const express = require("express"),
 	  requireAll = require("require-all"),
-	  bodyParser = require("body-parser"),
-	  cookieParser = require("cookie-parser"),
-	  session = require("express-session"),
-	  flash = require("express-flash"),
 	  util = require("../util");
 
 module.exports = function createServer(settings) {
 	let app = express();
+
 	app._controllers = {};
 
 	app.setDatabase = (db) => {
@@ -21,6 +18,7 @@ module.exports = function createServer(settings) {
 			excludeDirs: /^\.(git|svn)$/,
 			resolve: (Controller) => {
 				let controller = new Controller(app);
+				settings.container.attach(controller);
 
 				Object.getOwnPropertyNames(Controller.prototype).forEach(name => {
 					if(name === "constructor") return;
@@ -39,24 +37,18 @@ module.exports = function createServer(settings) {
 
 	app.printRoutes = () => util.printRoutes(app);
 
+	//Pass the app to the container and initialize it
+	settings.container.app = app;
+	settings.container.initialize();
+
+	//Bail if a database is not set
+	if(!app._database) {
+		throw new Error("App does not have a database assigned to it!");
+	}
+
 	//Set stuff up
-	app.setDatabase(settings.database);
 	app.setControllers(settings.controllers);
 	settings.routers.forEach(r => app.addRouter(r));
-
-	//Configuring express
-	app.use(express.static(settings.publicDir));
-	app.use(bodyParser.urlencoded(settings.bodyParser || {extended: false, limit: "8mb"}));
-	app.use(bodyParser.json());
-	app.use(cookieParser());
-
-	app.use(session(settings.session || {resave: false, saveUninitialized: false}));
-
-	app.use(flash());
-
-	app.engine(settings.viewEngineName, settings.viewEngine.__express);
-	app.set("view engine", settings.viewEngineName);
-	app.set("views", settings.viewDir);
 
 	return app;
 };

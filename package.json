@@ -1,5 +1,5 @@
 {
-	"name": "axis",
+	"name": "@threebow/axis",
 	"version": "1.0.0",
 	"description": "An expressive web framework for node.js",
 	"main": "index.js",
@@ -16,11 +16,7 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
-		"body-parser": "^1.18.3",
-		"cookie-parser": "^1.4.4",
 		"express": "^4.16.4",
-		"express-flash": "0.0.2",
-		"express-session": "^1.15.6",
 		"knex": "^0.16.3",
 		"mysql2": "^1.6.5",
 		"objection": "^1.6.7",
