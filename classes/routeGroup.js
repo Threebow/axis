@@ -38,14 +38,28 @@ module.exports = class RouteGroup {
 		r.use(this.url, router);
 		return r;
 	}
+
+
+	/*---------------------------------------------------------------------------
+		Defining methods
+	---------------------------------------------------------------------------*/
+	get(path, fn) {
+		return this._addRoute("get", path, fn);
+	}
+
+	post(path, fn) {
+		return this._addRoute("post", path, fn);
+	}
+
+	put(path, fn) {
+		return this._addRoute("put", path, fn);
+	}
+
+	patch(path, fn) {
+		return this._addRoute("patch", path, fn);
+	}
+
+	delete(path, fn) {
+		return this._addRoute("delete", path, fn);
+	}
 };
-
-
-/*---------------------------------------------------------------------------
-	Dynamically add request methods
----------------------------------------------------------------------------*/
-["get", "post", "put", "patch", "delete"].forEach(method => {
-	module.exports.prototype[method] = function(path, fn) {
-		return this._addRoute(method, path, fn);
-	};
-});
