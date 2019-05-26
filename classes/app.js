@@ -1,6 +1,5 @@
 const express = require("express"),
-	  requireAll = require("require-all"),
-	  util = require("../util");
+	  requireAll = require("require-all");
 
 module.exports = function createServer(settings) {
 	let app = express();
@@ -34,8 +33,6 @@ module.exports = function createServer(settings) {
 		let router = fn(app._controllers, app._database.models);
 		app.use(router._register(express.Router()));
 	};
-
-	app.printRoutes = () => util.printRoutes(app);
 
 	//Pass the app to the container and initialize it
 	settings.container.app = app;
