@@ -1,6 +1,6 @@
 {
 	"name": "@threebow/axis",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "An expressive web framework for node.js",
 	"main": "index.js",
 	"scripts": {
