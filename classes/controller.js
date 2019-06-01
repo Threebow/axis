@@ -6,4 +6,8 @@ module.exports = class Controller {
 	render(...args) {
 		return (req, res) => res.render(...args);
 	}
+
+	redirect(route) {
+		return (req, res) => res.redirect(route);
+	}
 };
