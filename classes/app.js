@@ -18,7 +18,7 @@ module.exports = function createServer(settings) {
 			excludeDirs: /^\.(git|svn)$/,
 			resolve: (Controller) => {
 				let controller = new Controller(app);
-				settings.container.attach(controller);
+				settings.container.attachAll(controller);
 
 				Object.getOwnPropertyNames(Controller.prototype).forEach(name => {
 					if(name === "constructor") return;
