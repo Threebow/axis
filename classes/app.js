@@ -1,5 +1,6 @@
 const express = require("express"),
-	  requireAll = require("require-all");
+	  requireAll = require("require-all"),
+	  MiddlewareGroup = require("./middlewareGroup");
 
 module.exports = function createServer(settings) {
 	let app = express();
@@ -41,6 +42,15 @@ module.exports = function createServer(settings) {
 	//Bail if a database is not set
 	if(!app._database) {
 		throw new Error("App does not have a database assigned to it!");
+	}
+
+	//Load middleware
+	app.middleware = {};
+	for(let name in settings.middleware || {}) {
+		if(!settings.middleware.hasOwnProperty(name)) continue;
+
+		//Create a new middleware group and add it to the app's middleware stack
+		app.middleware[name] = new MiddlewareGroup(name, settings.middleware[name]);
 	}
 
 	//Set stuff up

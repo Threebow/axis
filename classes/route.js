@@ -1,9 +1,12 @@
+const MiddlewareGroup = require("./middlewareGroup");
+
 module.exports = class Route {
 	constructor(method, path, action) {
 		this.method = method;
 		this.path = path;
 		this.actionFn = action;
 		this.bindings = [];
+		this.middlewareNames = [];
 		this._name = "";
 	}
 
@@ -22,6 +25,15 @@ module.exports = class Route {
 	---------------------------------------------------------------------------*/
 	name(name) {
 		this._name = name;
+		return this;
+	}
+
+
+	/*---------------------------------------------------------------------------
+		Applies middleware to this route
+	---------------------------------------------------------------------------*/
+	middleware(...names) {
+		this.middlewareNames = names;
 		return this;
 	}
 
@@ -73,6 +85,6 @@ module.exports = class Route {
 	---------------------------------------------------------------------------*/
 	_register(router) {
 		//We do this to preserve the this arg
-		router[this.method](this.path, (...args) => this._action(...args));
+		router[this.method](this.path, ...MiddlewareGroup.getStack(router.app, this.middlewareNames), (...args) => this._action(...args));
 	}
 };
