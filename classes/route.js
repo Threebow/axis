@@ -26,7 +26,6 @@ module.exports = class Route {
 	}
 
 
-
 	/*---------------------------------------------------------------------------
 		Function that is called by express, this handles wrapping
 		bindings and calling the controller method internally.
@@ -51,11 +50,11 @@ module.exports = class Route {
 		}
 	}
 
-	static async _resolveBinding(req, {name, model}) {
+	static _resolveBinding(req, {name, model}) {
 		let val = req.params[name];
 		let colName = model.bindingColumnName || "id";
 
-		return await model.query().findOne({[colName]: val});
+		return model.query().findOne({[colName]: val});
 	}
 
 
