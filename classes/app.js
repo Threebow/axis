@@ -32,7 +32,8 @@ module.exports = function createServer(settings) {
 
 	app.addRouter = (fn) => {
 		let router = fn(app._controllers, app._database.models);
-		app.use(router._register(express.Router()));
+		router.app = app;
+		router._register(app);
 	};
 
 	//Pass the app to the container and initialize it
