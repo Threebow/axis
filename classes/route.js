@@ -42,11 +42,21 @@ module.exports = class Route {
 			}
 		}
 
-		let result = this.actionFn.apply(this.actionFn.controller, bindedModels);
-		if(result && result.then) {
-			result.then(fn => {
-				fn(req, res, next);
-			});
+		//Call the controller method
+		let result = this.actionFn.call(this.actionFn.controller, req, res, ...bindedModels);
+
+		//Make sure the controller is implemented properly
+		if(result) {
+			if(result.then) {
+				//If it returns a promise, await it and then call the response
+				result.then(fn => fn(req, res, next));
+			} else {
+				//Otherwise just call it the response
+				result(req, res, next);
+			}
+		} else {
+			//Otherwise send back a 501 Not Implemented
+			res.sendStatus(501);
 		}
 	}
 
