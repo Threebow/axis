@@ -3,8 +3,11 @@ module.exports = class Controller {
 		this.models = app._database.models;
 	}
 
-	render(...args) {
-		return (req, res) => res.render(...args);
+	render(view, data = {}) {
+		return (req, res) => {
+			res.locals.AppViewData = {...data, ...res.locals};
+			return res.render(view, data);
+		}
 	}
 
 	redirect(route) {
