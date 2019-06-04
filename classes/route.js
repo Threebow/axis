@@ -1,7 +1,10 @@
-const MiddlewareGroup = require("./middlewareGroup");
+const MiddlewareGroup = require("./middlewareGroup"),
+	  util = require("../util");
 
 module.exports = class Route {
 	constructor(method, path, action) {
+		path = util.FormatPathName(path);
+
 		this.method = method;
 		this.path = path;
 		this.actionFn = action;

@@ -1,15 +1,25 @@
 const express = require("express"),
 	  Route = require("./route"),
-	  MiddlewareGroup = require("./middlewareGroup");
+	  MiddlewareGroup = require("./middlewareGroup"),
+	  util = require("../util");
 
 module.exports = class RouteGroup {
 	constructor(url, fn, parent) {
+		url = util.FormatPathName(url);
+
 		this.url = url;
 		this.fn = fn;
 		this.parent = parent;
 		this.children = [];
 		this.routes = [];
 		this.middlewareNames = [];
+		this._prefix = "";
+		this.routeNameCache = new Map();
+	}
+
+	prefix(prefix) {
+		this._prefix = prefix;
+		return this;
 	}
 
 	group(url, fn) {
@@ -28,8 +38,13 @@ module.exports = class RouteGroup {
 	}
 
 	_addRoute(method, path, fn) {
+		//Create the new route and push it to this group's stack
 		let route = new Route(method, path, fn);
 		this.routes.push(route);
+
+		//Clear the route name cache, forcing a rebuild on the next use
+		this.routeNameCache.clear();
+
 		return route;
 	}
 
@@ -37,6 +52,8 @@ module.exports = class RouteGroup {
 		//Create a new sub-router to represent this route group
 		let router = express.Router();
 		router.app = this.app;
+
+		this._registerHelperMiddleware(router);
 
 		//Apply group middleware
 		MiddlewareGroup.getStack(this.app, this.middlewareNames).forEach(fn => {
@@ -56,6 +73,52 @@ module.exports = class RouteGroup {
 		let r = root;
 		r.use(this.url, router);
 		return r;
+	}
+
+	_registerHelperMiddleware(router) {
+		let self = this;
+		router.use((req, res, next) => {
+			res.locals.route = (...args) => self.getNamedRoutePath(...args);
+			next();
+		});
+	}
+
+
+	/*---------------------------------------------------------------------------
+		Prints out the routes of this with their names
+	---------------------------------------------------------------------------*/
+	buildRouteNameCache(prefix = "", url = "", cache = this.routeNameCache) {
+		//First add the group's prefix to the name string
+		prefix += this._prefix;
+		url += this.url;
+
+		//Add each named route to the cache
+		this.routes.forEach(route => {
+			if(route._name) cache.set(prefix + route._name, (url + route.path).replace(/(\/)\1/gi, "/"));
+		});
+
+		//Build upon this cache for all children
+		this.children.forEach(group => {
+			group.buildRouteNameCache(prefix, url, cache);
+		});
+	}
+
+
+	/*---------------------------------------------------------------------------
+		Gets a route path by name
+	---------------------------------------------------------------------------*/
+	getNamedRoutePath(name) {
+		//Build the route cache if the name doesn't appear to exist
+		if(!this.routeNameCache.has(name)) {
+			this.buildRouteNameCache();
+
+			//If it still doesnt exist after building, that must mean that the route does not exist, so throw an error.
+			if(!this.routeNameCache.has(name)) {
+				throw new Error(`A route named '${name}' does not exist.`);
+			}
+		}
+
+		return this.routeNameCache.get(name);
 	}
 
 
