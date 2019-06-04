@@ -1,7 +1,8 @@
 const express = require("express"),
 	  Route = require("./route"),
 	  MiddlewareGroup = require("./middlewareGroup"),
-	  util = require("../util");
+	  util = require("../util"),
+	  pathToRegexp = require("path-to-regexp");
 
 module.exports = class RouteGroup {
 	constructor(url, fn, parent) {
@@ -107,7 +108,7 @@ module.exports = class RouteGroup {
 	/*---------------------------------------------------------------------------
 		Gets a route path by name
 	---------------------------------------------------------------------------*/
-	getNamedRoutePath(name) {
+	getNamedRoutePath(name, params) {
 		//Build the route cache if the name doesn't appear to exist
 		if(!this.routeNameCache.has(name)) {
 			this.buildRouteNameCache();
@@ -118,7 +119,13 @@ module.exports = class RouteGroup {
 			}
 		}
 
-		return this.routeNameCache.get(name);
+		//Return the plain path if there are no arguments
+		let path = this.routeNameCache.get(name);
+		if(!params) return path;
+
+		//Compile the path with the given parameters if they are given
+		let compiled = pathToRegexp.compile(path);
+		return compiled(params);
 	}
 
 
