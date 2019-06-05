@@ -54,8 +54,6 @@ module.exports = class RouteGroup {
 		let router = express.Router();
 		router.app = this.app;
 
-		this._registerHelperMiddleware(router);
-
 		//Apply group middleware
 		MiddlewareGroup.getStack(this.app, this.middlewareNames).forEach(fn => {
 			router.use(fn);
@@ -78,8 +76,13 @@ module.exports = class RouteGroup {
 
 	_registerHelperMiddleware(router) {
 		let self = this;
+
 		router.use((req, res, next) => {
-			res.locals.route = (...args) => self.getNamedRoutePath(...args);
+			let routeFn = (...args) => self.getNamedRoutePath(...args);
+
+			res.route = routeFn;
+			res.locals.route = routeFn;
+
 			next();
 		});
 	}

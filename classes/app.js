@@ -33,6 +33,7 @@ module.exports = function createServer(settings) {
 	app.addRouter = (fn) => {
 		let router = fn(app._controllers, app._database.models);
 		router.app = app;
+		router._registerHelperMiddleware(app);
 		router._register(app);
 	};
 
