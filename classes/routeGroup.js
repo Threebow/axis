@@ -77,12 +77,26 @@ module.exports = class RouteGroup {
 	_registerHelperMiddleware(router) {
 		let self = this;
 
+		//Creating a route helper function
 		router.use((req, res, next) => {
 			let routeFn = (...args) => self.getNamedRoutePath(...args);
 
 			res.route = routeFn;
 			res.locals.route = routeFn;
 
+			next();
+		});
+
+		//Dumping the route names into the request's locals
+		router.use((req, res, next) => {
+			if(self.routeNameCache.size < 1) {
+				self.buildRouteNameCache();
+			}
+
+			let obj = {};
+			self.routeNameCache.forEach((v, k) => obj[k] = v);
+
+			res.locals.routeNameCache = obj;
 			next();
 		});
 	}
