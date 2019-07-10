@@ -55,9 +55,8 @@ module.exports = class RouteGroup {
 		router.app = this.app;
 
 		//Apply group middleware
-		MiddlewareGroup.getStack(this.app, this.middlewareNames).forEach(fn => {
-			router.use(fn);
-		});
+		let mwStack = MiddlewareGroup.getStack(this.app, this.middlewareNames);
+		mwStack.filter(s => !s.delayed).forEach(fn => router.use(fn));
 
 		//Recursively mount each child group assigned to sub-router
 		this.children.forEach(child => {
@@ -67,6 +66,9 @@ module.exports = class RouteGroup {
 
 		//Register actual routes to the sub-router
 		this.routes.forEach(route => route._register(router));
+
+		//Apply delayed middleware
+		mwStack.filter(s => s.delayed).forEach(fn => router.use(fn));
 
 		//Apply the sub-router to the main router
 		let r = root;
