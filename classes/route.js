@@ -64,7 +64,7 @@ module.exports = class Route {
 		if(result) {
 			if(result.then) {
 				//If it returns a promise, await it and then call the response
-				result.then(fn => fn(req, res, next));
+				result.then(fn => fn(req, res, next)).catch(next);
 			} else {
 				//Otherwise just call it the response
 				result(req, res, next);
@@ -84,10 +84,23 @@ module.exports = class Route {
 
 
 	/*---------------------------------------------------------------------------
+		Wraps an async route function to allow proper error handling
+	---------------------------------------------------------------------------*/
+	_wrapAction() {
+		let fn = (...args) => this._action(...args);
+
+		return (req, res, next) => {
+			let result = fn(req, res, next);
+			if(result && result.catch) result.catch(next);
+		}
+	}
+
+
+	/*---------------------------------------------------------------------------
 		Registers this route to an Express router
 	---------------------------------------------------------------------------*/
 	_register(router) {
 		//We do this to preserve the this arg
-		router[this.method](this.path, ...MiddlewareGroup.getStack(router.app, this.middlewareNames), (...args) => this._action(...args));
+		router[this.method](this.path, ...MiddlewareGroup.getStack(router.app, this.middlewareNames), this._wrapAction());
 	}
 };
