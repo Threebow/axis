@@ -81,7 +81,7 @@ module.exports = class Route {
 
 		let q = model.query();
 		relations.forEach(b => q.eager(b));
-		return q.findOne({[colName]: val});
+		return q.findOne({[colName]: val}).throwIfNotFound();
 	}
 
 
