@@ -17,8 +17,8 @@ module.exports = class Route {
 		Allows you to tie a model to a parameter in the route, giving it
 		to the controller as an argument
 	---------------------------------------------------------------------------*/
-	bind(name, model) {
-		this.bindings.push({name, model});
+	bind(name, model, ...relations) {
+		this.bindings.push({name, model, relations});
 		return this;
 	}
 
@@ -75,11 +75,13 @@ module.exports = class Route {
 		}
 	}
 
-	static _resolveBinding(req, {name, model}) {
+	static _resolveBinding(req, {name, model, relations = []}) {
 		let val = req.params[name];
 		let colName = model.bindingColumnName || "id";
 
-		return model.query().findOne({[colName]: val});
+		let q = model.query();
+		relations.forEach(b => q.eager(b));
+		return q.findOne({[colName]: val});
 	}
 
 
