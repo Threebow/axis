@@ -42,6 +42,16 @@ module.exports = class Route {
 
 
 	/*---------------------------------------------------------------------------
+		Forces this route to validate body properties based on the JSON
+		schema of the provided model
+	---------------------------------------------------------------------------*/
+	validate(model, fields = []) {
+		this.validation = {model, fields};
+		return this;
+	}
+
+
+	/*---------------------------------------------------------------------------
 		Function that is called by express, this handles wrapping
 		bindings and calling the controller method internally.
 	---------------------------------------------------------------------------*/
@@ -55,6 +65,34 @@ module.exports = class Route {
 				//TODO: return 404 if model isn't there
 				bindedModels.push(model);
 			}
+		}
+
+		//Validation
+		if(this.validation) {
+			let {model, fields} = this.validation;
+
+			let obj = {};
+
+			for(let i = 0; i < fields.length; i++) {
+				let key = fields[i];
+				if(key.includes(":")) {
+					let [input, mapping] = key.split(":");
+					obj[mapping] = req.body[input];
+				} else {
+					obj[key] = req.body[key];
+				}
+			}
+
+			for(let i in obj) {
+				if(!obj.hasOwnProperty(i)) continue;
+
+				if(typeof obj[i] === "undefined") {
+					delete obj[i];
+				}
+			}
+
+			//Trigger validation
+			model.fromJson(obj);
 		}
 
 		//Call the controller method
