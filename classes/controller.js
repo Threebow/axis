@@ -15,6 +15,11 @@ module.exports = class Controller {
 		return new StatusHandler(code);
 	}
 
+	send(data) {
+		return new StatusHandler(200)
+			.send(data);
+	}
+
 	get redirect() {
 		return new Redirector();
 	}

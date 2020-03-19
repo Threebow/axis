@@ -4,11 +4,20 @@ module.exports = class StatusHandler extends require("./flasher") {
 		this.code = code;
 	}
 
+	send(data) {
+		this.data = data;
+		return this;
+	}
+
 	execute(req, res) {
 		//Apply flash messages
 		this.flash(req);
 
 		//Send the HTTP status
-		res.sendStatus(this.code);
+		if(this.data) {
+			res.status(this.code).send(this.data);
+		} else {
+			res.sendStatus(this.code);
+		}
 	}
 };
