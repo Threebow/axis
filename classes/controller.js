@@ -1,3 +1,5 @@
+const Redirector = require("./redirector");
+
 module.exports = class Controller {
 	constructor(app) {
 		this.models = app._database.models;
@@ -10,7 +12,7 @@ module.exports = class Controller {
 		}
 	}
 
-	redirect(route) {
-		return (req, res) => res.redirect(route);
+	get redirect() {
+		return new Redirector();
 	}
 };
