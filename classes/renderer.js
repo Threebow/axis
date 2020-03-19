@@ -1,5 +1,5 @@
 module.exports = class Renderer extends require("./flasher") {
-	constructor(view, data = {}) {
+	constructor(view, data) {
 		super();
 		this.view = view;
 		this.data = data;

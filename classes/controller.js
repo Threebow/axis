@@ -6,7 +6,7 @@ module.exports = class Controller {
 		this.models = app._database.models;
 	}
 
-	render(view, data) {
+	render(view, data = {}) {
 		return new Renderer(view, data);
 	}
 
