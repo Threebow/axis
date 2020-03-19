@@ -127,12 +127,11 @@ module.exports = class Route {
 	}
 
 	static _resolveBinding(req, {name, model, relations = []}) {
-		let val = req.params[name];
-		let colName = model.bindingColumnName || "id";
-
 		let q = model.query();
 		relations.forEach(b => q.eager(b));
-		return q.findOne({[colName]: val}).throwIfNotFound();
+		return q.findOne({
+			[model.idColumn]: req.params[name]
+		}).throwIfNotFound();
 	}
 
 
