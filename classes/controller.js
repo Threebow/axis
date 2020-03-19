@@ -1,15 +1,13 @@
-const Redirector = require("./redirector");
+const Redirector = require("./redirector"),
+	  Renderer = require("./renderer");
 
 module.exports = class Controller {
 	constructor(app) {
 		this.models = app._database.models;
 	}
 
-	render(view, data = {}) {
-		return (req, res) => {
-			res.locals.AppViewData = {...data, ...res.locals};
-			return res.render(view, data);
-		}
+	render(view, data) {
+		return new Renderer(view, data);
 	}
 
 	get redirect() {
