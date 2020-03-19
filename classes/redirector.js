@@ -1,6 +1,7 @@
 module.exports = class Redirector extends require("./flasher") {
 	constructor() {
 		super();
+		this.hashStr = "";
 	}
 
 	to(routeName, data) {
@@ -18,6 +19,11 @@ module.exports = class Redirector extends require("./flasher") {
 		return this;
 	}
 
+	hash(str) {
+		this.hashStr = `#${str}`;
+		return this;
+	}
+
 	execute(req, res) {
 		//Make sure this works
 		if(!this.setup)
@@ -27,6 +33,10 @@ module.exports = class Redirector extends require("./flasher") {
 		this.flash(req);
 
 		//Redirect
-		res.redirect(this.sendBack ? "back" : res.route(this.route, this.routeData));
+		if(this.sendBack) {
+			res.redirect("back");
+		} else {
+			res.redirect(res.route(this.route, this.routeData) + this.hashStr);
+		}
 	}
 };
