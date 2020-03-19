@@ -1,9 +1,8 @@
-//Import classes
-const App = require("./classes/app");
-const Controller = require("./classes/controller");
-const RouteGroup = require("./classes/routeGroup");
-const Database = require("./classes/database");
-const Container = require("./classes/container");
-
-//Export
-module.exports = {App, Controller, RouteGroup, Database, Container};
+module.exports = {
+	App: require("./classes/app"),
+	Controller: require("./classes/controller"),
+	RouteGroup: require("./classes/routeGroup"),
+	Database: require("./classes/database"),
+	Container: require("./classes/container"),
+	BaseModel: require("./classes/baseModel")
+};
