@@ -1,5 +1,8 @@
 const MiddlewareGroup = require("./middlewareGroup"),
-	  util = require("../util");
+	  util = require("../util"),
+	  _ = require("lodash"),
+	  Redirector = require("./redirector"),
+	  Renderer = require("./renderer");
 
 module.exports = class Route {
 	constructor(method, path, action) {
@@ -98,18 +101,28 @@ module.exports = class Route {
 		//Call the controller method
 		let result = this.actionFn.call(this.actionFn.controller, req, res, ...bindedModels);
 
-		//Make sure the controller is implemented properly
-		if(result) {
-			if(result.then) {
-				//If it returns a promise, await it and then call the response
-				result.then(fn => fn(req, res, next)).catch(next);
-			} else {
-				//Otherwise just call it the response
-				result(req, res, next);
-			}
+		if(result && result.then) {
+			//If it returns a promise, await it and then respond
+			result
+				.then(r => this._respond(r, req, res, next))
+				.catch(next);
 		} else {
-			//Otherwise send back a 501 Not Implemented
-			res.sendStatus(501);
+			//Otherwise, just respond
+			this._respond(result, req, res, next);
+		}
+	}
+
+	_respond(r, req, res, next) {
+		if(_.isNil(r)) {
+			next(new Error(`"${this.actionFn.name}" method not implemented`));
+		} else if(_.isFunction(r.execute)) {
+			r.execute(req, res);
+		} else if(_.isFunction(r)) {
+			r(req, res, next);
+		} else if(_.isInteger(r)) {
+			res.sendStatus(r);
+		} else {
+			res.send(r);
 		}
 	}
 
