@@ -16,13 +16,14 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
-		"express": "^4.16.4",
+		"express": "^4.17.1",
 		"express-validator": "^5.3.1",
-		"knex": "^0.19.5",
-		"mysql2": "^1.6.5",
-		"objection": "^1.6.7",
-		"passport": "^0.4.0",
-		"path-to-regexp": "^3.0.0",
+		"knex": "^0.20.12",
+		"lodash": "^4.17.15",
+		"mysql2": "^1.7.0",
+		"objection": "^1.6.11",
+		"passport": "^0.4.1",
+		"path-to-regexp": "^3.2.0",
 		"require-all": "^3.0.0",
 		"youch": "^2.0.10"
 	}
