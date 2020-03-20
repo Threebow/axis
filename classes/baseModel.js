@@ -18,7 +18,7 @@ class CustomQueryBuilder extends QueryBuilder {
 		return this;
 	}
 
-	latest() {
+	newest() {
 		return this.orderBy(this.modelClass().timestampColumns.created, "DESC");
 	}
 
@@ -73,5 +73,19 @@ module.exports = class BaseModel extends Model {
 		}
 
 		return super.$beforeInsert(query);
+	}
+
+	static get modifiers() {
+		return {
+			newest: (builder) => {
+				builder.newest();
+			},
+			oldest: (builder) => {
+				builder.oldest();
+			},
+			sorted: (builder) => {
+				builder.sorted();
+			}
+		}
 	}
 };
