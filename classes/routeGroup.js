@@ -15,6 +15,7 @@ module.exports = class RouteGroup {
 		this.routes = [];
 		this.middlewareNames = [];
 		this._prefix = "";
+		this._csrf = parent ? parent._csrf : false;
 		this.routeNameCache = new Map();
 	}
 
@@ -28,6 +29,11 @@ module.exports = class RouteGroup {
 		fn(group);
 		this.children.push(group);
 		return group;
+	}
+
+	csrf() {
+		this._csrf = true;
+		return this;
 	}
 
 	/*---------------------------------------------------------------------------
@@ -65,7 +71,7 @@ module.exports = class RouteGroup {
 		});
 
 		//Register actual routes to the sub-router
-		this.routes.forEach(route => route._register(router));
+		this.routes.forEach(route => route._register(router, this._csrf));
 
 		//Apply delayed middleware
 		mwStack.filter(s => s.delayed).forEach(fn => router.use(fn));

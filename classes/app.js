@@ -1,6 +1,8 @@
 const express = require("express"),
 	  requireAll = require("require-all"),
-	  MiddlewareGroup = require("./middlewareGroup");
+	  MiddlewareGroup = require("./middlewareGroup"),
+	  multer = require("multer"),
+	  csurf = require("csurf");
 
 module.exports = function createServer(settings) {
 	let app = express();
@@ -53,6 +55,20 @@ module.exports = function createServer(settings) {
 
 		//Create a new middleware group and add it to the app's middleware stack
 		app.middleware[name] = new MiddlewareGroup(name, settings.middleware[name]);
+	}
+
+	//Setup multer
+	if(settings.multerSettings) {
+		app._multer = multer(settings.multerSettings);
+	}
+
+	//Setup csurf
+	if(settings.csrf) {
+		if(settings.csrf === true) {
+			app._csurf = csurf();
+		} else {
+			app._csurf = csurf(settings.csrf);
+		}
 	}
 
 	//Set stuff up

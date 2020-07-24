@@ -16,11 +16,13 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
+		"csurf": "^1.11.0",
 		"express": "^4.17.1",
 		"express-validator": "^5.3.1",
 		"knex": "^0.20.12",
 		"lodash": "^4.17.15",
 		"moment": "^2.24.0",
+		"multer": "^1.4.2",
 		"mysql2": "^1.7.0",
 		"objection": "^1.6.11",
 		"passport": "^0.4.1",

@@ -45,6 +45,25 @@ module.exports = class Route {
 
 
 	/*---------------------------------------------------------------------------
+		Image uploading, passes to multer
+	---------------------------------------------------------------------------*/
+	uploadSingle(name = "image") {
+		this.upload = {type: "SINGLE", name};
+		return this;
+	}
+
+	uploadArray(name, maxCount) {
+		this.upload = {type: "ARRAY", name, maxCount};
+		return this;
+	}
+
+	uploadFields(fields) {
+		this.upload = {type: "FIELDS", fields};
+		return this;
+	}
+
+
+	/*---------------------------------------------------------------------------
 		Forces this route to validate body properties based on the JSON
 		schema of the provided model
 	---------------------------------------------------------------------------*/
@@ -151,8 +170,34 @@ module.exports = class Route {
 	/*---------------------------------------------------------------------------
 		Registers this route to an Express router
 	---------------------------------------------------------------------------*/
-	_register(router) {
-		//We do this to preserve the this arg
-		router[this.method](this.path, ...MiddlewareGroup.getStack(router.app, this.middlewareNames), this._wrapAction());
+	_register(router, usesCsrf) {
+		let fns = MiddlewareGroup.getStack(router.app, this.middlewareNames);
+
+		//Add upload middleware
+		if(this.upload && router.app._multer) {
+			switch(this.upload.type) {
+				case "SINGLE":
+					fns.push(router.app._multer.single(this.upload.name));
+					break;
+				case "ARRAY":
+					fns.push(router.app._multer.array(this.upload.name, this.upload.maxCount));
+					break;
+				case "FIELDS":
+					fns.push(router.app._multer.fields(this.upload.fields));
+					break;
+			}
+		}
+
+		//Add CSRF protection middleware
+		if(usesCsrf && router.app._csurf) {
+			fns.push(router.app._csurf);
+			fns.push((req, res, next) => {
+				res.locals.csrfToken = req.csrfToken();
+				next();
+			});
+		}
+
+		//Register the route with all the middleware
+		router[this.method](this.path, ...fns, this._wrapAction());
 	}
 };
