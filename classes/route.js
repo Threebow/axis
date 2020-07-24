@@ -1,8 +1,6 @@
 const MiddlewareGroup = require("./middlewareGroup"),
 	  util = require("../util"),
-	  _ = require("lodash"),
-	  Redirector = require("./redirector"),
-	  Renderer = require("./renderer");
+	  _ = require("lodash");
 
 module.exports = class Route {
 	constructor(method, path, action) {
