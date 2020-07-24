@@ -29,6 +29,10 @@ class CustomQueryBuilder extends QueryBuilder {
 	sorted() {
 		return this.orderBy("sort_order");
 	}
+
+	dontExclude(...fields) {
+		return this.modify(this.modelClass().modifiers.dontExclude, fields);
+	}
 }
 
 
@@ -49,6 +53,10 @@ module.exports = class BaseModel extends Model {
 			created: "created_at",
 			updated: "updated_at"
 		}
+	}
+
+	static get excludedFields() {
+		return [];
 	}
 
 	$beforeUpdate(query) {
@@ -75,6 +83,17 @@ module.exports = class BaseModel extends Model {
 		return super.$beforeInsert(query);
 	}
 
+	$afterGet(ctx) {
+		//Exclude certain fields
+		this.constructor.excludedFields.forEach(name => {
+			if(!ctx.dontExclude || !ctx.dontExclude.includes(name)) {
+				delete this[name];
+			}
+		});
+
+		return super.$afterGet(ctx);
+	}
+
 	static get modifiers() {
 		return {
 			newest: (builder) => {
@@ -85,6 +104,11 @@ module.exports = class BaseModel extends Model {
 			},
 			sorted: (builder) => {
 				builder.sorted();
+			},
+			dontExclude: (builder, fields = []) => {
+				builder.mergeContext({
+					dontExclude: fields
+				});
 			}
 		}
 	}
