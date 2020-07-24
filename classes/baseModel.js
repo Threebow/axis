@@ -84,6 +84,14 @@ module.exports = class BaseModel extends Model {
 	}
 
 	$afterGet(ctx) {
+		//Automatically convert booleans fields from ints to actual booleans
+		let props = this.constructor.jsonSchema.properties;
+		for(let i in props) {
+			if(props[i].type === "boolean") {
+				this[i] = Boolean(this[i]);
+			}
+		}
+
 		//Exclude certain fields
 		this.constructor.excludedFields.forEach(name => {
 			if(!ctx.dontExclude || !ctx.dontExclude.includes(name)) {
