@@ -114,7 +114,7 @@ module.exports = class BaseModel extends Model {
 				builder.sorted();
 			},
 			dontExclude: (builder, fields = []) => {
-				builder.mergeContext({
+				builder.context({
 					dontExclude: fields
 				});
 			}
