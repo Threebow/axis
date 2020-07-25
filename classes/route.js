@@ -145,7 +145,7 @@ module.exports = class Route {
 
 	static _resolveBinding(req, {name, model, relations = []}) {
 		let q = model.query();
-		relations.forEach(b => q.eager(b));
+		relations.forEach(b => q.withGraphFetched(b));
 		return q.findOne({
 			[model.idColumn]: req.params[name]
 		}).throwIfNotFound();

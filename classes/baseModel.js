@@ -31,7 +31,7 @@ class CustomQueryBuilder extends QueryBuilder {
 	}
 
 	dontExclude(...fields) {
-		return this.modify(this.modelClass().modifiers.dontExclude, fields);
+		return this.modify("dontExclude", fields);
 	}
 }
 
