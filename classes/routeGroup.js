@@ -44,6 +44,11 @@ module.exports = class RouteGroup {
 		return this;
 	}
 
+	childMiddleware(...names) {
+		this.routes.forEach(route => route.middleware(...names));
+		return this;
+	}
+
 	_addRoute(method, path, fn) {
 		//Create the new route and push it to this group's stack
 		let route = new Route(method, path, fn);
