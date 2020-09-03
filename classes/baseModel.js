@@ -126,7 +126,7 @@ module.exports = class BaseModel extends Model {
 
 				if(instance) {
 					throw new ValidationError({
-						message: "identifier should not be defined before insert",
+						message: `${i}: is already in use`,
 						type: "ModelValidation",
 						data: {
 							[i]: [
