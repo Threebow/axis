@@ -1,5 +1,6 @@
-const {Model, QueryBuilder} = require("objection"),
-	  moment = require("moment");
+const {Model, QueryBuilder, AjvValidator} = require("objection"),
+	  moment = require("moment"),
+	  ajvErrors = require("ajv-errors");
 
 /*---------------------------------------------------------------------------
 	Custom query builder
@@ -42,6 +43,31 @@ class CustomQueryBuilder extends QueryBuilder {
 module.exports = class BaseModel extends Model {
 	static get QueryBuilder() {
 		return CustomQueryBuilder;
+	}
+
+	static createValidator() {
+		return new AjvValidator({
+			onCreateAjv: (ajv) => {
+				return this.onCreateAjv(ajv);
+			},
+			options: this.ajvOptions
+		});
+	}
+
+	static onCreateAjv(ajv) {
+		return ajvErrors(ajv, {
+			singleError: false
+		});
+	}
+
+	static get ajvOptions() {
+		return {
+			allErrors: true,
+			jsonPointers: true,
+			validateSchema: false,
+			ownProperties: true,
+			v5: true
+		}
 	}
 
 	static get timestamps() {
