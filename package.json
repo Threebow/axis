@@ -16,6 +16,7 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
+		"ajv-errors": "^1.0.1",
 		"csurf": "^1.11.0",
 		"express": "^4.17.1",
 		"express-validator": "^5.3.1",
