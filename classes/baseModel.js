@@ -1,4 +1,4 @@
-const {Model, QueryBuilder, AjvValidator} = require("objection"),
+const {Model, QueryBuilder, AjvValidator, ValidationError} = require("objection"),
 	  moment = require("moment"),
 	  ajvErrors = require("ajv-errors");
 
@@ -85,15 +85,19 @@ module.exports = class BaseModel extends Model {
 		return [];
 	}
 
-	$beforeUpdate(query) {
+	async $beforeUpdate(opts, ctx) {
+		await super.$beforeUpdate(opts, ctx);
+
 		if(this.constructor.timestamps && this.constructor.timestampColumns.updated) {
 			this[this.constructor.timestampColumns.updated] = moment().format(process.env.DATETIME_FORMAT);
 		}
 
-		return super.$beforeUpdate(query);
+		await this.checkUnique(opts.old);
 	}
 
-	$beforeInsert(query) {
+	async $beforeInsert(ctx) {
+		await super.$beforeInsert(ctx);
+
 		if(this.constructor.timestamps) {
 			let now = moment().format(process.env.DATETIME_FORMAT);
 
@@ -106,7 +110,39 @@ module.exports = class BaseModel extends Model {
 			}
 		}
 
-		return super.$beforeInsert(query);
+		await this.checkUnique();
+	}
+
+	async checkUnique(old = {}) {
+		let props = this.constructor.jsonSchema.properties;
+
+		for(let i in props) {
+			if(props[i].unique && this[i]) {
+				if(old[i] && old[i] === this[i]) continue;
+
+				let instance = await this.constructor.query()
+					.where({[i]: this[i]})
+					.first();
+
+				if(instance) {
+					throw new ValidationError({
+						message: "identifier should not be defined before insert",
+						type: "ModelValidation",
+						data: {
+							[i]: [
+								{
+									message: "is already in use",
+									keyword: "unique",
+									params: {
+										unique: true
+									}
+								}
+							]
+						}
+					});
+				}
+			}
+		}
 	}
 
 	$afterGet(ctx) {
