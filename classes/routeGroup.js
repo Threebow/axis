@@ -2,7 +2,8 @@ const express = require("express"),
 	  Route = require("./route"),
 	  MiddlewareGroup = require("./middlewareGroup"),
 	  util = require("../util"),
-	  pathToRegexp = require("path-to-regexp");
+	  pathToRegexp = require("path-to-regexp"),
+	  ResourceHelper = require("./resourceHelper");
 
 module.exports = class RouteGroup {
 	constructor(url, fn, parent) {
@@ -17,6 +18,7 @@ module.exports = class RouteGroup {
 		this._prefix = "";
 		this._csrf = parent ? parent._csrf : false;
 		this.routeNameCache = new Map();
+		this.resourceHelpers = [];
 	}
 
 	prefix(prefix) {
@@ -74,6 +76,9 @@ module.exports = class RouteGroup {
 			child.app = this.app;
 			child._register(router);
 		});
+
+		//Register resource routes
+		this.resourceHelpers.forEach(r => r._register(this));
 
 		//Register actual routes to the sub-router
 		this.routes.forEach(route => route._register(router, this._csrf));
@@ -180,5 +185,15 @@ module.exports = class RouteGroup {
 
 	delete(path, fn) {
 		return this._addRoute("delete", path, fn);
+	}
+
+
+	/*---------------------------------------------------------------------------
+		Resource helper
+	---------------------------------------------------------------------------*/
+	resource(path, controller) {
+		let r = new ResourceHelper(path, controller);
+		this.resourceHelpers.push(r);
+		return r;
 	}
 };
