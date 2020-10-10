@@ -28,7 +28,7 @@ module.exports = class ResourceHelper {
 		return this;
 	}
 
-	bind(key, model, relations) {
+	bind(key, model, ...relations) {
 		this.binding = {key, model, relations};
 		return this;
 	}
