@@ -23,4 +23,9 @@ module.exports = class Controller {
 	get redirect() {
 		return new Redirector();
 	}
+
+	async destroy(req, res, model) {
+		await model.$query().delete();
+		return 204;
+	}
 };
