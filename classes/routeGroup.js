@@ -1,24 +1,41 @@
 const express = require("express"),
 	  Route = require("./route"),
-	  MiddlewareGroup = require("./middlewareGroup"),
 	  util = require("../util"),
 	  pathToRegexp = require("path-to-regexp"),
 	  ResourceHelper = require("./resourceHelper");
 
 module.exports = class RouteGroup {
-	constructor(url, fn, parent) {
-		url = util.FormatPathName(url);
+	constructor(path, parent) {
+		this._path = util.FormatPathName(path);
+		this._parent = parent;
 
-		this.url = url;
-		this.fn = fn;
-		this.parent = parent;
-		this.children = [];
-		this.routes = [];
-		this.middlewareNames = [];
 		this._prefix = "";
-		this._csrf = parent ? parent._csrf : false;
-		this.routeNameCache = new Map();
-		this.resourceHelpers = [];
+		this._resourceHelpers = [];
+
+		this._middleware = new Set();
+		this._middlewareArgs = new Map();
+
+		this._children = [];
+		this._routes = [];
+
+		this._routeCache = new Map();
+		this._routeNameCache = new Map();
+
+		//Automatically assign base middleware to the root route group
+		if(!this._parent) {
+			this.middleware("base");
+		}
+	}
+
+
+	/*---------------------------------------------------------------------------
+		Public methods
+	---------------------------------------------------------------------------*/
+	group(path, buildFn) {
+		let group = new RouteGroup(path, this);
+		buildFn(group);
+		this._children.push(group);
+		return group;
 	}
 
 	prefix(prefix) {
@@ -26,146 +43,97 @@ module.exports = class RouteGroup {
 		return this;
 	}
 
-	group(url, fn) {
-		let group = new RouteGroup(url, fn, this);
-		fn(group);
-		this.children.push(group);
-		return group;
-	}
-
-	csrf() {
-		this._csrf = true;
+	middleware(name, args = {}) {
+		this._middleware.add(name);
+		this._middlewareArgs.set(name, args);
 		return this;
 	}
+
+	resource(path, controller) {
+		let r = new ResourceHelper(path, controller);
+		this._resourceHelpers.push(r);
+		return r;
+	}
+
 
 	/*---------------------------------------------------------------------------
-		Applies middleware to each of the routes in the group
+		Internal methods
 	---------------------------------------------------------------------------*/
-	middleware(...names) {
-		this.middlewareNames = names;
-		return this;
-	}
-
-	childMiddleware(...names) {
-		this.routes.forEach(route => route.middleware(...names));
-		return this;
-	}
-
-	_addRoute(method, path, fn) {
+	_addRoute(method, path, actionFn) {
 		//Create the new route and push it to this group's stack
-		let route = new Route(method, path, fn);
-		this.routes.push(route);
-
-		//Clear the route name cache, forcing a rebuild on the next use
-		this.routeNameCache.clear();
+		let route = new Route(method, path, actionFn);
+		this._routes.push(route);
 
 		return route;
 	}
 
-	_register(root) {
-		//Create a new sub-router to represent this route group
-		let router = express.Router();
-		router.app = this.app;
+	_mount(app) {
+		this._app = app;
 
-		//Apply group middleware
-		let mwStack = MiddlewareGroup.getStack(this.app, this.middlewareNames);
-		mwStack.filter(s => !s.delayed).forEach(fn => router.use(fn));
+		if(this._parent) {
+			util.MergeMiddleware(this, this._parent);
+		}
 
-		//Recursively mount each child group assigned to sub-router
-		this.children.forEach(child => {
-			child.app = this.app;
-			child._register(router);
-		});
+		this._resourceHelpers.forEach(r => r._register(this));
+		this._routes.forEach(route => route._mount(this));
+		this._children.forEach(child => child._mount(this._app));
 
-		//Register resource routes
-		this.resourceHelpers.forEach(r => r._register(this));
+		if(!this._parent) {
+			this._buildRouteCache();
+			this._buildRouteNameCache();
 
-		//Register actual routes to the sub-router
-		this.routes.forEach(route => route._register(router, this._csrf));
-
-		//Apply delayed middleware
-		mwStack.filter(s => s.delayed).forEach(fn => router.use(fn));
-
-		//Apply the sub-router to the main router
-		let r = root;
-		r.use(this.url, router);
-		return r;
-	}
-
-	_registerHelperMiddleware(router) {
-		let self = this;
-
-		//Creating a route helper function
-		router.use((req, res, next) => {
-			let routeFn = (...args) => self.getNamedRoutePath(...args);
-
-			res.route = routeFn;
-			res.locals.route = routeFn;
-
-			next();
-		});
-
-		//Dumping the route names into the request's locals
-		router.use((req, res, next) => {
-			if(self.routeNameCache.size < 1) {
-				self.buildRouteNameCache();
+			for(let [path, route] of this._routeCache) {
+				route._root = this;
 			}
-
-			let obj = {};
-			self.routeNameCache.forEach((v, k) => obj[k] = v);
-
-			res.locals.routeNameCache = obj;
-			next();
-		});
+		}
 	}
 
-
-	/*---------------------------------------------------------------------------
-		Prints out the routes of this with their names
-	---------------------------------------------------------------------------*/
-	buildRouteNameCache(prefix = "", url = "", cache = this.routeNameCache) {
+	_buildRouteCache(prefix = "", path = "", cache = this._routeCache) {
 		//First add the group's prefix to the name string
 		prefix += this._prefix;
-		url += this.url;
+		path += this._path;
 
 		//Add each named route to the cache
-		this.routes.forEach(route => {
-			if(route._name) cache.set(prefix + route._name, (url + route.path).replace(/(\/)\1/gi, "/"));
+		this._routes.forEach(route => {
+			route._fullPath = (path + route._path).replace(/(\/)\1/gi, "/");
+			cache.set(route.fullPathWithMethod, route);
+
+			if(route._name) route._fullName = prefix + route._name;
 		});
 
 		//Build upon this cache for all children
-		this.children.forEach(group => {
-			group.buildRouteNameCache(prefix, url, cache);
+		this._children.forEach(group => {
+			group._buildRouteCache(prefix, path, cache);
+		});
+	}
+
+	_buildRouteNameCache() {
+		this._routeNameCache.clear();
+
+		this._routeCache.forEach(route => {
+			if(route._fullName) {
+				this._routeNameCache.set(route._fullName, {
+					fullPath: route._fullPath,
+					render: pathToRegexp.compile(route._fullPath)
+				});
+			}
 		});
 	}
 
 
 	/*---------------------------------------------------------------------------
-		Gets a route path by name
+		Parses a route name
 	---------------------------------------------------------------------------*/
 	getNamedRoutePath(name, params) {
-		//Build the route cache if the name doesn't appear to exist
-		if(!this.routeNameCache.has(name)) {
-			this.buildRouteNameCache();
+		let path = this._routeNameCache.get(name);
+		if(!path) throw new Error(`A route named "${name}" does not exist.`);
 
-			//If it still doesnt exist after building, that must mean that the route does not exist, so throw an error.
-			if(!this.routeNameCache.has(name)) {
-				throw new Error(`A route named '${name}' does not exist.`);
-			}
-		}
-
-		//Return the plain path if there are no arguments
-		let path = this.routeNameCache.get(name);
-		if(!params) return path;
-
-		//Compile the path with the given parameters if they are given
-		let compiled = pathToRegexp.compile(path);
-		return compiled(params);
+		return params ? path.render(params) : path.fullPath;
 	}
 
 
 	/*---------------------------------------------------------------------------
-		Defining methods
+		Request methods
 	---------------------------------------------------------------------------*/
 	get(path, fn) {
 		return this._addRoute("get", path, fn);
@@ -185,15 +153,5 @@ module.exports = class RouteGroup {
 
 	delete(path, fn) {
 		return this._addRoute("delete", path, fn);
-	}
-
-
-	/*---------------------------------------------------------------------------
-		Resource helper
-	---------------------------------------------------------------------------*/
-	resource(path, controller) {
-		let r = new ResourceHelper(path, controller);
-		this.resourceHelpers.push(r);
-		return r;
 	}
 };

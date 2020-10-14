@@ -17,6 +17,7 @@
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
 		"ajv-errors": "^1.0.1",
+		"body-parser": "^1.19.0",
 		"csurf": "^1.11.0",
 		"express": "^4.17.1",
 		"express-validator": "^5.3.1",
@@ -28,6 +29,7 @@
 		"objection": "^2.2.1",
 		"passport": "^0.4.1",
 		"path-to-regexp": "^3.2.0",
+		"pug": "^3.0.0",
 		"require-all": "^3.0.0",
 		"youch": "^2.0.10"
 	}

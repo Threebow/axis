@@ -1,25 +1,25 @@
-const MiddlewareGroup = require("./middlewareGroup"),
-	  util = require("../util"),
+const util = require("../util"),
 	  _ = require("lodash");
 
 module.exports = class Route {
-	constructor(method, path, action) {
-		path = util.FormatPathName(path);
-
-		this.method = method;
-		this.path = path;
-		this.actionFn = action;
-		this.bindings = [];
-		this.middlewareNames = [];
+	constructor(method, path, actionFn) {
+		this._method = method.toUpperCase();
+		this._path = util.FormatPathName(path);
+		this._actionFn = actionFn;
 		this._name = "";
+
+		this._middleware = new Set();
+		this._middlewareArgs = new Map();
+
+		this._bindings = [];
 	}
 
 	/*---------------------------------------------------------------------------
 		Allows you to tie a model to a parameter in the route, giving it
 		to the controller as an argument
 	---------------------------------------------------------------------------*/
-	bind(name, model, ...relations) {
-		this.bindings.push({name, model, relations});
+	bind(name, model, relation) {
+		this._bindings.push({name, model, relation});
 		return this;
 	}
 
@@ -36,8 +36,9 @@ module.exports = class Route {
 	/*---------------------------------------------------------------------------
 		Applies middleware to this route
 	---------------------------------------------------------------------------*/
-	middleware(...names) {
-		this.middlewareNames = names;
+	middleware(name, args = {}) {
+		this._middleware.add(name);
+		this._middlewareArgs.set(name, args);
 		return this;
 	}
 
@@ -46,17 +47,17 @@ module.exports = class Route {
 		Image uploading, passes to multer
 	---------------------------------------------------------------------------*/
 	uploadSingle(name = "image") {
-		this.upload = {type: "SINGLE", name};
+		this._upload = {type: "SINGLE", name};
 		return this;
 	}
 
 	uploadArray(name, maxCount) {
-		this.upload = {type: "ARRAY", name, maxCount};
+		this._upload = {type: "ARRAY", name, maxCount};
 		return this;
 	}
 
 	uploadFields(fields) {
-		this.upload = {type: "FIELDS", fields};
+		this._upload = {type: "FIELDS", fields};
 		return this;
 	}
 
@@ -66,7 +67,7 @@ module.exports = class Route {
 		schema of the provided model
 	---------------------------------------------------------------------------*/
 	validate(model, fields = []) {
-		this.validation = {model, fields};
+		this._validation = {model, fields};
 		return this;
 	}
 
@@ -75,21 +76,10 @@ module.exports = class Route {
 		Function that is called by express, this handles wrapping
 		bindings and calling the controller method internally.
 	---------------------------------------------------------------------------*/
-	async _action(req, res, next) {
-		let bindedModels = [];
-
-		if(Object.keys(this.bindings).length > 0) {
-			for(let i = 0; i < this.bindings.length; i++) {
-				let binding = this.bindings[i];
-				let model = await Route._resolveBinding(req, binding);
-				//TODO: return 404 if model isn't there
-				bindedModels.push(model);
-			}
-		}
-
+	async _execute(req, res) {
 		//Validation
-		if(this.validation) {
-			let {model, fields} = this.validation;
+		if(this._validation) {
+			let {model, fields} = this._validation;
 
 			let obj = {};
 
@@ -105,10 +95,7 @@ module.exports = class Route {
 
 			for(let i in obj) {
 				if(!obj.hasOwnProperty(i)) continue;
-
-				if(typeof obj[i] === "undefined") {
-					delete obj[i];
-				}
+				if(_.isUndefined(obj[i])) delete obj[i];
 			}
 
 			//Trigger validation
@@ -116,51 +103,21 @@ module.exports = class Route {
 		}
 
 		//Call the controller method
-		let result = this.actionFn.call(this.actionFn.controller, req, res, ...bindedModels);
-
-		if(result && result.then) {
-			//If it returns a promise, await it and then respond
-			result
-				.then(r => this._respond(r, req, res, next))
-				.catch(next);
-		} else {
-			//Otherwise, just respond
-			this._respond(result, req, res, next);
-		}
+		let result = await this._actionFn.call(this._actionFn.controller, req, res, ...req.boundModels);
+		return await this._respond(result, req, res);
 	}
 
-	_respond(r, req, res, next) {
+	_respond(r, req, res) {
 		if(_.isNil(r)) {
-			next(new Error(`"${this.actionFn.name}" method not implemented`));
+			throw new Error(`"${this._actionFn.name}" method not implemented`);
 		} else if(_.isFunction(r.execute)) {
-			r.execute(req, res);
+			return r.execute(req, res);
 		} else if(_.isFunction(r)) {
-			r(req, res, next);
+			return util.WrapMiddleware(r, req._raw, res._raw);
 		} else if(_.isInteger(r)) {
-			res.sendStatus(r);
+			return res.sendStatus(r);
 		} else {
-			res.send(r);
-		}
-	}
-
-	static _resolveBinding(req, {name, model, relations = []}) {
-		let q = model.query();
-		relations.forEach(b => q.withGraphFetched(b));
-		return q.findOne({
-			[model.idColumn]: req.params[name]
-		}).throwIfNotFound();
-	}
-
-
-	/*---------------------------------------------------------------------------
-		Wraps an async route function to allow proper error handling
-	---------------------------------------------------------------------------*/
-	_wrapAction() {
-		let fn = (...args) => this._action(...args);
-
-		return (req, res, next) => {
-			let result = fn(req, res, next);
-			if(result && result.catch) result.catch(next);
+			return res.send(r);
 		}
 	}
 
@@ -168,34 +125,43 @@ module.exports = class Route {
 	/*---------------------------------------------------------------------------
 		Registers this route to an Express router
 	---------------------------------------------------------------------------*/
-	_register(router, usesCsrf) {
-		let fns = MiddlewareGroup.getStack(router.app, this.middlewareNames);
+	_mount(group) {
+		util.MergeMiddleware(this, group);
+
+		//Merge middleware
+
+
+		// let fns = MiddlewareGroup.getStack(router.app, this.middlewareNames);
 
 		//Add upload middleware
-		if(this.upload && router.app._multer) {
-			switch(this.upload.type) {
-				case "SINGLE":
-					fns.push(router.app._multer.single(this.upload.name));
-					break;
-				case "ARRAY":
-					fns.push(router.app._multer.array(this.upload.name, this.upload.maxCount));
-					break;
-				case "FIELDS":
-					fns.push(router.app._multer.fields(this.upload.fields));
-					break;
-			}
-		}
+		// if(this.upload && router.app._multer) {
+		// 	switch(this.upload.type) {
+		// 		case "SINGLE":
+		// 			fns.push(router.app._multer.single(this.upload.name));
+		// 			break;
+		// 		case "ARRAY":
+		// 			fns.push(router.app._multer.array(this.upload.name, this.upload.maxCount));
+		// 			break;
+		// 		case "FIELDS":
+		// 			fns.push(router.app._multer.fields(this.upload.fields));
+		// 			break;
+		// 	}
+		// }
 
 		//Add CSRF protection middleware
-		if(usesCsrf && router.app._csurf) {
-			fns.push(router.app._csurf);
-			fns.push((req, res, next) => {
-				res.locals.csrfToken = req.csrfToken();
-				next();
-			});
-		}
+		// if(usesCsrf && router.app._csurf) {
+		// 	fns.push(router.app._csurf);
+		// 	fns.push((req, res, next) => {
+		// 		res.locals.csrfToken = req.csrfToken();
+		// 		next();
+		// 	});
+		// }
 
 		//Register the route with all the middleware
-		router[this.method](this.path, ...fns, this._wrapAction());
+		// router[this.method](this.path, ...fns, this._wrapAction());
+	}
+
+	get fullPathWithMethod() {
+		return `${this._method} ${this._fullPath}`;
 	}
 };
