@@ -147,7 +147,7 @@ module.exports = class Route {
 		let q = model.query();
 		relations.forEach(b => q.withGraphFetched(b));
 		return q.findOne({
-			[model.idColumn]: req.params[name]
+			[model.idColumn]: _.isUndefined(req.params[name]) ? null : req.params[name]
 		}).throwIfNotFound();
 	}
 
