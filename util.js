@@ -17,3 +17,17 @@ module.exports.ResolveRoute = (name, params) => {
 	let compiled = pathToRegexp.compile(path);
 	return compiled(params);
 };
+
+module.exports.WrapAsyncFunction = (fn) => {
+	return async function(...args) {
+		let next = args[args.length - 1];
+
+		try {
+			let promise = fn(...args);
+			if(promise && promise.then && promise.catch)
+				await promise;
+		} catch(e) {
+			return next(e);
+		}
+	};
+};

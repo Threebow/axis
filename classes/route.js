@@ -117,16 +117,8 @@ module.exports = class Route {
 
 		//Call the controller method
 		let result = this.actionFn.call(this.actionFn.controller, req, res, ...bindedModels);
-
-		if(result && result.then) {
-			//If it returns a promise, await it and then respond
-			result
-				.then(r => this._respond(r, req, res, next))
-				.catch(next);
-		} else {
-			//Otherwise, just respond
-			this._respond(result, req, res, next);
-		}
+		let resolved = await Promise.resolve(result);
+		this._respond(resolved, req, res, next);
 	}
 
 	_respond(r, req, res, next) {
@@ -149,19 +141,6 @@ module.exports = class Route {
 		return q.findOne({
 			[model.idColumn]: _.isUndefined(req.params[name]) ? null : req.params[name]
 		}).throwIfNotFound();
-	}
-
-
-	/*---------------------------------------------------------------------------
-		Wraps an async route function to allow proper error handling
-	---------------------------------------------------------------------------*/
-	_wrapAction() {
-		let fn = (...args) => this._action(...args);
-
-		return (req, res, next) => {
-			let result = fn(req, res, next);
-			if(result && result.catch) result.catch(next);
-		}
 	}
 
 
@@ -196,6 +175,7 @@ module.exports = class Route {
 		}
 
 		//Register the route with all the middleware
-		router[this.method](this.path, ...fns, this._wrapAction());
+		let actionFn = (...args) => this._action(...args);
+		router[this.method](this.path, ...fns, util.WrapAsyncFunction(actionFn));
 	}
 };

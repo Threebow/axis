@@ -1,3 +1,5 @@
+const Util = require("../util");
+
 module.exports = class MiddlewareGroup {
 	constructor(name, members) {
 		this.name = name;
@@ -15,14 +17,7 @@ module.exports = class MiddlewareGroup {
 				continue;
 			}
 
-			ret.push(async (req, res, next) => {
-				try {
-					let promise = fn(req, res, next);
-					if(promise && promise.then && promise.catch) await promise;
-				} catch(e) {
-					next(e);
-				}
-			});
+			ret.push(Util.WrapAsyncFunction(fn));
 		}
 
 		return ret;
