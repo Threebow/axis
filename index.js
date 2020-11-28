@@ -4,5 +4,6 @@ module.exports = {
 	RouteGroup: require("./classes/routeGroup"),
 	Database: require("./classes/database"),
 	Container: require("./classes/container"),
-	BaseModel: require("./classes/baseModel")
+	BaseModel: require("./classes/baseModel"),
+	Util: require("./util")
 };
