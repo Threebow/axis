@@ -1,4 +1,5 @@
 const MiddlewareGroup = require("./middlewareGroup"),
+	  StatusHandler   = require("./statusHandler"),
 	  util            = require("../util"),
 	  _               = require("lodash");
 
@@ -129,7 +130,8 @@ module.exports = class Route {
 		} else if(_.isFunction(r)) {
 			r(req, res, next);
 		} else if(_.isInteger(r)) {
-			res.sendStatus(r);
+			let handler = new StatusHandler(r);
+			handler.execute(req, res);
 		} else {
 			res.send(r);
 		}
