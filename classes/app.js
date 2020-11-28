@@ -1,8 +1,8 @@
-const express = require("express"),
-	  requireAll = require("require-all"),
+const express         = require("express"),
+	  requireAll      = require("require-all"),
 	  MiddlewareGroup = require("./middlewareGroup"),
-	  multer = require("multer"),
-	  csurf = require("csurf");
+	  multer          = require("multer"),
+	  csurf           = require("csurf");
 
 module.exports = function createServer(settings) {
 	let app = express();
