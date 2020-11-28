@@ -2,7 +2,9 @@ const express         = require("express"),
 	  requireAll      = require("require-all"),
 	  MiddlewareGroup = require("./middlewareGroup"),
 	  multer          = require("multer"),
-	  csurf           = require("csurf");
+	  csurf           = require("csurf"),
+	  HTTPError       = require("http-errors"),
+	  _               = require("lodash");
 
 module.exports = function createServer(settings) {
 	let app = express();
@@ -48,6 +50,11 @@ module.exports = function createServer(settings) {
 		throw new Error("App does not have a database assigned to it!");
 	}
 
+	//Ensure error handlers are present
+	if(!settings.handlers || !_.isFunction(settings.handlers.applicationError) || !_.isFunction(settings.handlers.httpError)) {
+		throw new Error("The 'applicationError' and 'httpError' handler functions are not defined!");
+	}
+
 	//Load middleware
 	app.middleware = {};
 	for(let name in settings.middleware || {}) {
@@ -74,6 +81,30 @@ module.exports = function createServer(settings) {
 	//Set stuff up
 	app.setControllers(settings.controllers);
 	settings.routers.forEach(r => app.addRouter(r));
+
+	//Trigger a 404 error
+	app.use((req, res, next) => {
+		next(new HTTPError.NotFound());
+	});
+
+	//Handle general errors
+	app.use((err, req, res, next) => {
+		if(HTTPError.isHttpError(err)) {
+			next(err);
+		} else {
+			settings.handlers.applicationError(err, req, res);
+		}
+	});
+
+	//Handle HTTP errors specifically
+	app.use((err, req, res, next) => {
+		if(HTTPError.isHttpError(err)) {
+			settings.handlers.httpError(err, req, res);
+		} else {
+			console.log("Final error handler did not receive an HTTP error!");
+			next(err);
+		}
+	});
 
 	return app;
 };
