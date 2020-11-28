@@ -1,3 +1,5 @@
+const createError = require("http-errors");
+
 module.exports = class StatusHandler extends require("./flasher") {
 	constructor(code) {
 		super();
@@ -13,7 +15,12 @@ module.exports = class StatusHandler extends require("./flasher") {
 		//Apply flash messages
 		this.flash(req);
 
-		//Send the HTTP status
+		//Create an HTTP error for error codes
+		if(this.code >= 400 && this.code < 600) {
+			throw createError(this.code, this.data ?? undefined);
+		}
+
+		//Send status code back
 		if(this.data) {
 			res.status(this.code).send(this.data);
 		} else {
