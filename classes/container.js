@@ -1,61 +1,61 @@
+const STATE_UNINITIALIZED = 0;
+const STATE_INITIALIZING = 1;
+const STATE_INITIALIZED = 2;
+
 module.exports = class Container {
 	constructor() {
-		this.factories = [];
-		this.providers = [];
-		this.services = {};
+		this._factories = new Map();
+		this._instances = new Map();
+
+		this._state = STATE_UNINITIALIZED;
 	}
 
-	//Register providers to be setup after the app and whatever is initialized
+	_mount(app) {
+		this._app = app;
+	}
+
+	async _initialize() {
+		if(this._state !== STATE_UNINITIALIZED) {
+			throw new Error("Service container already initialized.");
+		}
+
+		this._state = STATE_INITIALIZING;
+
+		for(let [name, fn] of this._factories) {
+			let instance = await Promise.resolve(fn(this._app, this));
+			this._instances.set(name, instance);
+		}
+
+		this._state = STATE_INITIALIZED;
+	}
+
 	service(name, fn) {
-		this.factories.push({name, fn, type: "service"});
-		return this;
+		this._factories.set(name, fn);
 	}
 
-	//Register something that modifies the app but doesn't actually return anything
-	functionality(fn) {
-		this.factories.push({fn, type: "functionality"});
-		return this;
-	}
+	attach(obj) {
+		if(this._state !== STATE_INITIALIZED) {
+			throw new Error("Trying to attach uninitialized service container.");
+		}
 
-	//Runs all of the factories in order after they have been created
-	initialize() {
-		for(let i = 0; i < this.factories.length; i++) {
-			const {name, fn, type} = this.factories[i];
-
-			//Don't do anything if all it does is change the app instance and doesn't return anything
-			if(type === "functionality") {
-				fn(this.app, this);
-				continue;
-			}
-
-			//Call the factory to get the provider
-			let provider = fn(this.app, this);
-
-			//Register and attach the provider
-			let obj = {provider, name};
-			this.providers.push(obj);
-			this.attach(this, obj);
+		for(let name of this._instances.keys()) {
+			Object.defineProperty(obj, name, {
+				get: () => this._instances.get(name),
+				configurable: true,
+				enumerable: true
+			});
 		}
 	}
 
-	attach(obj, {provider, name}) {
-		//Now call the provider method via getter when you access the name on the container
-		Object.defineProperty(obj, name, {
-			get: () => {
-				if(!this.services.hasOwnProperty(name)) {
-					this.services[name] = provider;
-				}
-
-				return this.services[name];
-			},
-			configurable: true,
-			enumerable: true
-		});
+	get database() {
+		return this._instances.get("Database");
 	}
 
-	attachAll(obj) {
-		for(let i = 0; i < this.providers.length; i++) {
-			this.attach(obj, this.providers[i]);
-		}
+	get cache() {
+		return this._instances.get("Cache");
+	}
+
+	get disk() {
+		return this._instances.get("Disk");
 	}
 };

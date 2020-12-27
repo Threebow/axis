@@ -1,29 +1,6 @@
-const Redirector = require("./redirector"),
-	  Renderer = require("./renderer"),
-	  StatusHandler = require("./statusHandler");
+const Responder = require("./responder");
 
-module.exports = class Controller {
-	constructor(app) {
-		this.models = app._database.models;
-	}
-
-	render(view, data = {}) {
-		return new Renderer(view, data);
-	}
-
-	status(code) {
-		return new StatusHandler(code);
-	}
-
-	send(data) {
-		return new StatusHandler(200)
-			.send(data);
-	}
-
-	get redirect() {
-		return new Redirector();
-	}
-
+module.exports = class Controller extends Responder {
 	async destroy(req, res, model) {
 		await model.$query().delete();
 		return 204;

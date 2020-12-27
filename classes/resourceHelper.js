@@ -11,11 +11,12 @@ const METHODS = {
 const METHOD_KEYS = Object.keys(METHODS);
 
 module.exports = class ResourceHelper {
-	constructor(path, controller) {
+	constructor(path, controller, parent) {
 		this.path = path;
 		this.controller = controller;
 		this.enabledMethods = METHOD_KEYS;
 		this.modifiers = {};
+		this._parent = parent;
 	}
 
 	only(...arr) {
@@ -28,8 +29,8 @@ module.exports = class ResourceHelper {
 		return this;
 	}
 
-	bind(key, model, ...relations) {
-		this.binding = {key, model, relations};
+	bind(key, model) {
+		this.binding = {key, model};
 		return this;
 	}
 
@@ -38,7 +39,7 @@ module.exports = class ResourceHelper {
 		return this;
 	}
 
-	_register(group) {
+	_mount() {
 		if(!this.binding) throw new Error("Axis resource must have a model binding");
 
 		for(let i = 0; i < this.enabledMethods.length; i++) {
@@ -50,11 +51,11 @@ module.exports = class ResourceHelper {
 			let routePath = (def.bind ? `${this.path}:${this.binding.key}` : this.path);
 			routePath += (routePath.endsWith("/") ? "" : "/") + (def.suffix ? def.suffix : "");
 
-			let route = group[def.method](routePath, this.controller[methodName]).name(methodName);
+			let route = this._parent[def.method](routePath, this.controller[methodName]).name(methodName);
 
 			let modifier = this.modifiers[methodName];
 			if(modifier) modifier(route);
-			if(def.bind) route.bind(this.binding.key, this.binding.model, this.binding.relations);
+			if(def.bind) route.bind(this.binding.key, this.binding.model);
 		}
 	}
 };

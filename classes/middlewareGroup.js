@@ -1,37 +1,38 @@
-const Util = require("../util");
+const Middleware = require("./middleware");
 
 module.exports = class MiddlewareGroup {
-	constructor(name, members) {
-		this.name = name;
-		this.members = members;
+	constructor(name, middleware, app) {
+		this._name = name;
+		this._app = app;
+
+		this._mountMiddleware(middleware);
 	}
 
-	static _wrapMiddleware(arr) {
-		let ret = [];
+	_mountMiddleware(arr = []) {
+		this._middleware = [];
 
 		for(let i = 0; i < arr.length; i++) {
-			let fn = arr[i];
+			let mw = arr[i];
 
-			if(fn.length === 4) {
-				ret.push(fn);
-				continue;
+			if(!mw || !(mw.prototype instanceof Middleware)) {
+				throw new Error(`Middleware at index "${i}" passed to middleware group "${this._name}" is invalid.`);
 			}
 
-			ret.push(Util.WrapAsyncFunction(fn));
+			let instance = new mw(this._app);
+			this._middleware.push(instance);
 		}
-
-		return ret;
 	}
 
-	static getStack(app, groupNames) {
-		let fns = [];
+	async run(...args) {
+		if(!this._middleware) {
+			throw new Error(`Middleware group "${this._name}" has not yet had middleware mounted.`);
+		}
 
-		groupNames.forEach(name => {
-			let group = app.middleware[name];
-			if(!group) throw new Error(`Trying to use non-existant middleware '${name}'`);
-			fns.push(...group.members);
-		});
+		for(let i = 0; i < this._middleware.length; i++) {
+			let success = await this._middleware[i].execute(...args);
+			if(!success) return false;
+		}
 
-		return this._wrapMiddleware(fns);
+		return true;
 	}
 };

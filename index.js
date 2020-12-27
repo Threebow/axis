@@ -5,5 +5,7 @@ module.exports = {
 	Database: require("./classes/database"),
 	Container: require("./classes/container"),
 	BaseModel: require("./classes/baseModel"),
+	Middleware: require("./classes/middleware"),
+	StorageDisk: require("./classes/storageDisk"),
 	Util: require("./util")
 };

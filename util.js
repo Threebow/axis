@@ -1,4 +1,5 @@
-const pathToRegexp = require("path-to-regexp");
+const pathToRegexp = require("path-to-regexp"),
+	  crypto       = require("crypto");
 
 /*---------------------------------------------------------------------------
 	Make sure our route names always start with a slash internally
@@ -23,11 +24,18 @@ module.exports.WrapAsyncFunction = (fn) => {
 		let next = args[args.length - 1];
 
 		try {
-			let promise = fn(...args);
-			if(promise && promise.then && promise.catch)
-				await promise;
+			await Promise.resolve(fn(...args));
 		} catch(e) {
 			return next(e);
 		}
 	};
+};
+
+module.exports.GenerateID = (length = 32) => {
+	return new Promise((resolve, reject) => {
+		crypto.randomBytes(length / 2, (err, buffer) => {
+			if(err) return reject(err);
+			resolve(buffer.toString("hex"));
+		});
+	});
 };
