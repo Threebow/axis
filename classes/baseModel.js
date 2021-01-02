@@ -180,6 +180,14 @@ module.exports = class BaseModel extends Model {
 					dontExclude: fields
 				});
 			}
+		};
+	}
+
+	static async updateOrder(ids) {
+		for(let i = 0; i < ids.length; i++) {
+			await this.query()
+				.findById(ids[i])
+				.patch({sort_order: i + 1});
 		}
 	}
 };
