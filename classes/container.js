@@ -1,3 +1,5 @@
+const ContainerProxy = require("./containerProxy");
+
 const STATE_UNINITIALIZED = 0;
 const STATE_INITIALIZING = 1;
 const STATE_INITIALIZED = 2;
@@ -21,8 +23,10 @@ module.exports = class Container {
 
 		this._state = STATE_INITIALIZING;
 
+		let proxy = new ContainerProxy(this);
+
 		for(let [name, fn] of this._factories) {
-			let instance = await Promise.resolve(fn(this._app, this));
+			let instance = await Promise.resolve(fn(this._app, proxy));
 			this._instances.set(name, instance);
 		}
 
@@ -31,20 +35,6 @@ module.exports = class Container {
 
 	service(name, fn) {
 		this._factories.set(name, fn);
-	}
-
-	attach(obj) {
-		if(this._state !== STATE_INITIALIZED) {
-			throw new Error("Trying to attach uninitialized service container.");
-		}
-
-		for(let name of this._instances.keys()) {
-			Object.defineProperty(obj, name, {
-				get: () => this._instances.get(name),
-				configurable: true,
-				enumerable: true
-			});
-		}
 	}
 
 	get database() {
