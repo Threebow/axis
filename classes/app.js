@@ -75,8 +75,8 @@ module.exports = class App extends EventEmitter {
 		this._express.use((req, res, next) => {
 			req.handler = this._routers[0]._routes[0]._requestHandler;
 
-			this._middleware.get("base")
-				.run(req, res, [])
+			req.handler
+				._runMiddleware(req, res)
 				.then(success => {
 					if(success) {
 						next(new HTTPError.NotFound());
