@@ -16,6 +16,7 @@
 	},
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
+		"@sentry/node": "^5.29.2",
 		"ajv-errors": "^1.0.1",
 		"connect-redis": "^5.0.0",
 		"csurf": "^1.11.0",
@@ -32,6 +33,7 @@
 		"multer": "^1.4.2",
 		"mysql2": "^2.2.5",
 		"objection": "^2.2.3",
+		"ouch": "^2.0.0",
 		"passport": "^0.4.1",
 		"path-to-regexp": "^3.2.0",
 		"pngquant": "^3.1.0",
@@ -39,6 +41,6 @@
 		"redis": "^3.0.2",
 		"require-all": "^3.0.0",
 		"sharp": "^0.27.0",
-		"youch": "^2.0.10"
+		"stringcase": "^4.3.1"
 	}
 }

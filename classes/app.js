@@ -1,9 +1,11 @@
-const express         = require("express"),
-	  requireAll      = require("require-all"),
-	  MiddlewareGroup = require("./middlewareGroup"),
+const MiddlewareGroup = require("./middlewareGroup"),
 	  {EventEmitter}  = require("events"),
+	  ErrorHandler    = require("./errorHandler"),
+	  requireAll      = require("require-all"),
 	  HTTPError       = require("http-errors"),
 	  Container       = require("./container"),
+	  express         = require("express"),
+	  Sentry          = require("@sentry/node"),
 	  morgan          = require("morgan"),
 	  util            = require("util"),
 	  http            = require("http"),
@@ -15,6 +17,7 @@ const express         = require("express"),
 	Constants
 ---------------------------------------------------------------------------*/
 const BASE_MIDDLEWARE = [
+	require("../middleware/helper"),
 	require("../middleware/routing"),
 	require("../middleware/session"),
 	require("../middleware/flash"),
@@ -65,35 +68,43 @@ module.exports = class App extends EventEmitter {
 	}
 
 	_registerErrorHandlers() {
-		let appErrorHandler = this._errorHandlers.applicationError;
-		let httpErrorHandler = this._errorHandlers.httpError;
-
-		if(!_.isFunction(appErrorHandler)) {
-			throw new Error("The provided 'applicationError' handler is not a valid function.");
-		}
-
-		if(!_.isFunction(httpErrorHandler)) {
-			throw new Error("The provided 'httpError' handler is not a valid function.");
-		}
+		let appErrorHandler = ErrorHandler.initFrom(this._errorHandlers.applicationError, this);
+		let httpErrorHandler = ErrorHandler.initFrom(this._errorHandlers.httpError, this);
 
 		//Delegate not found pages to our actual error handler
 		this._express.use((req, res, next) => {
-			next(new HTTPError.NotFound());
+			req.handler = this._routers[0]._routes[0]._requestHandler;
+
+			this._middleware.get("base")
+				.run(req, res, [])
+				.then(success => {
+					if(success) {
+						next(new HTTPError.NotFound());
+					}
+				})
+				.catch(next);
 		});
 
 		//Handle explicitly non-HTTP errors, this handler should always throw an HTTP error from within it
 		this._express.use((err, req, res, next) => {
-			if(HTTPError.isHttpError(err)) return next(err);
-			appErrorHandler(err, req, res);
+			if(HTTPError.isHttpError(err))
+				return next(err);
+
+			appErrorHandler
+				.execute(err, req, res)
+				.then(() => next(HTTPError(500, err, {message: "Application error handler did not throw an HTTP error"})))
+				.catch(next);
 		});
+
+		this._express.use(Sentry.Handlers.errorHandler());
 
 		//Handle all HTTP errors
 		this._express.use((err, req, res, next) => {
 			if(HTTPError.isHttpError(err)) {
-				httpErrorHandler(err, req, res);
+				httpErrorHandler
+					.execute(err, req, res)
+					.catch(next);
 			} else {
-				//TODO: throw this log as an actual error
-				console.log("Final error handler did not receive an HTTP error!");
 				next(err);
 			}
 		});
@@ -117,12 +128,16 @@ module.exports = class App extends EventEmitter {
 	}
 
 	_registerRouters() {
+		this._routers = [];
+
 		for(let i = 0; i < this._routerFactories.length; i++) {
 			let fn = this._routerFactories[i];
 
 			let router = fn(this._controllers, this._container.database.models);
 			router.prependMiddleware("base");
 			router._mount(this);
+
+			this._routers.push(router);
 		}
 	}
 
@@ -131,8 +146,9 @@ module.exports = class App extends EventEmitter {
 
 		this._express.enable("trust proxy");
 
-		this._express.use(express.urlencoded(this._expressOptions?.bodyParser?.urlencoded ?? DEFAULT_BODYPARSER_URLENCODED_SETTINGS));
-		this._express.use(express.json(this._expressOptions?.bodyParser?.json ?? DEFAULT_BODYPARSER_JSON_SETTINGS));
+		this._express.use(Sentry.Handlers.requestHandler(this._expressOptions.sentry?.requestHandlerOptions ?? {}));
+		this._express.use(express.urlencoded(this._expressOptions.bodyParser?.urlencoded ?? DEFAULT_BODYPARSER_URLENCODED_SETTINGS));
+		this._express.use(express.json(this._expressOptions.bodyParser?.json ?? DEFAULT_BODYPARSER_JSON_SETTINGS));
 
 		if(this._expressOptions.logging) {
 			this._express.use(morgan("tiny"));
