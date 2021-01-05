@@ -11,10 +11,12 @@ module.exports = class MiddlewareHolder {
 	---------------------------------------------------------------------------*/
 	middleware(...expressions) {
 		this._assignMiddleware(expressions);
+		return this;
 	}
 
 	prependMiddleware(...expressions) {
 		this._assignMiddleware(expressions, true);
+		return this;
 	}
 
 	/*---------------------------------------------------------------------------
