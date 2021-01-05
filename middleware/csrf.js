@@ -4,11 +4,16 @@ const Middleware = require("../classes/middleware"),
 module.exports = class CSRFMiddleware extends Middleware {
 	constructor(...args) {
 		super(...args);
-		this._csurf = Middleware.promisifyExpressMiddleware(csurf());
+
+		if(this._app._expressOptions.csrf) {
+			this._csurf = Middleware.promisifyExpressMiddleware(csurf());
+		}
 	}
 
 	async run(req, res) {
-		await this._csurf(req, res);
-		res.locals.csrfToken = req.csrfToken();
+		if(this._csurf) {
+			await this._csurf(req, res);
+			res.locals.csrfToken = req.csrfToken();
+		}
 	}
 };
