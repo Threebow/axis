@@ -1,6 +1,7 @@
 module.exports = {
 	App: require("./classes/app"),
 	Controller: require("./classes/controller"),
+	ErrorHandler: require("./classes/errorHandler"),
 	RouteGroup: require("./classes/routeGroup"),
 	Database: require("./classes/database"),
 	Container: require("./classes/container"),
