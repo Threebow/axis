@@ -7,7 +7,7 @@ module.exports = class Middleware extends Responder {
 			throw new Error(`Middleware "${this.constructor.name}" has no run method`);
 		}
 
-		let result = await Promise.resolve(this.run(req, res, ...[...args, ...req.bindings]));
+		let result = await Promise.resolve(this.run(req, res, ...[...args, ...(req.bindings ?? [])]));
 
 		if(!_.isNil(result)) {
 			await this._respond(result, req, res);
