@@ -27,7 +27,7 @@ class Task {
 		try {
 			await this.action();
 		} catch(e) {
-			if(process.env.NODE_ENV !== "production") {
+			if(process.env.NODE_ENV === "production") {
 				Sentry.withScope(scope => {
 					scope.setTag("source", "TASK_MANAGER");
 					console.log(`TASK ERROR: ${Sentry.captureException(e)}`);
