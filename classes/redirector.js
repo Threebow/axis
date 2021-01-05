@@ -20,10 +20,7 @@ module.exports = class Redirector extends require("./flasher") {
 	}
 
 	back() {
-		this.sendBack = true;
-		this.setup = true;
-
-		return this;
+		return this.toURL("back");
 	}
 
 	hash(str) {
@@ -40,9 +37,7 @@ module.exports = class Redirector extends require("./flasher") {
 		this.flash(req);
 
 		//Redirect
-		if(this.sendBack) {
-			res.redirect("back");
-		} else if(this.url) {
+		if(this.url) {
 			res.redirect(this.url);
 		} else {
 			res.redirect(res.route(this.route, this.routeData) + this.hashStr);
