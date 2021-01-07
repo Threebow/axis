@@ -21,6 +21,7 @@ const BASE_MIDDLEWARE = [
 	require("../middleware/routing"),
 	require("../middleware/session"),
 	require("../middleware/flash"),
+	require("../middleware/auth"),
 	require("../middleware/fileUpload"),
 	require("../middleware/csrf")
 ];
