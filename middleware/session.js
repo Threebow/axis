@@ -26,10 +26,11 @@ module.exports = class SessionMiddleware extends Middleware {
 
 		_.assign(opts, this._app._expressOptions.session);
 
-		//Automatically attatch to cache
-		if((this.Cache?.client instanceof RedisClient) && !opts.store) {
+		//Automatically attach to a cache client
+		let client = this.Cache?.client ?? this.Cache?._client;
+		if(client && (client instanceof RedisClient) && !opts.store) {
 			opts.store = new RedisStore({
-				client: this.Cache.client,
+				client: client,
 				ttl: this._app._expressOptions.session?.ttl ?? DEFAULT_SESSION_TTL
 			});
 		}
