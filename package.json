@@ -18,6 +18,7 @@
 	"dependencies": {
 		"@sentry/node": "^5.29.2",
 		"ajv-errors": "^1.0.1",
+		"bluebird": "^3.7.2",
 		"connect-redis": "^5.0.0",
 		"csurf": "^1.11.0",
 		"express": "^4.17.1",
