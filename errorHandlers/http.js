@@ -30,6 +30,17 @@ module.exports = class HTTPErrorHandler extends ErrorHandler {
 			}
 		}
 
+		//CSRF
+		if(err.code === "EBADCSRFTOKEN") {
+			if(req.wantsJsonResponse) {
+				return {type: "InvalidCSRFToken"};
+			} else {
+				return this.redirect
+					.back()
+					.withError("You have sent an invalid CSRF token. Please try your request again. If the problem persists, please contact an administrator.");
+			}
+		}
+
 		//Model validation error
 		if(err.statusCode === 400 && err.type === "ModelViolation") {
 			let errors = [];
