@@ -7,7 +7,10 @@ module.exports = class RoutingMiddleware extends require("../classes/middleware"
 		res.route = routeFn;
 		res.locals.route = routeFn;
 
-		//TODO: rework somehow
-		res.locals.routeNameCache = root._routeNameCache;
+		//Export route list
+		res.locals.routeNames = {};
+		for(let [name, obj] of root._routeNameCache) {
+			res.locals.routeNames[name] = obj.fullPath;
+		}
 	}
 };
