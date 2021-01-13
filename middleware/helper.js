@@ -1,5 +1,5 @@
 module.exports = class HelperMiddleware extends require("../classes/middleware") {
-	run(req) {
+	run(req, res) {
 		//Set real IP address
 		req.realIp = req.get("CF-Connecting-IP") ?? req.ip;
 
@@ -7,5 +7,8 @@ module.exports = class HelperMiddleware extends require("../classes/middleware")
 		let wantsHtml = req.accepts("html") !== false;
 		let wantsJson = req.accepts("json") !== false;
 		req.wantsJsonResponse = wantsJson && !wantsHtml;
+
+		//Store user in locals
+		res.locals.user = req.user;
 	}
 };
