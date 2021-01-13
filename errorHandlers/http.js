@@ -26,7 +26,7 @@ module.exports = class HTTPErrorHandler extends ErrorHandler {
 			} else {
 				return this.redirect
 					.back()
-					.withError("error", `You are performing this action too quickly! Please try again in ${remaining} seconds.`);
+					.withError(`You are performing this action too quickly! Please try again in ${remaining} seconds.`);
 			}
 		}
 
