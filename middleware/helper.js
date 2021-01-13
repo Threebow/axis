@@ -24,9 +24,6 @@ module.exports = class HelperMiddleware extends require("../classes/middleware")
 		let wantsJson = req.accepts("json") !== false;
 		req.wantsJsonResponse = wantsJson && !wantsHtml;
 
-		//Store user in locals
-		res.locals.user = req.user;
-
 		//Frontend asset delivery
 		res.locals.asset = (s) => this._mixManifest[s] ?? s;
 	}

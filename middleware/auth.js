@@ -14,6 +14,9 @@ module.exports = class AuthMiddleware extends Middleware {
 		if(this._initialize && this._session) {
 			await this._initialize(req, res);
 			await this._session(req, res);
+
+			//Store user in locals
+			res.locals.user = req.user;
 		}
 	}
 };
