@@ -1,5 +1,51 @@
-const Responder = require("./responder");
+const RequestValidationError = require("../errors/requestValidationError"),
+	  Responder              = require("./responder"),
+	  Ajv                    = require("ajv").default;
 
 module.exports = class Controller extends Responder {
-	/* ... */
+	constructor(app) {
+		super(app);
+
+		this._validator = new Ajv({useDefaults: true, allErrors: true, $data: true});
+	}
+
+	validate(obj, properties, extra = {}) {
+		//Parse existing values into the correct formats if necessary
+		for(let i in properties) {
+			let def = properties[i];
+
+			let val = obj[i];
+			if(val == null) continue;
+
+			switch(def.type) {
+				case "boolean":
+					if(["1", 1, "on"].includes(val)) obj[i] = true;
+					if(["0", 0, "off"].includes(val)) obj[i] = false;
+					break;
+
+				case "integer":
+					let int = parseInt(val);
+					if(!isNaN(int)) obj[i] = int;
+					break;
+
+				case "number":
+					let float = parseFloat(val);
+					if(!isNaN(float)) obj[i] = float;
+			}
+		}
+
+		//Create the main schema
+		let schema = {
+			type: "object",
+			required: Object.keys(properties),
+			properties,
+			...extra
+		};
+
+		//Run the validator
+		let fn = this._validator.compile(schema);
+		if(!fn(obj)) {
+			throw new RequestValidationError(fn.errors);
+		}
+	}
 };

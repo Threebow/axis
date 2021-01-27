@@ -1,7 +1,8 @@
-const ErrorHandler = require("../classes/errorHandler"),
-	  createError  = require("http-errors"),
-	  objection    = require("objection"),
-	  multer       = require("multer");
+const RequestValidationError = require("../errors/requestValidationError"),
+	  ErrorHandler           = require("../classes/errorHandler"),
+	  createError            = require("http-errors"),
+	  objection              = require("objection"),
+	  multer                 = require("multer");
 
 module.exports = class ApplicationErrorHandler extends ErrorHandler {
 	handle(err) {
@@ -34,6 +35,11 @@ module.exports = class ApplicationErrorHandler extends ErrorHandler {
 			if(err.code === "LIMIT_FILE_SIZE") {
 				throw createError(413, err, {type: "FileTooLarge"});
 			}
+		}
+
+		//Request validation error
+		if(err instanceof RequestValidationError) {
+			throw createError(400, err, {type: "RequestViolation"});
 		}
 
 		//All other errors
