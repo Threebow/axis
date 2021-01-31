@@ -10,6 +10,13 @@ module.exports = class Controller extends Responder {
 	}
 
 	validate(obj, properties, extra = {}) {
+		//If an array of property names is passed, we just want to make sure they are defined (without any additional validation rules)
+		if(Array.isArray(properties)) {
+			let temp = {};
+			properties.forEach(p => temp[p] = {});
+			properties = temp;
+		}
+
 		//Parse existing values into the correct formats if necessary
 		for(let i in properties) {
 			let def = properties[i];
