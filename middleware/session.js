@@ -24,15 +24,19 @@ module.exports = class SessionMiddleware extends Middleware {
 			resave: false
 		};
 
+		//Assign maxAge cookie option based on TTL if it exists
+		let ttl = this._app._expressOptions.session?.ttl ?? DEFAULT_SESSION_TTL;
+		if(ttl) {
+			opts.cookie = opts.cookie ?? {};
+			opts.cookie.maxAge = ttl * 1000;
+		}
+
 		_.assign(opts, this._app._expressOptions.session);
 
 		//Automatically attach to a cache client
 		let client = this.Cache?.client ?? this.Cache?._client;
 		if(client && (client instanceof RedisClient) && !opts.store) {
-			opts.store = new RedisStore({
-				client: client,
-				ttl: this._app._expressOptions.session?.ttl ?? DEFAULT_SESSION_TTL
-			});
+			opts.store = new RedisStore({client, ttl});
 		}
 
 		this._session = Middleware.promisifyExpressMiddleware(session(opts));
