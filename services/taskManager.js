@@ -2,12 +2,16 @@ const crypto = require("crypto"),
 	  Sentry = require("@sentry/node");
 
 class Task {
-	constructor(action, interval = 1000) {
-		//we can use the sync version of randomBytes because tasks should only be created on setup
-		this.id = crypto.randomBytes(16).toString("hex");
-
+	constructor(action, interval = 1000, singleRun = false) {
 		this.action = action;
 		this.interval = interval;
+		this.singleRun = singleRun;
+
+		//Generate a unique ID for this task on initialization, if it is a repeating task.
+		//We can use the sync version of randomBytes because repeating tasks should only be created on startup.
+		if(!this.singleRun) {
+			this.id = crypto.randomBytes(16).toString("hex");
+		}
 
 		this.timeout = null;
 		this.isRunning = false;
@@ -49,7 +53,9 @@ class Task {
 
 		this.isRunning = false;
 
-		this.queue();
+		if(!this.singleRun) {
+			this.queue();
+		}
 	}
 
 	queue() {
@@ -68,10 +74,15 @@ module.exports = class TaskManager {
 		this.tasks = new Map();
 	}
 
-	createTask(action, interval) {
-		let task = new Task(action, interval);
+	createTask(action, interval, singleRun) {
+		let task = new Task(action, interval, singleRun);
+
+		if(task.id) {
+			this.tasks.set(task.id, task);
+		}
+
 		task.queue();
-		this.tasks.set(task.id, task);
+
 		return task;
 	}
 };
