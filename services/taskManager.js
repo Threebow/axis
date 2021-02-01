@@ -25,7 +25,7 @@ class Task {
 		let t1 = process.hrtime();
 
 		try {
-			await this.action();
+			await Promise.resolve(this.action());
 		} catch(e) {
 			if(process.env.NODE_ENV === "production") {
 				Sentry.withScope(scope => {
