@@ -30,10 +30,10 @@ class Task {
 			if(process.env.NODE_ENV === "production") {
 				Sentry.withScope(scope => {
 					scope.setTag("source", "TASK_MANAGER");
-					console.log(`TASK ERROR: ${Sentry.captureException(e)}`);
+					console.error(`TASK MANAGER ERROR: ${Sentry.captureException(e)}`);
 				});
 			} else {
-				console.log("TASK ERROR:");
+				console.error("TASK MANAGER ERROR:");
 				console.error(e);
 				process.exit(1);
 			}
