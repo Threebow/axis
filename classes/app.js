@@ -18,6 +18,7 @@ const MiddlewareGroup = require("./middlewareGroup"),
 ---------------------------------------------------------------------------*/
 const BASE_MIDDLEWARE = [
 	require("../middleware/helper"),
+	require("../middleware/parsePageNumber"),
 	require("../middleware/routing"),
 	require("../middleware/session"),
 	require("../middleware/flash"),
