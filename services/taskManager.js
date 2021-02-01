@@ -74,15 +74,16 @@ module.exports = class TaskManager {
 		this.tasks = new Map();
 	}
 
-	createTask(action, interval, singleRun) {
-		let task = new Task(action, interval, singleRun);
-
-		if(task.id) {
-			this.tasks.set(task.id, task);
-		}
-
+	createTask(action, interval) {
+		let task = new Task(action, interval);
+		this.tasks.set(task.id, task);
 		task.queue();
+		return task;
+	}
 
+	runOnce(action, interval = 0) {
+		let task = new Task(action, interval, true);
+		task.queue();
 		return task;
 	}
 };
