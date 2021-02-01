@@ -60,13 +60,32 @@ module.exports = class App extends EventEmitter {
 
 	_registerMiddleware() {
 		this._middleware = new Map();
-		this._middleware.set("base", new MiddlewareGroup("base", BASE_MIDDLEWARE, this));
 
+		//Create and assign base group
+		let baseGroup = new MiddlewareGroup("base", [...BASE_MIDDLEWARE, ...(this._rawMiddleware.base ?? [])], this);
+		this._middleware.set("base", baseGroup);
+
+		//Create and assign all other middleware groups
 		if(_.isPlainObject(this._rawMiddleware)) {
 			for(let name in this._rawMiddleware) {
 				this._middleware.set(name, new MiddlewareGroup(name, this._rawMiddleware[name], this));
 			}
 		}
+
+		//Set up base middleware to run on every request
+		this._express.use((req, res, next) => {
+			//Set the default request handler
+			req.handler = this._routers[0]._routes[0]._requestHandler;
+
+			baseGroup
+				.run(req, res, [])
+				.then(success => {
+					if(success) {
+						next();
+					}
+				})
+				.catch(next);
+		});
 	}
 
 	_registerErrorHandlers() {
@@ -75,16 +94,7 @@ module.exports = class App extends EventEmitter {
 
 		//Delegate not found pages to our actual error handler
 		this._express.use((req, res, next) => {
-			req.handler = this._routers[0]._routes[0]._requestHandler;
-
-			req.handler
-				._runMiddleware(req, res)
-				.then(success => {
-					if(success) {
-						next(new HTTPError.NotFound());
-					}
-				})
-				.catch(next);
+			next(new HTTPError.NotFound());
 		});
 
 		//Handle explicitly non-HTTP errors, this handler should always throw an HTTP error from within it
@@ -136,7 +146,6 @@ module.exports = class App extends EventEmitter {
 			let fn = this._routerFactories[i];
 
 			let router = fn(this._controllers, this._container.database.models);
-			router.prependMiddleware("base");
 			router._mount(this);
 
 			this._routers.push(router);
