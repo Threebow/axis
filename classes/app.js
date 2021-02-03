@@ -22,7 +22,10 @@ const BASE_MIDDLEWARE = [
 	require("../middleware/routing"),
 	require("../middleware/session"),
 	require("../middleware/flash"),
-	require("../middleware/auth"),
+	require("../middleware/auth")
+];
+
+const ALL_ROUTE_MIDDLEWARE = [
 	require("../middleware/fileUpload"),
 	require("../middleware/csrf")
 ];
@@ -61,23 +64,19 @@ module.exports = class App extends EventEmitter {
 	_registerMiddleware() {
 		this._middleware = new Map();
 
-		//Create and assign base group
-		let baseGroup = new MiddlewareGroup("base", [...BASE_MIDDLEWARE, ...(this._rawMiddleware.base ?? [])], this);
-		this._middleware.set("base", baseGroup);
-
-		//Create and assign all other middleware groups
 		if(_.isPlainObject(this._rawMiddleware)) {
+			this._rawMiddleware.base = [...BASE_MIDDLEWARE, ...(this._rawMiddleware.base ?? [])];
+			this._rawMiddleware.all = [...ALL_ROUTE_MIDDLEWARE, ...(this._rawMiddleware.all ?? [])];
+
+			//Create and assign all middleware groups
 			for(let name in this._rawMiddleware) {
 				this._middleware.set(name, new MiddlewareGroup(name, this._rawMiddleware[name], this));
 			}
 		}
 
-		//Set up base middleware to run on every request
+		//Run base middleware on every request
 		this._express.use((req, res, next) => {
-			//Set the default request handler
-			req.handler = this._routers[0]._routes[0]._requestHandler;
-
-			baseGroup
+			this._middleware.get("base")
 				.run(req, res, [])
 				.then(success => {
 					if(success) {
@@ -146,6 +145,7 @@ module.exports = class App extends EventEmitter {
 			let fn = this._routerFactories[i];
 
 			let router = fn(this._controllers, this._container.database.models);
+			router.prependMiddleware("all");
 			router._mount(this);
 
 			this._routers.push(router);
@@ -196,5 +196,9 @@ module.exports = class App extends EventEmitter {
 		this._server = http.createServer(this._express);
 		this.emit("serverCreated", this._server);
 		await util.promisify(this._server.listen.bind(this._server))(...args);
+	}
+
+	get baseRequestHandler() {
+		return this._routers?.[0]?._routes?.[0]?._requestHandler;
 	}
 };

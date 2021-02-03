@@ -1,6 +1,6 @@
 module.exports = class RoutingMiddleware extends require("../classes/middleware") {
 	run(req, res) {
-		let root = req.handler._route._root;
+		let root = this._app.baseRequestHandler._route._root;
 
 		//Add route function
 		let routeFn = (...args) => root.getRouteURI(...args);
