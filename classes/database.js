@@ -52,7 +52,6 @@ module.exports = class Database {
 
 		this._modelProxy = new Proxy({}, {
 			get: (target, prop) => {
-				console.log("MODELPPROXY GET:", prop, this.models[prop]);
 				return this.models[prop];
 			}
 		});
