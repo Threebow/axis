@@ -38,12 +38,25 @@ module.exports = class Database {
 			.map(f => path.join(this._options.modelPath, f)) //Map to the absolute path
 			.map(f => require(f)) //Require each model
 			.filter(fn => _.isFunction(fn)) //Filter out non-functions
-			.map(fn => (fn.prototype instanceof BaseModel) ? fn : fn(this._app, proxy)) //Transform the model class
+			.map(fn => (fn.prototype instanceof BaseModel) ? fn : fn(this._app, proxy, this.modelProxy)) //Transform the model class
 			.forEach(m => {
 				m.knex(this._knex); //Initialize knex
 				models[m.name] = m;
 			});
 
 		return models;
+	}
+
+	get modelProxy() {
+		if(this._modelProxy) return this._modelProxy;
+
+		this._modelProxy = new Proxy({}, {
+			get: (target, prop) => {
+				console.log("MODELPPROXY GET:", prop, this.models[prop]);
+				return this.models[prop];
+			}
+		});
+
+		return this._modelProxy;
 	}
 };
