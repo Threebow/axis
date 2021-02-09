@@ -22,6 +22,11 @@ module.exports = class RedisCache {
 		return JSON.parse(await this._client.getAsync(key));
 	}
 
+	async mget(keys) {
+		return (await this._client.mgetAsync(keys))
+			.map(v => JSON.parse(v));
+	}
+
 	set(key, value) {
 		return this._client.setAsync(key, JSON.stringify(value));
 	}
