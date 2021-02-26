@@ -1,4 +1,5 @@
 const RequestValidationError = require("../errors/requestValidationError"),
+	  addFormats             = require("ajv-formats"),
 	  Responder              = require("./responder"),
 	  Ajv                    = require("ajv").default;
 
@@ -7,6 +8,7 @@ module.exports = class Controller extends Responder {
 		super(app);
 
 		this._validator = new Ajv({useDefaults: true, allErrors: true, $data: true});
+		addFormats(this._validator);
 	}
 
 	validate(obj, properties, extra = {}) {
