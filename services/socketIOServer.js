@@ -6,6 +6,8 @@ module.exports = class SocketIOServer {
 	constructor(app) {
 		this._app = app;
 
+		this.options = {};
+
 		app.on("serverCreated", server => {
 			this._initSocketServer(server);
 		});
@@ -17,7 +19,7 @@ module.exports = class SocketIOServer {
 	}
 
 	_initSocketServer(server) {
-		this.io = new Server(server);
+		this.io = new Server(server, this.options);
 		this.userSocketIds = new Map();
 
 		if(this.deserializeUser) {
