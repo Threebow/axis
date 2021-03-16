@@ -1,5 +1,5 @@
 const SessionMiddleware = require("../middleware/session"),
-	  SocketIO          = require("socket.io"),
+	  {Server}          = require("socket.io"),
 	  Sentry            = require("@sentry/node");
 
 module.exports = class SocketIOServer {
@@ -17,7 +17,7 @@ module.exports = class SocketIOServer {
 	}
 
 	_initSocketServer(server) {
-		this.io = SocketIO(server);
+		this.io = new Server(server);
 		this.userSocketIds = new Map();
 
 		if(this.deserializeUser) {
