@@ -16,7 +16,7 @@ module.exports = class CSRFMiddleware extends Middleware {
 			let exclusions = this._app._expressOptions.csrf.exclude;
 			if(exclusions) {
 				for(let i = 0; i < exclusions.length; i++) {
-					if(req.url.startsWith(exclusions[i])) return
+					if(req.originalUrl.startsWith(exclusions[i])) return
 				}
 			}
 
