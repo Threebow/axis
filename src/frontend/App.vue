@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { isString } from "lodash-es"
-	import { computed, ConcreteComponent, h, resolveComponent } from "vue"
+	import type { ConcreteComponent } from "vue"
+	import { computed, h, resolveComponent } from "vue"
 
 	const { layoutFiles, props, locals } = defineProps<{
 		file: string
@@ -9,7 +10,7 @@
 		locals: any
 	}>()
 
-	export function resolveComponentOrThrow(name: string): ConcreteComponent {
+	function resolveComponentOrThrow(name: string): ConcreteComponent {
 		const comp = resolveComponent(name)
 
 		if (isString(comp)) {

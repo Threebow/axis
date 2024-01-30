@@ -7,7 +7,7 @@ import { IResponder, Responder } from "@/classes/Responder"
 import { AppMode, IApp } from "@/classes/App"
 import { compileFile, compileTemplate } from "pug"
 import { createApp } from "@/frontend/createApp"
-// import AppComponent from "@/frontend/App.vue"
+import AppComponent from "@/frontend/App.vue"
 
 let INDEX_PAGE: compileTemplate | null = null
 
@@ -114,9 +114,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		
 		// initialize the vue app with the component, layouts, and view data
 		const vue = createApp(
-			// TODO: fix this
-			null as any,
-			// AppComponent,
+			AppComponent,
 			component,
 			fromJson(view),
 			layouts.map(l => l.component)
