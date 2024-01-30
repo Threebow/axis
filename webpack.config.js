@@ -1,6 +1,7 @@
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { config } from "dotenv"
+import CopyPlugin from "copy-webpack-plugin"
 import nodeExternals from "webpack-node-externals"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -30,6 +31,13 @@ export default (env, argv) => {
 				"@": resolve(__dirname, "./src")
 			}
 		},
+		plugins: [
+			new CopyPlugin({
+				patterns: [
+					{from: "./src/frontend/App.vue", to: "./App.vue"}
+				]
+			})
+		],
 		module: {
 			rules: [
 				{
