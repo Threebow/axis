@@ -86,6 +86,11 @@ export type AppOptions<
 	 */
 	renderer: {
 		/**
+		 * The root component of the app.
+		 */
+		rootComponent: ViewComponent
+		
+		/**
 		 * Path to the transpiled Pug index source file located in the build output.
 		 * @example "./dist/backend/index.pug"
 		 */

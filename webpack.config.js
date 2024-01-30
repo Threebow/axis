@@ -1,6 +1,5 @@
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
-import { VueLoaderPlugin } from "@threebow/vue-loader"
 import { config } from "dotenv"
 import nodeExternals from "webpack-node-externals"
 
@@ -28,13 +27,9 @@ export default (env, argv) => {
 		resolve: {
 			extensions: [".ts", "..."],
 			alias: {
-				vue: "vue/dist/vue.esm-bundler",
 				"@": resolve(__dirname, "./src")
 			}
 		},
-		plugins: [
-			new VueLoaderPlugin()
-		],
 		module: {
 			rules: [
 				{
@@ -43,19 +38,8 @@ export default (env, argv) => {
 					use: [
 						"babel-loader",
 						{
-							loader: "ts-loader",
-							options: {
-								appendTsSuffixTo: [/\.vue$/],
-								appendTsxSuffixTo: [/\.vue$/]
-							}
+							loader: "ts-loader"
 						}
-					]
-				},
-				{
-					test: /\.vue$/,
-					use: [
-						resolve(__dirname, "./webpack/filename-loader.js"),
-						"@threebow/vue-loader"
 					]
 				}
 			]
