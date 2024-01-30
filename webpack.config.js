@@ -41,6 +41,7 @@ export default (env, argv) => {
 					test: /\.tsx?$/,
 					exclude: /node_modules/,
 					use: [
+						"babel-loader",
 						{
 							loader: "ts-loader",
 							options: {
