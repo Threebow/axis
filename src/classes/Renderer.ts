@@ -9,7 +9,7 @@ import { compileFile, compileTemplate } from "pug"
 import { createApp } from "@/frontend/createApp"
 import AppComponent from "@/frontend/App.vue"
 
-let INDEX_PAGE: compileTemplate | null = null
+const PAGE_CACHE = new Map<string, compileTemplate>()
 
 type ResolvedLayout = {
 	readonly file: string
@@ -129,12 +129,17 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 				return Promise.reject(e)
 			})
 		
-		// render the pug view, and inject the rendered vue app into it
-		if (!INDEX_PAGE) {
-			INDEX_PAGE = compileFile(app.opts.renderer.indexPage)
+		// fetch the compiled page from cache if it exists
+		let indexPage = PAGE_CACHE.get(app.opts.renderer.indexPage)
+		
+		// if it doesn't exist, compile it and cache it
+		if (!indexPage) {
+			indexPage = compileFile(app.opts.renderer.indexPage)
+			PAGE_CACHE.set(app.opts.renderer.indexPage, indexPage)
 		}
 		
-		const html = INDEX_PAGE({
+		// render the index page
+		const html = indexPage({
 			__DEV__: app.opts.mode === AppMode.DEVELOPMENT,
 			__PROD__: app.opts.mode === AppMode.PRODUCTION,
 			
