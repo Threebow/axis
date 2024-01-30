@@ -41,7 +41,6 @@ export default (env, argv) => {
 					test: /\.tsx?$/,
 					exclude: /node_modules/,
 					use: [
-						"babel-loader",
 						{
 							loader: "ts-loader",
 							options: {
@@ -57,7 +56,7 @@ export default (env, argv) => {
 						resolve(__dirname, "./webpack/filename-loader.js"),
 						"@threebow/vue-loader"
 					]
-				},
+				}
 			]
 		},
 		externals: [
