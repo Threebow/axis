@@ -1,0 +1,61 @@
+doctype html
+html.is-clipped(lang="en")
+	head
+		title=__TITLE__
+
+		meta(charset="utf-8")
+		meta(name="author" content=__META__.author)
+		meta(name="description" content=__META__.description)
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		//meta(name="csrf-token", content=csrfToken)
+
+		// only load completed bundle for production build
+		if(__PROD__)
+			link(rel="stylesheet", type="text/css", href=__ASSET__("main.css"))
+
+		meta(property="og:title", content=__META__.title)
+		meta(property="og:description", content=__META__.description)
+		meta(property="og:type", content="website")
+
+		if(__META__.image)
+			meta(property="og:image", content=__META__.image)
+			meta(name="twitter:card", content="summary_large_image")
+
+		link(rel="icon", type="image/png", href=__ASSET__("favicon.ico"))
+
+		//script(async, src="https://www.googletagmanager.com/gtag/js?id=AW-11456008174")
+
+		//script.
+		//	window.dataLayer = window.dataLayer || [];
+		//
+		//	function gtag() {
+		//		dataLayer.push(arguments);
+		//	}
+		//
+		//	gtag('js', new Date());
+		//	gtag('config', 'AW-11456008174');
+		//	gtag('config', 'G-G6S7BQ7XDE');
+		//
+		//	function gtag_report_conversion(url) {
+		//		var callback = function () {
+		//			if (typeof (url) != 'undefined') {
+		//				window.location = url;
+		//			}
+		//		};
+		//		gtag('event', 'conversion', {
+		//			'send_to': 'AW-11456008174/ySV6CInbooIZEO6f09Yq',
+		//			'event_callback': callback
+		//		});
+		//		return false;
+		//	}
+
+	body
+		#preloader
+			.spinner.is-64x64
+
+		#app!=__HTML__
+
+		script(type="text/javascript").
+			window.__ENCODED_VIEW__ = "!{ __ENCODED_VIEW__ }";
+
+		script(type="text/javascript", src=__ASSET__("main.js"))

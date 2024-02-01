@@ -1,0 +1,8 @@
+{
+	"name": "@axisjs/filename-loader",
+	"version": "0.1.0",
+	"description": "Injects filenames onto vue components",
+	"main": "index.js",
+	"author": "Threebow",
+	"type": "module"
+}

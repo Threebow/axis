@@ -1,0 +1,23 @@
+{
+	"name": "@axisjs/cli",
+	"version": "0.1.0",
+	"description": "Command-line interface to bootstrap and interact with Axis projects",
+	"type": "module",
+	"bin": {
+		"axis": "./dist/index.js"
+	},
+	"scripts": {
+		"clean": "rm -rf ./dist",
+		"build": "pnpm clean && tsc"
+	},
+	"author": "Threebow",
+	"dependencies": {
+		"webpack-cli": "^5.1.4",
+		"yargs": "^17.7.2"
+	},
+	"devDependencies": {
+		"@types/node": "^20.10.8",
+		"@types/yargs": "^17.0.32",
+		"typescript": "^5.3.3"
+	}
+}
