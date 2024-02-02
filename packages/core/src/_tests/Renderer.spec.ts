@@ -24,7 +24,7 @@ describe("Renderer", () => {
 		expect(mock.ctx.koaCtx.body).to.include(`<div id="preloader"><div class="spinner is-64x64"></div></div>`)
 	})
 	
-	it("should render a page with correctly encoded view data injected into it", async () => {
+	it("should encode view data into the page", async () => {
 		const str = `window.__ENCODED_VIEW__ = "`
 		
 		await mock.ctx.respond(render(NestedTest))
@@ -60,6 +60,24 @@ describe("Renderer", () => {
 			expect(r).to.include("Hello from unnamed layout.vue in B!")
 			expect(r).to.include("Hello from C.layout.vue!")
 			expect(r).to.include("Hello from NestedTest.vue!")
+		})
+	})
+	
+	describe("Metadata", () => {
+		it("should be injected into the appropriate meta tags", async () => {
+			const meta = mock.app.opts.renderer.defaultPageMeta
+			
+			await mock.ctx.respond(render(Root))
+			const r = mock.ctx.koaCtx.body
+			
+			expect(r).to.include(`<meta name="author" content="${meta.author}">`)
+			expect(r).to.include(`<meta name="description" content="${meta.description}">`)
+			
+			expect(r).to.include(`<meta property="og:title" content="${meta.title}">`)
+			expect(r).to.include(`<meta property="og:description" content="${meta.description}">`)
+			
+			expect(r).to.include(`<meta property="og:image" content="${meta.image}">`)
+			expect(r).to.include(`<meta name="twitter:card" content="summary_large_image">`)
 		})
 	})
 })
