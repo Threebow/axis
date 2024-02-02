@@ -1,10 +1,7 @@
 import { Listener } from "../stdlib"
-import { expect, use as chaiUse } from "chai"
-import sinonChai from "sinon-chai"
 import { sleep } from "../helpers"
 import { restore, stub } from "sinon"
-
-chaiUse(sinonChai)
+import { expect } from "chai"
 
 describe("Listener", () => {
 	type TestType = {

@@ -1,33 +1,51 @@
-import { assert, expect, use as chaiUse } from "chai"
-import chaiUuid from "chai-uuid"
-import chaiString from "chai-string"
+import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
 import { createMockApp } from "./app"
 import { createRequester } from "../helpers"
 import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
 
-chaiUse(chaiUuid)
-chaiUse(chaiString)
-
 describe("Application", () => {
-	describe("Boot and shutdown", () => {
-		const app = createMockApp()
+	describe("Boot", () => {
+		const app = createMockApp(false)
 		
-		it("should boot on the correct host and port", async () => {
+		it("should boot on the provided host and port", async () => {
+			app.opts.host = "127.0.0.1"
+			app.opts.port = 8080
+			
+			const { host, port } = await app.boot()
+			expect(host).to.equal("127.0.0.1")
+			expect(port).to.equal(8080)
+		})
+		
+		it("should boot on the default host and port if neither are provided", async () => {
+			delete app.opts.host
+			delete app.opts.port
+			
 			const { host, port } = await app.boot()
 			expect(host).to.equal("0.0.0.0")
 			expect(port).to.equal(3000)
 		})
 		
+		afterEach(() => app.shutdown())
+	})
+	
+	describe("Shutdown", () => {
+		const app = createMockApp(false)
+		
+		beforeEach(() => app.boot())
+		
 		it("should shut down gracefully", () => app.shutdown())
+		
+		it("should throw an error if the app is shut down more than once", async () => {
+			await app.shutdown()
+			await assert.isRejected(app.shutdown(), "Server is not running.")
+		})
 	})
 	
 	describe("Root Controller", () => {
-		const app = createMockApp()
+		createMockApp()
 		
 		const r = createRequester({ baseURL: "http://localhost:3000" })
-		
-		before(() => app.boot())
 		
 		it("should respond to a health check", async () => {
 			const res = await r("GET", "/health-check")
@@ -188,8 +206,6 @@ describe("Application", () => {
 		})
 		
 		afterEach(() => restore())
-		
-		after(() => app.shutdown())
 	})
 })
 

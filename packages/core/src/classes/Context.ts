@@ -5,10 +5,11 @@ import HTTPError from "http-errors"
 import { DTO, KVObject } from "../types"
 import { IExecutable, isExecutable } from "./Executable"
 import { BaseLocalsDTO, BaseUserDTO } from "../dto"
-import { IUser } from "./User"
 import { IApp } from "./App"
 import { IValidator, Validator } from "./Validator"
 import { Responder } from "./Responder"
+import { resolveIpAddressFromIncomingMessage } from "../helpers"
+import { IBaseUser } from "./User"
 
 export type ContextResponse
 	= DTO
@@ -18,7 +19,7 @@ export type ContextResponse
 
 export interface IContext<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
-	UserClass extends IUser<UserDTO> = IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
 	Query extends KVObject = any,
 	Params extends KVObject = any,
@@ -43,6 +44,7 @@ export interface IContext<
 	
 	// metadata
 	readonly isJsonRequest: boolean
+	readonly ipAddress: string
 	
 	initialize(): Promise<void>
 	
@@ -55,7 +57,7 @@ export type ContextConstructor<Context extends IContext<any, any, any>> = new (a
 
 export abstract class Context<
 	UserDTO extends BaseUserDTO,
-	UserClass extends IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO>,
 	Query extends KVObject = any,
 	Params extends KVObject = any,
@@ -73,6 +75,7 @@ export abstract class Context<
 	readonly wantsHtml = this.koaCtx.accepts("html") !== false
 	readonly wantsJson = this.koaCtx.accepts("json") !== false
 	readonly isJsonRequest = !this.wantsHtml && this.wantsJson
+	private _ipAddress?: string
 	
 	constructor(
 		readonly app: IApp<
@@ -118,6 +121,14 @@ export abstract class Context<
 			.get("body") ?? this.koaCtx.request.body
 	}
 	
+	get ipAddress(): string {
+		if (!this._ipAddress) {
+			this._ipAddress = resolveIpAddressFromIncomingMessage(this.koaCtx.req)
+		}
+		
+		return this._ipAddress
+	}
+	
 	async initialize() {
 		// ensure context is only initialized once
 		if (this.isInitialized) {
@@ -135,7 +146,7 @@ export abstract class Context<
 	}
 	
 	// TODO: type this
-	async respond(data: ContextResponse): Promise<void> {
+	async respond(data: ContextResponse | Promise<ContextResponse>): Promise<void> {
 		// ensure no responses are sent until the context has been initialized
 		if (!this.isInitialized) {
 			throw new Error("Context: cannot respond until context has been initialized.")
@@ -154,8 +165,11 @@ export abstract class Context<
 		// if we received a function, unwrap it
 		if (isFunction(data)) {
 			// FIXME: any, any, any bad
-			data = await data(this as IContext<any, any, any>)
+			data = data(this as IContext<any, any, any>)
 		}
+		
+		// if we have a promise, await it
+		data = await data
 		
 		// if a number is returned, wrap it in a status responder
 		if (isNumber(data)) {

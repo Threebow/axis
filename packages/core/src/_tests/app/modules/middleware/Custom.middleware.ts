@@ -3,6 +3,6 @@ import { CustomContext } from "../../context"
 
 export class CustomMiddleware extends Middleware {
 	async run(ctx: CustomContext): Promise<void> {
-		console.log("Middleware hit!", ctx.koaCtx.url)
+		// console.log("Middleware hit!", ctx.koaCtx.url)
 	}
 }

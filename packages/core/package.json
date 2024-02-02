@@ -18,7 +18,7 @@
 		"clean": "rm -rf ./dist",
 		"build": "pnpm clean && tsc",
 		"watch": "pnpm clean && tsc -w",
-		"test": "pnpm build && c8 mocha --trace-warnings --import=extensionless/register ./dist/_tests/*.spec.js && pnpm clean"
+		"test": "pnpm build && c8 mocha --trace-warnings --import=extensionless/register --r=./dist/_tests/init.js ./dist/_tests/*.spec.js"
 	},
 	"c8": {
 		"exclude": [
@@ -61,6 +61,7 @@
 		"lodash-es": "^4.17.21",
 		"luxon": "^3.4.4",
 		"pg": "^8.11.3",
+		"private-ip": "^3.0.2",
 		"redis": "^4.6.12",
 		"reflect-metadata": "^0.2.1",
 		"uuid": "^9.0.1",
@@ -73,6 +74,7 @@
 		"@babel/preset-env": "^7.23.9",
 		"@threebow/vue-loader": "^16.6.7",
 		"@types/chai": "^4.3.11",
+		"@types/chai-as-promised": "^7.1.8",
 		"@types/chai-string": "^1.4.5",
 		"@types/chai-uuid": "^1.0.5",
 		"@types/http-errors": "^2.0.4",
@@ -98,6 +100,7 @@
 		"babel-loader": "^9.1.3",
 		"c8": "^9.1.0",
 		"chai": "^5.0.3",
+		"chai-as-promised": "^7.1.1",
 		"chai-string": "^1.5.0",
 		"chai-uuid": "^1.0.6",
 		"copy-webpack-plugin": "^12.0.2",

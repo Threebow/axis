@@ -4,9 +4,7 @@ import { createRequester } from "../helpers"
 import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
 
 describe("Axios helper", () => {
-	const app = createMockApp()
-	
-	before(() => app.boot())
+	createMockApp()
 	
 	const r = createRequester({ baseURL: "http://localhost:3000" })
 	
@@ -36,6 +34,4 @@ describe("Axios helper", () => {
 		expect(res.data.headers["accept"]).to.equal("application/json")
 		expect(res.data.headers["content-type"]).to.equal("application/json")
 	})
-	
-	after(() => app.shutdown())
 })

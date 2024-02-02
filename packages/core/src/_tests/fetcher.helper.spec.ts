@@ -11,8 +11,6 @@ describe("Fetcher helper", () => {
 	
 	const app = createMockApp()
 	
-	before(() => app.boot())
-	
 	let controls: FetcherControls<any>
 	
 	const r = createRequester({ baseURL: "http://localhost:3000" })
@@ -98,6 +96,4 @@ describe("Fetcher helper", () => {
 	})
 	
 	afterEach(() => restore())
-	
-	after(() => app.shutdown())
 })

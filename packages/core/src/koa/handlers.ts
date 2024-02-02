@@ -3,7 +3,7 @@ import HTTPError from "http-errors"
 import { ZodError } from "zod"
 import { fromZodError } from "zod-validation-error"
 import { BaseLocalsDTO, BaseUserDTO, ErrorDTO } from "../dto"
-import { AppErrorType, IApp, IContext, isAppError, IUser, Responder } from "../classes"
+import { AppErrorType, IApp, IBaseUser, IContext, isAppError, Responder } from "../classes"
 import { ViewComponent } from "../types"
 import { handleError, render } from "../helpers"
 
@@ -28,7 +28,7 @@ export function fatalErrorHandler() {
 export function genericErrorHandler<
 	// FIXME: how to avoid duplicating this everywhere?
 	UserDTO extends BaseUserDTO,
-	UserClass extends IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO>,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO>
 >(opts: {

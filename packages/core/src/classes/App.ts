@@ -4,7 +4,7 @@ import serve from "koa-static"
 import bodyParser from "koa-bodyparser"
 import session from "koa-session"
 import { BaseLocalsDTO, BaseUserDTO } from "../dto"
-import { IUser } from "./User"
+import { IBaseUser } from "./User"
 import { ContextConstructor, IContext } from "./Context"
 import { ControllerConstructor } from "./Controller"
 import { PageMeta, ViewComponent } from "../types"
@@ -19,7 +19,7 @@ export enum AppMode {
 
 export type AppOptions<
 	UserDTO extends BaseUserDTO,
-	UserClass extends IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO>,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO>
 > = {
@@ -122,7 +122,7 @@ type AppBootResult = {
 
 export interface IApp<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
-	UserClass extends IUser<UserDTO> = IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO> = IContext<UserDTO, UserClass, LocalsDTO>
 > {
@@ -141,7 +141,7 @@ export interface IApp<
 
 export class App<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
-	UserClass extends IUser<UserDTO> = IUser<UserDTO>,
+	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO> = IContext<UserDTO, UserClass, LocalsDTO>
 > implements IApp<UserDTO, UserClass, LocalsDTO, Context> {
