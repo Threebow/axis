@@ -19,8 +19,6 @@ describe("Renderer", () => {
 		expect(mock.ctx.koaCtx.body).to.include("UUID: " + data.uuid)
 	})
 	
-	// TODO: it should inject correctly encoded view data into the rendered page
-	
 	it("should render a preloader", async () => {
 		await mock.ctx.respond(render(Root))
 		expect(mock.ctx.koaCtx.body).to.include(`<div id="preloader"><div class="spinner is-64x64"></div></div>`)
