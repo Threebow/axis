@@ -53,7 +53,8 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 			defaultPageMeta: {
 				title: "AxisJS",
 				description: "A framework for building web applications",
-				author: "Threebow"
+				author: "Threebow",
+				image: "https://arionstudios.com/logo.png"
 			}
 		},
 		modules: require.context("./modules", true)
@@ -85,8 +86,8 @@ export async function createMockContext<Context extends IContext>(
 			ctx.session[i] = opts.sessionData[i]
 		}
 	}
-
-	if(!opts.dontInitialize) {
+	
+	if (!opts.dontInitialize) {
 		await ctx.initialize()
 	}
 	
