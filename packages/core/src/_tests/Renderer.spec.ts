@@ -5,6 +5,7 @@ import Root from "./app/modules/Root.vue"
 import { RootIndexDTO } from "./app/modules/Root.dto"
 import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { ViewData } from "../types"
+import { expectToIncludeInOrder } from "./fixtures/expectToIncludeInOrder"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext()
@@ -50,16 +51,19 @@ describe("Renderer", () => {
 		} as ViewData)
 	})
 	
+	// TODO: test that layouts have access to props
+	
 	describe("Layouts", () => {
 		it("should be rendered correctly", async () => {
 			await mock.ctx.respond(render(NestedTest))
-			const r = mock.ctx.koaCtx.body
 			
-			expect(r).to.include("Hello from Root.layout.vue!")
-			expect(r).to.include("Hello from NestedLayouts.layout.vue!")
-			expect(r).to.include("Hello from unnamed layout.vue in B!")
-			expect(r).to.include("Hello from C.layout.vue!")
-			expect(r).to.include("Hello from NestedTest.vue!")
+			expectToIncludeInOrder(mock.ctx.koaCtx.body, [
+				"Hello from Root.layout.vue!",
+				"Hello from NestedLayouts.layout.vue!",
+				"Hello from unnamed layout.vue in B!",
+				"Hello from C.layout.vue!",
+				"Hello from NestedTest.vue!"
+			])
 		})
 	})
 	
@@ -68,16 +72,18 @@ describe("Renderer", () => {
 			const meta = mock.app.opts.renderer.defaultPageMeta
 			
 			await mock.ctx.respond(render(Root))
-			const r = mock.ctx.koaCtx.body
 			
-			expect(r).to.include(`<meta name="author" content="${meta.author}">`)
-			expect(r).to.include(`<meta name="description" content="${meta.description}">`)
-			
-			expect(r).to.include(`<meta property="og:title" content="${meta.title}">`)
-			expect(r).to.include(`<meta property="og:description" content="${meta.description}">`)
-			
-			expect(r).to.include(`<meta property="og:image" content="${meta.image}">`)
-			expect(r).to.include(`<meta name="twitter:card" content="summary_large_image">`)
+			expectToIncludeInOrder(mock.ctx.koaCtx.body, [
+				`<meta name="author" content="${meta.author}">`,
+				`<meta name="description" content="${meta.description}">`,
+				
+				`<meta property="og:title" content="${meta.title}">`,
+				`<meta property="og:description" content="${meta.description}">`,
+				
+				`<meta property="og:image" content="${meta.image}">`,
+				`<meta name="twitter:card" content="summary_large_image">`
+			])
 		})
+		
 	})
 })
