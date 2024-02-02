@@ -1,11 +1,17 @@
 import { CustomMiddleware } from "./middleware/Custom.middleware"
 import { TodosController } from "./Todo/Todo.controller"
-import { Delete, Get, Mount, Patch, Post, Use } from "../../../decorators"
+import { Delete, Get, Mount, Patch, Post, Query, Use } from "../../../decorators"
 import { Controller } from "../../../classes"
 import { CustomContext } from "../context"
+import { RootIndexDTO } from "./Root.dto"
+import { render } from "../../../helpers"
+import Root from "./Root.vue"
+import { z } from "zod"
+import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)
+@Mount("/nested-layouts", NestedLayoutsController)
 export class RootController extends Controller {
 	@Get("/")
 	index() {
@@ -13,31 +19,13 @@ export class RootController extends Controller {
 	}
 	
 	@Get("/page")
-	async page() {
-		// TODO: test render without correct props or type passed, should throw a constructive error
-		
-		// const filename = "Root.vue"
-		// const source = await readFile(fileURLToPath(import.meta.resolve("./" + filename)).replace("dist", "src"), "utf8")
-		
-		// const r = compileTemplate({
-		// 	source,
-		// 	filename,
-		// 	id: "hello? id?"
-		// })
-		
-		// console.log(source)
-		// console.log("!!!!!!!!!!!!!")
-		
-		// (n as any).__FILENAME__ = "Root.vue"
-		
-		// console.log("hello", n)
-		
-		// return render<RootIndexDTO>(null, {
-		// 	num: 42,
-		// 	str: "Hello world!",
-		// 	arr: [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n],
-		// 	date: new Date()
-		// })
+	@Query({
+		uuid: z.string().uuid()
+	})
+	page(ctx: CustomContext) {
+		return render<RootIndexDTO>(Root, {
+			uuid: ctx.query.uuid
+		})
 	}
 	
 	@Post("/create-test")

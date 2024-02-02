@@ -16,13 +16,15 @@
 	},
 	"scripts": {
 		"clean": "rm -rf ./dist",
-		"build": "pnpm clean && tsc",
-		"watch": "pnpm clean && tsc -w",
-		"test": "pnpm build && c8 mocha --trace-warnings --import=extensionless/register --r=./dist/_tests/init.js ./dist/_tests/*.spec.js"
+		"test": "pnpm clean && webpack --config=webpack.config.js --mode=production && c8 mocha --trace-warnings ./dist/test/*.test.js",
+		"watch": "pnpm clean && webpack watch --config=webpack.config.js --mode=production"
 	},
 	"c8": {
 		"exclude": [
 			"**/_tests/**/*"
+		],
+		"exclude-after-remap": [
+			"core/**/*"
 		]
 	},
 	"repository": {
@@ -124,6 +126,7 @@
 		"sinon-chai": "^3.7.0",
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.3.3",
+		"vue-loader": "^17.4.2",
 		"vue-style-loader": "^4.1.3",
 		"webpack": "5.89.0",
 		"webpack-assets-manifest": "^5.1.0",

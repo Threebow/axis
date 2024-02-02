@@ -12,12 +12,9 @@ export type ExampleLink = {
 }
 
 export type CustomLocalsDTO = BaseLocalsDTO<CustomUserDTO> & {
-	links: ExampleLink
+	links: ExampleLink[]
 }
 
 export type RootIndexDTO = {
-	num: number
-	str: string
-	arr: bigint[]
-	date: Date
+	uuid: string
 }

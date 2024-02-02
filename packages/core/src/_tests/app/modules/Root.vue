@@ -1,22 +1,23 @@
 <script setup lang="ts">
-	import type { RootIndexDTO } from "./Root.dto"
+	import type { CustomLocalsDTO, RootIndexDTO } from "./Root.dto"
 	import { toJson } from "../../../helpers"
 
-	defineProps<RootIndexDTO>()
+	defineProps<RootIndexDTO & CustomLocalsDTO>()
 </script>
 
 <template lang="pug">
-	p Hello from the root component!
+	p Hello from Root.vue!
 	p All data:
+
+	p UUID: {{ uuid }}
 
 	pre
 		code {{ toJson($props) }}
 
-	p Individual data:
-	p Number: {{ num }}
-	p String: {{ str }}
-	p Bigint Array: {{ arr }}
-	p Date: {{ date }}
+	p User and links:
+
+	pre
+		code {{ toJson({user, links}) }}
 </template>
 
 <style scoped lang="scss">

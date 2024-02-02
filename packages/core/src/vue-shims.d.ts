@@ -6,10 +6,10 @@
 
 // declare var __APP_URL__: string
 
-// declare module "*.vue" {
-// 	import Vue from "vue"
-// 	export default Vue
-// }
+declare module "*.vue" {
+	import Vue from "vue"
+	export default Vue
+}
 
 // declare module "*.png" {
 // 	const value: string

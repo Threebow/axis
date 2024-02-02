@@ -1,4 +1,4 @@
-import { join, normalize, parse, relative } from "path"
+import { join, normalize, parse, relative, resolve } from "path"
 import { renderToString } from "vue/server-renderer"
 import { compileFile, compileTemplate } from "pug"
 import { DTO, PageData, PageMeta, ViewComponent, ViewData } from "../types"
@@ -40,7 +40,10 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		return path.replace(/\\/g, "/")
 	}
 	
-	private resolveLayout(layoutCtx: __WebpackModuleApi.RequireContext, dir: string): ResolvedLayout[] {
+	/**
+	 * Walks down the provided files and resolves any layouts that should be rendered under the view.
+	 */
+	private resolveLayouts(layoutCtx: __WebpackModuleApi.RequireContext, dir: string): ResolvedLayout[] {
 		const layouts = layoutCtx.keys()
 		
 		if (!layouts.length) {
@@ -54,16 +57,18 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		while (true) {
 			attempts++
 			
-			if (attempts >= 10) {
+			// This is only here to safeguard against accidental infinite loops.
+			// Ideally we would support infinite layouts, but first we need to solve the halting problem.
+			if (attempts >= 50) {
 				throw new Error("Too many layouts")
 			}
 			
 			const parsed = parse(dir)
 			
-			const testPath = join(dir, "./layout.vue")
-			
+			// There can be at most one layout per directory, we need to find the appropriate layout in this directory
+			// We do this by finding the layout that is in the same directory that the view file is in
 			const layoutPath = layouts
-				.find(path => normalize(path) === testPath)
+				.find(path => !relative(dir, normalize(path)).includes("\\"))
 			
 			if (layoutPath) {
 				res.push({
@@ -73,10 +78,12 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 				})
 			}
 			
+			// If we reach the root directory, stop
 			if (parsed.base === ".." || parsed.base === "." || parsed.base === "") {
 				break
 			}
 			
+			// Walk further down the directory tree
 			dir = join(dir, "../")
 		}
 		
@@ -99,13 +106,16 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			throw new Error("Component file name could not be found.")
 		}
 		
-		// calculate the relative path to the component
-		const delta = relative(app.opts.moduleRoot, component.__FILENAME__)
+		// calculate the absolute path to the component
+		const absolute = resolve(process.cwd(), component.__FILENAME__)
+		
+		// calculate the relative path to the component from the module root
+		const delta = relative(app.opts.moduleRoot, absolute)
 		const { dir, name } = parse(delta)
 		const file = join(dir, name)
 		
-		// resolve any layouts that may be present
-		const layouts = this.resolveLayout(app.opts.renderer.layouts, dir)
+		// resolve any layouts that should be rendered under this view
+		const layouts = this.resolveLayouts(app.opts.renderer.layouts, dir)
 		
 		// build data to be rendered on the view
 		const view = toJson<ViewData>({

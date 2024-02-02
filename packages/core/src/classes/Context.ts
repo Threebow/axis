@@ -145,8 +145,9 @@ export abstract class Context<
 		this.isInitialized = true
 	}
 	
-	// TODO: type this
 	async respond(data: ContextResponse | Promise<ContextResponse>): Promise<void> {
+		// TODO: allow this to accept a view directly instead of a renderer (i.e. return Todo)
+		
 		// ensure no responses are sent until the context has been initialized
 		if (!this.isInitialized) {
 			throw new Error("Context: cannot respond until context has been initialized.")

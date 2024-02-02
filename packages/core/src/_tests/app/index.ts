@@ -6,6 +6,10 @@ import { CustomLocalsDTO, CustomUserDTO } from "./modules/Root.dto"
 import { sleep } from "../../helpers"
 import { mockKoaContext } from "../mocks/koa"
 import { KVObject } from "../../types"
+import { fileURLToPath } from "url"
+import { dirname, resolve } from "path"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export function createMockRequireContext(): __WebpackModuleApi.RequireContext {
 	function resolve(id: string): string {
@@ -41,18 +45,18 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 		},
 		
 		context: CustomContext,
-		moduleRoot: "./src/modules",
+		moduleRoot: resolve(__dirname, "./modules"),
 		assetManifest: {},
 		renderer: {
-			indexPage: "./dist/backend/index.pug",
-			layouts: createMockRequireContext(),
+			indexPage: "./src/frontend/index.pug",
+			layouts: require.context("./modules", true, /.+layout\.vue$/),
 			defaultPageMeta: {
 				title: "AxisJS",
 				description: "A framework for building web applications",
 				author: "Threebow"
 			}
 		},
-		modules: createMockRequireContext()
+		modules: require.context("./modules", true)
 	})
 	
 	if (addFixtures) {

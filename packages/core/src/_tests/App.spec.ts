@@ -68,18 +68,6 @@ describe("Application", () => {
 			})
 		})
 		
-		// it("should return the correct rendered view from the page route", async () => {
-		// 	const res = await r("GET", "/page")
-		//
-		// 	console.log("!!!", res)
-		//
-		// 	expect(res).to.deep.equal({
-		// 		success: true,
-		// 		status: 200,
-		// 		data: "<!DOCTYPE html><html><head><title>Test Page</title></head><body><h1>Test Page</h1><p>This is a test page.</p></body></html>"
-		// 	})
-		// })
-		
 		it("should return 201 from the store route", async () => {
 			const res = await r("POST", "/create-test")
 			

@@ -4,5 +4,8 @@
 	"description": "Injects filenames onto vue components",
 	"main": "index.js",
 	"author": "Threebow",
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"acorn": "^8.11.3"
+	}
 }
