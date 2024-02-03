@@ -3,23 +3,26 @@
 	"version": "11.3.0",
 	"description": "Full-stack framework with SSR for Node",
 	"author": "Threebow",
-	"main": "./dist/module/server/index.js",
 	"type": "module",
-	"types": "./dist/ts/index.d.ts",
 	"exports": {
 		".": {
 			"import": "./dist/module/server/index.js",
-			"require": "./dist/module/server/index.js"
+			"require": "./dist/module/server/index.js",
+			"types": "./dist/ts/index.d.ts"
 		},
 		"./server": {
 			"import": "./dist/module/server/index.js",
-			"require": "./dist/module/server/index.js"
+			"require": "./dist/module/server/index.js",
+			"types": "./dist/ts/index.d.ts"
 		},
 		"./client": {
 			"import": "./dist/module/client/index.js",
-			"require": "./dist/module/client/index.js"
+			"require": "./dist/module/client/index.js",
+			"types": "./dist/ts/index.client.d.ts"
 		}
 	},
+	"main": "./dist/module/server/index.js",
+	"types": "./dist/ts/index.d.ts",
 	"files": [
 		"dist/**/*"
 	],
