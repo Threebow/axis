@@ -1,5 +1,5 @@
-import { DTO, ViewComponent } from "../types"
-import { IRedirector, IRenderer, IResponder, Redirector, Renderer, Responder } from "../classes"
+import { DTO, ViewComponent } from "../../types"
+import { IRedirector, IRenderer, IResponder, Redirector, Renderer, Responder } from "../../classes"
 
 export function render<Data extends DTO>(component: ViewComponent, props?: Data): IRenderer<Data> {
 	return new Renderer<Data>()

@@ -120,7 +120,7 @@ describe("Application", () => {
 			assert(!res.success)
 			expect(res.data.status).to.equal(501)
 			expect(res.data.eventId).to.be.a("string").with.length(32)
-			expect(res.data.extra).to.equal("Not Implemented")
+			expect(res.data).to.not.have.key("extra")
 			
 			expect(console.error).to.have.been.calledWith("Event ID:")
 		})

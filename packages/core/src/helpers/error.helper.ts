@@ -1,5 +1,7 @@
+import type { Scope } from "@sentry/node"
 import { DateTime } from "luxon"
-import * as Sentry from "@sentry/node"
+
+const Sentry = __SERVER__ ? await import("@sentry/node") : await import("@sentry/browser")
 
 export function handleError(e: any, tag: string, kill = false, processingMetadata?: any): string {
 	console.error("ERROR:", tag)
@@ -8,7 +10,7 @@ export function handleError(e: any, tag: string, kill = false, processingMetadat
 	
 	let id
 	
-	Sentry.withScope((scope: Sentry.Scope) => {
+	Sentry.withScope((scope: Scope) => {
 		scope.setTag("tag", tag)
 		
 		if (kill) {

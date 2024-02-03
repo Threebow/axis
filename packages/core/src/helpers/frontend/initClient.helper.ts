@@ -1,5 +1,5 @@
 import { createLogger } from "../logger.helper"
-import { ViewData } from "../../types"
+import { ViewComponent, ViewData } from "../../types"
 import { fromJson } from "../json.helper"
 import { createApp } from "../../createApp"
 
@@ -37,10 +37,18 @@ function removePreloader() {
 }
 
 /**
+ * Normalizes a layout or view path.
+ * @param file
+ */
+function normalize(file: string): string {
+	return file.startsWith("./") ? file : "./" + file
+}
+
+/**
  * This should be called at the start of the main client entry point build.
  * This is what parses the view data out of the window object and mounts the Vue app.
  */
-export async function initClient() {
+export async function initClient(ctx: __WebpackModuleApi.RequireContext) {
 	// Parse the view data from the window object
 	const rawView: string = (window as any).__ENCODED_VIEW__
 	const viewData = rawView ? fromJson<ViewData>(decodeURIComponent(rawView)) : null
@@ -50,28 +58,25 @@ export async function initClient() {
 		throw new Error("No view provided to load.")
 	}
 	
-	log("Loading view data:", viewData)
+	const viewFilePath = normalize(viewData.file)
 	
-	const viewComponent = await import("./" + viewData.file + ".vue")
-	if (!viewComponent) {
-		console.error(viewComponent)
-		throw new Error("View not found: " + viewData.file)
+	log("Loading view at:", viewFilePath)
+	
+	const viewComponent = ctx(normalize(viewData.file)) as ViewComponent
+	
+	if (!viewComponent || !viewComponent.default) {
+		log("Could not find component:", viewFilePath, viewComponent)
+		throw new Error(`View at path "${viewFilePath}" not found. Available views: ${ctx.keys().join(", ")}`)
 	}
 	
-	log("Loaded view component:", viewComponent.default)
+	log("Loaded view:", viewComponent.default)
 	
 	// load layouts
 	const layouts = await Promise.all(
 		viewData
 			.layoutFiles
 			.map(async (file) => {
-				if (file === ".") {
-					file = ""
-				} else {
-					file += "/"
-				}
-				
-				const layout = await import("./" + file + "layout.vue")
+				const layout = ctx(file)
 				
 				if (!layout) {
 					throw new Error("LAYOUT NOT FOUND: " + file)

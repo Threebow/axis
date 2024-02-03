@@ -1,3 +1,5 @@
-import { initClient } from "../../../helpers"
+import { initClient } from "../../../helpers/frontend/initClient.helper"
 
-await initClient()
+import "./main.scss"
+
+await initClient(require.context("../modules", true, __FRONTEND_INIT_REGEX__))

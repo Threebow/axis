@@ -66,11 +66,6 @@ export type AppOptions<
 	 */
 	context: ContextConstructor<Context>
 	
-	/*
-		// FIXME: this stuff probably needs to be passed in as arguments or options instead of being hard-coded
-		const LAYOUTS = require.context("@/modules", true, /layout\.vue$/)
-	 */
-	
 	/**
 	 * The root directory of the app modules.
 	 * @example "./src/modules"
@@ -167,7 +162,7 @@ export class App<
 		
 		// add some generic middleware
 		this.koa
-			.use(serve("./dist/frontend/", { maxage: 24 * 60 * 60 * 1000 }))
+			.use(serve("./dist/demo/frontend", { maxage: 24 * 60 * 60 * 1000 }))
 			.use(bodyParser())
 			.use(session({}, this.koa))
 		

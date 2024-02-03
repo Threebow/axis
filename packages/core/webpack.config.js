@@ -6,6 +6,11 @@ import fs from "node:fs"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import { VueLoaderPlugin } from "vue-loader"
 import { globbySync } from "globby"
+import { merge } from "webpack-merge"
+import webpack from "webpack"
+import CopyPlugin from "copy-webpack-plugin"
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
+import WebpackAssetsManifest from "webpack-assets-manifest"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -38,15 +43,9 @@ export default (env, argv) => {
 	const BASE = {
 		mode: argv.mode,
 		target: "node20.10",
-		entry: resolve(SRC, "_tests/init.ts"),
 		devtool: "source-map",
 		output: {
-			path: resolve(DIST, "./test"),
-			filename: "[name].[contenthash].test.js",
-			library: {
-				type: "module"
-			},
-			chunkFormat: "module",
+			chunkFilename: "[name]-[chunkhash].chunk.bundle.js",
 			publicPath: "/",
 			scriptType: "text/javascript"
 		},
@@ -54,6 +53,12 @@ export default (env, argv) => {
 			extensions: [".js", ".ts", "..."]
 		},
 		plugins: [
+			new webpack.DefinePlugin({
+				__DEV__: DEV,
+				__PROD__: PROD,
+				__LAYOUT_REGEX__: "/.+layout\\.vue$/",
+				__FRONTEND_INIT_REGEX__: "/.+\\.vue$/"
+			}),
 			new VueLoaderPlugin(),
 			new MiniCssExtractPlugin({
 				filename: "[name]-[fullhash].css"
@@ -97,12 +102,6 @@ export default (env, argv) => {
 						}
 					]
 				},
-				// {
-				// 	test: /&setup=true$/,
-				// 	use: [
-				// 		"@axisjs/filename-loader"
-				// 	]
-				// },
 				{
 					test: /\.s?css$/,
 					use: [
@@ -138,6 +137,17 @@ export default (env, argv) => {
 					]
 				}
 			]
+		}
+	}
+
+	const NODE = merge(BASE, {
+		target: "node20.10",
+		output: {
+			filename: "index.js",
+			library: {
+				type: "module"
+			},
+			chunkFormat: "module"
 		},
 		externals: [
 			nodeExternals({
@@ -148,10 +158,118 @@ export default (env, argv) => {
 		experiments: {
 			outputModule: true
 		}
+	})
+
+	const WEB = merge(BASE, {
+		target: "web",
+		output: {
+			filename: "[name]-[fullhash].bundle.js"
+		},
+		plugins: [
+			new webpack.DefinePlugin({
+				__SERVER__: false,
+				__CLIENT__: true
+			}),
+			new WebpackAssetsManifest({
+				output: "../assets-manifest.json"
+			})
+		],
+		optimization: {
+			minimizer: [
+				"...",
+				new CssMinimizerPlugin()
+			]
+		}
+	})
+
+	function generateBuildConfig(src, dist, serverEntry) {
+		return [
+			// Server build
+			merge(NODE, {
+				entry: resolve(src, serverEntry ?? "./boot.ts"),
+				plugins: [
+					new webpack.DefinePlugin({
+						__SERVER__: true,
+						__CLIENT__: false,
+						__SRC__: JSON.stringify(resolve(src)),
+						__DIST__: JSON.stringify(resolve(dist))
+					})
+				],
+				output: {
+					path: resolve(dist, "./backend")
+				}
+			}),
+
+			// Client build
+			merge(WEB, {
+				entry: resolve(src, "./frontend/main.ts"),
+				output: {
+					path: resolve(dist, "./frontend")
+				},
+				plugins: [
+					new CopyPlugin({
+						patterns: [
+							{
+								from: resolve(src, "./frontend/favicon.ico"),
+								to: "./favicon-[fullhash].ico"
+							}
+						]
+					})
+				]
+			})
+		]
 	}
 
-	return [
-		// Tests
-		BASE
-	]
+	switch (env.TARGET) {
+		case "TESTS":
+			// specify test entry as third parameter
+			return generateBuildConfig(resolve(SRC, "./_tests/app"), resolve(DIST, "./tests"), "../init.ts")
+
+		case "DEMO":
+			return generateBuildConfig(resolve(SRC, "./_tests/app"), resolve(DIST, "./demo"))
+
+		case "MODULE":
+			const MODULE = merge(NODE, {
+				target: "es2024",
+				experiments: {
+					outputModule: true
+				}
+			})
+
+			return [
+				// generate build that is only importable on server-side
+				merge(MODULE, {
+					entry: resolve(SRC, "./index.ts"),
+					output: {
+						path: resolve(DIST, "./module/server")
+					},
+					plugins: [
+						new webpack.DefinePlugin({
+							__SERVER__: true,
+							__CLIENT__: false
+						})
+					],
+					externals: [
+						nodeExternals({importType: "module"})
+					],
+					externalsPresets: {node: true}
+				}),
+
+				// generate build that is only importable on client-side
+				merge(MODULE, {
+					entry: resolve(SRC, "./index.client.ts"),
+					output: {
+						path: resolve(DIST, "./module/client")
+					},
+					plugins: [
+						new webpack.DefinePlugin({
+							__SERVER__: false,
+							__CLIENT__: true
+						})
+					]
+				})
+			]
+	}
+
+	throw new Error("Unknown target: " + JSON.stringify(env.TARGET))
 }

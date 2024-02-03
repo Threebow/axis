@@ -1,5 +1,5 @@
-import { BaseLocalsDTO, BaseUserDTO } from "../dto"
-import { Decimal } from "../helpers"
+import type { BaseLocalsDTO, BaseUserDTO } from "../dto"
+import type { Decimal } from "../helpers"
 
 export type DateString = Date | string
 export type DecimalBigInt = Decimal | bigint

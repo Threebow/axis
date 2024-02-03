@@ -111,8 +111,8 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		
 		// calculate the relative path to the component from the module root
 		const delta = relative(app.opts.moduleRoot, absolute)
-		const { dir, name } = parse(delta)
-		const file = join(dir, name)
+		const { dir, base } = parse(delta)
+		const file = join(dir, base)
 		
 		// resolve any layouts that should be rendered under this view
 		const layouts = this.resolveLayouts(app.opts.renderer.layouts, dir)
@@ -120,7 +120,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		// build data to be rendered on the view
 		const view = toJson<ViewData>({
 			file: this.cleanPath(file),
-			layoutFiles: layouts.map(l => this.cleanPath(l.dir)),
+			layoutFiles: layouts.map(l => l.file),
 			props: data,
 			locals: {
 				...ctx.locals,
@@ -167,9 +167,9 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			__TITLE__: metadata.title,
 			__META__: metadata,
 			
+			// TODO: move into its own function
 			__ASSET__(filename: string) {
-				const resolved = app.opts.assetManifest[filename]
-				return resolved ? join("/", resolved) : filename
+				return join("/", app.opts.assetManifest[filename] ?? filename)
 			},
 			
 			__HTML__: appHtml,

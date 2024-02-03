@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import type { CustomLocalsDTO, RootIndexDTO } from "./Root.dto"
-	import { toJson } from "../../../helpers"
+	import { toJson } from "../../../helpers/json.helper"
 
 	defineProps<RootIndexDTO & CustomLocalsDTO>()
 </script>
@@ -20,7 +20,7 @@
 		code {{ toJson({user, links}) }}
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 	@use "../frontend/main";
 
 	$blue: #38bbff;

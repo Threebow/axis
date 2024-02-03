@@ -4,10 +4,10 @@ import { Delete, Get, Mount, Patch, Post, Query, Use } from "../../../decorators
 import { Controller } from "../../../classes"
 import { CustomContext } from "../context"
 import { RootIndexDTO } from "./Root.dto"
-import { render } from "../../../helpers"
 import Root from "./Root.vue"
 import { z } from "zod"
 import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
+import { render } from "../../../helpers/backend"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)

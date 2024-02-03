@@ -9,7 +9,13 @@ export function createLogger(
 	const colorFn = chalk.hex(color)
 	
 	return (...args: any[]) => {
-		console.log(colorFn(`[${process.pid}] [${name}]:`), ...args)
+		let prefix = `[${name}]:`
+		
+		if (__SERVER__) {
+			prefix = `[${process.pid}] ` + prefix
+		}
+		
+		console.log(colorFn(prefix), ...args)
 		
 		if (onLog) {
 			process.nextTick(() => Promise

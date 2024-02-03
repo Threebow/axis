@@ -5,7 +5,8 @@ import { fromZodError } from "zod-validation-error"
 import { BaseLocalsDTO, BaseUserDTO, ErrorDTO } from "../dto"
 import { AppErrorType, IApp, IBaseUser, IContext, isAppError, Responder } from "../classes"
 import { ViewComponent } from "../types"
-import { handleError, render } from "../helpers"
+import { handleError } from "../helpers"
+import { render } from "../helpers/backend"
 
 /**
  * Handle fatal application-level errors. This should be at the top of the middleware stack and should
@@ -40,11 +41,6 @@ export function genericErrorHandler<
 		try {
 			await next()
 		} catch (e: any) {
-			// expose error details in development
-			if (opts.expose) {
-				e.expose = true
-			}
-			
 			// create new context for the error response
 			const errCtx = opts.app.createContext(koaCtx)
 			await errCtx.initialize()

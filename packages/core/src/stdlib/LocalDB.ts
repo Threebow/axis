@@ -1,4 +1,5 @@
-import { ensureStorageAvailable, fromJson } from "../helpers"
+import { fromJson } from "../helpers"
+import { ensureStorageAvailable } from "../helpers/frontend"
 
 export interface ILocalDB {
 	get<T>(key: string): T | undefined

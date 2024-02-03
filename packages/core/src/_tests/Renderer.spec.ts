@@ -1,11 +1,12 @@
 import { createMockAppWithContext } from "./fixtures/createMockAppWithContext.fixture"
 import { expect } from "chai"
-import { fromJson, getVersionString, render, uuid } from "../helpers"
+import { fromJson, getVersionString, uuid } from "../helpers"
 import Root from "./app/modules/Root.vue"
 import { RootIndexDTO } from "./app/modules/Root.dto"
 import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { ViewData } from "../types"
 import { expectToIncludeInOrder } from "./fixtures/expectToIncludeInOrder"
+import { render } from "../helpers/backend"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext()
@@ -37,12 +38,12 @@ describe("Renderer", () => {
 		const data = fromJson(decodeURIComponent(encoded))
 		
 		expect(data).to.deep.equal({
-			file: "NestedLayouts/A/B/C/NestedTest",
+			file: "NestedLayouts/A/B/C/NestedTest.vue",
 			layoutFiles: [
-				".",
-				"NestedLayouts",
-				"NestedLayouts/A/B",
-				"NestedLayouts/A/B/C"
+				"./Root.layout.vue",
+				"./NestedLayouts/NestedLayouts.layout.vue",
+				"./NestedLayouts/A/B/layout.vue",
+				"./NestedLayouts/A/B/C/C.layout.vue"
 			],
 			locals: {
 				__APP_VERSION__: getVersionString()
@@ -84,6 +85,5 @@ describe("Renderer", () => {
 				`<meta name="twitter:card" content="summary_large_image">`
 			])
 		})
-		
 	})
 })

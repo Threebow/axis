@@ -1,5 +1,10 @@
-import * as process from "process"
+import type { nextTick as NextTickType } from "process"
 import { handleError } from "../helpers"
+
+// dynamically import nextTick based on what build we are in
+const nextTick: typeof NextTickType = __SERVER__
+	? (await import("process")).nextTick
+	: (callback: Function, ...args: any[]) => setTimeout(callback, 0, ...args)
 
 export type ListenerFunction<T> = (args: T) => Promise<any> | any
 
@@ -11,7 +16,7 @@ export abstract class Listener<T> implements IListener<T> {
 	private listeners: ListenerFunction<T>[] = []
 	
 	protected trigger(input: T): void {
-		process.nextTick(() => this.triggerAsync(input))
+		nextTick(() => this.triggerAsync(input))
 	}
 	
 	protected async triggerAsync(input: T): Promise<void> {

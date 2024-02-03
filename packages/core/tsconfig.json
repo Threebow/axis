@@ -1,12 +1,14 @@
 {
-	"extends": "../../tsconfig.bundler.json",
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"declaration": true,
 		"rootDir": "./src",
-		"outDir": "./dist",
+		// should never actually get built into this directory, as entire build is handled by webpack
+		"outDir": "./dist/ts",
+		"moduleResolution": "bundler",
 		"types": [
 			"webpack-env",
 			"mocha"
-		]
+		],
+		"declaration": true
 	}
 }

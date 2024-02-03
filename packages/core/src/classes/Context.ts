@@ -8,8 +8,8 @@ import { BaseLocalsDTO, BaseUserDTO } from "../dto"
 import { IApp } from "./App"
 import { IValidator, Validator } from "./Validator"
 import { Responder } from "./Responder"
-import { resolveIpAddressFromIncomingMessage } from "../helpers"
 import { IBaseUser } from "./User"
+import { resolveIpAddressFromIncomingMessage } from "../helpers/backend"
 
 export type ContextResponse
 	= DTO

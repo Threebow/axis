@@ -3,11 +3,13 @@ import { CustomContext } from "./context"
 import { App, AppMode, IApp, IContext } from "../../classes"
 import { IUser, MOCK_USERS } from "./classes/User.class"
 import { CustomLocalsDTO, CustomUserDTO } from "./modules/Root.dto"
-import { sleep } from "../../helpers"
+import { fromJson, sleep } from "../../helpers"
 import { mockKoaContext } from "../mocks/koa"
 import { KVObject } from "../../types"
 import { fileURLToPath } from "url"
 import { dirname, resolve } from "path"
+import ErrorPage from "./modules/Error.vue"
+import { readFileSync } from "fs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -29,11 +31,11 @@ export function createMockRequireContext(): __WebpackModuleApi.RequireContext {
 
 export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, any, any> {
 	const app = new App<CustomUserDTO, IUser, CustomLocalsDTO, CustomContext>({
-		mode: AppMode.DEVELOPMENT,
+		mode: __DEV__ ? AppMode.DEVELOPMENT : AppMode.PRODUCTION,
 		port,
 		sessionKey: "blowfish",
 		rootController: RootController,
-		errorPage: null,
+		errorPage: ErrorPage,
 		
 		// TODO: use a service or something?
 		async resolveUser(id: string): Promise<IUser> {
@@ -46,10 +48,10 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 		
 		context: CustomContext,
 		moduleRoot: resolve(__dirname, "./modules"),
-		assetManifest: {},
+		assetManifest: fromJson(readFileSync(resolve(__DIST__, "./assets-manifest.json"), "utf8")),
 		renderer: {
 			indexPage: "./src/frontend/index.pug",
-			layouts: require.context("./modules", true, /.+layout\.vue$/),
+			layouts: require.context("./modules", true, __LAYOUT_REGEX__),
 			defaultPageMeta: {
 				title: "AxisJS",
 				description: "A framework for building web applications",
