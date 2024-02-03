@@ -42,7 +42,6 @@ export default (env, argv) => {
 
 	const BASE = {
 		mode: argv.mode,
-		target: "node20.10",
 		devtool: "source-map",
 		output: {
 			chunkFilename: "[name]-[chunkhash].chunk.bundle.js",
