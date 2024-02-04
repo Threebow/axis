@@ -158,8 +158,6 @@ export class App<
 		// set session key
 		this.koa.keys = [opts.sessionKey]
 		
-		console.log("!!!!!", this.assetManifest)
-		
 		// define error handlers
 		this.koa
 			.use(fatalErrorHandler())
