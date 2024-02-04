@@ -1,4 +1,4 @@
-import { join, normalize, parse, relative, resolve } from "path"
+import { join, parse, relative, resolve } from "path"
 import { renderToString } from "vue/server-renderer"
 import { compileFile, compileTemplate } from "pug"
 import { DTO, PageData, PageMeta, ViewComponent, ViewData } from "../types"
@@ -37,7 +37,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 	}
 	
 	private cleanPath(path: string): string {
-		return path.replace(/\\/g, "/")
+		return path.replace(/\\+/g, "/")
 	}
 	
 	/**
@@ -68,7 +68,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			// There can be at most one layout per directory, we need to find the appropriate layout in this directory
 			// We do this by finding the layout that is in the same directory that the view file is in
 			const layoutPath = layouts
-				.find(path => !relative(dir, normalize(path)).includes("\\"))
+				.find(path => !this.cleanPath(relative(this.cleanPath(dir), this.cleanPath(path))).includes("/"))
 			
 			if (layoutPath) {
 				res.push({
