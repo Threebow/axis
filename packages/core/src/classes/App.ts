@@ -11,6 +11,7 @@ import { PageMeta, ViewComponent } from "../types"
 import { AssetManifest } from "./AssetManifest"
 import { getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
+import { resolve } from "path"
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -162,7 +163,7 @@ export class App<
 		
 		// add some generic middleware
 		this.koa
-			.use(serve("./dist/demo/frontend", { maxage: 24 * 60 * 60 * 1000 }))
+			.use(serve(resolve(__DIST__, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
 			.use(bodyParser())
 			.use(session({}, this.koa))
 		
