@@ -169,7 +169,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			
 			// TODO: move into its own function
 			__ASSET__(filename: string) {
-				return join("/", app.opts.assetManifest[filename] ?? filename)
+				return join("/", app.assetManifest[filename] ?? filename)
 			},
 			
 			__HTML__: appHtml,

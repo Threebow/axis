@@ -1,6 +1,5 @@
 export * from "./App"
 export * from "./AppError"
-export * from "./AssetManifest"
 export * from "./Context"
 export * from "./Controller"
 export * from "./Executable"

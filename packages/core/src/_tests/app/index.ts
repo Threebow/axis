@@ -3,13 +3,12 @@ import { CustomContext } from "./context"
 import { App, AppMode, IApp, IContext } from "../../classes"
 import { IUser, MOCK_USERS } from "./classes/User.class"
 import { CustomLocalsDTO, CustomUserDTO } from "./modules/Root.dto"
-import { fromJson, sleep } from "../../helpers"
+import { sleep } from "../../helpers"
 import { mockKoaContext } from "../mocks/koa"
 import { KVObject } from "../../types"
 import { fileURLToPath } from "url"
 import { dirname, resolve } from "path"
 import ErrorPage from "./modules/Error.vue"
-import { readFileSync } from "fs"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -30,9 +29,10 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 			return user ?? Promise.reject(new Error("User not found."))
 		},
 		
+		dist: __DIST__,
+		
 		context: CustomContext,
 		moduleRoot: resolve(__dirname, "./modules"),
-		assetManifest: fromJson(readFileSync(resolve(__DIST__, "./assets-manifest.json"), "utf8")),
 		renderer: {
 			indexPage: "./src/frontend/index.pug",
 			layouts: require.context("./modules", true, __LAYOUT_REGEX__),

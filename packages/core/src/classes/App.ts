@@ -7,11 +7,11 @@ import { BaseLocalsDTO, BaseUserDTO } from "../dto"
 import { IBaseUser } from "./User"
 import { ContextConstructor, IContext } from "./Context"
 import { ControllerConstructor } from "./Controller"
-import { PageMeta, ViewComponent } from "../types"
-import { AssetManifest } from "./AssetManifest"
-import { getVersionString } from "../helpers"
+import { KVObject, PageMeta, ViewComponent } from "../types"
+import { fromJson, getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
 import { resolve } from "path"
+import { readFileSync } from "fs"
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -74,11 +74,6 @@ export type AppOptions<
 	moduleRoot: string
 	
 	/**
-	 * The asset manifest, this should be read from the build output and passed in.
-	 */
-	assetManifest: AssetManifest
-	
-	/**
 	 * A freshly-created require context that targets the modules directory.
 	 */
 	modules: __WebpackModuleApi.RequireContext
@@ -103,7 +98,12 @@ export type AppOptions<
 		 * The default page meta to use when none is provided per view.
 		 */
 		defaultPageMeta: PageMeta
-	}
+	},
+	
+	/**
+	 * The filepath to the directory that contains the app's built files
+	 */
+	dist: string
 }
 
 /**
@@ -116,6 +116,8 @@ type AppBootResult = {
 
 // FIXME: figure out how to make the two more DRY by not repeating the generic types
 
+type AssetManifest = KVObject<string | undefined>
+
 export interface IApp<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
@@ -127,6 +129,8 @@ export interface IApp<
 	
 	readonly koa: Koa<void, Context>
 	readonly koaServer: Server
+	
+	readonly assetManifest: AssetManifest
 	
 	boot(): Promise<AppBootResult>
 	
@@ -143,6 +147,9 @@ export class App<
 > implements IApp<UserDTO, UserClass, LocalsDTO, Context> {
 	readonly version = getVersionString()
 	
+	// read asset manifest
+	readonly assetManifest: AssetManifest = fromJson(readFileSync(resolve(this.opts.dist, "./assets-manifest.json"), "utf8"))
+	
 	// create koa and server instances
 	readonly koa = new Koa<void, Context>()
 	readonly koaServer = createServer(this.koa.callback())
@@ -150,6 +157,8 @@ export class App<
 	constructor(readonly opts: AppOptions<UserDTO, UserClass, LocalsDTO, Context>) {
 		// set session key
 		this.koa.keys = [opts.sessionKey]
+		
+		console.log("!!!!!", this.assetManifest)
 		
 		// define error handlers
 		this.koa
@@ -163,7 +172,7 @@ export class App<
 		
 		// add some generic middleware
 		this.koa
-			.use(serve(resolve(__DIST__, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
+			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
 			.use(bodyParser())
 			.use(session({}, this.koa))
 		
