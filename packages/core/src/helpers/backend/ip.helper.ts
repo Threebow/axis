@@ -1,7 +1,7 @@
 import { IncomingMessage } from "http"
 import isPrivate from "private-ip"
 
-export function resolveIpAddressFromIncomingMessage(request: IncomingMessage): string {
+export function resolveIpAddressFromIncomingMessage(request: IncomingMessage, allowPrivate = false): string {
 	let ip = request.headers["do-connecting-ip"] ?? request.socket.remoteAddress
 	
 	if (Array.isArray(ip)) {
@@ -12,7 +12,7 @@ export function resolveIpAddressFromIncomingMessage(request: IncomingMessage): s
 		throw new Error("IP address is inaccessible")
 	}
 	
-	if (isPrivate(ip)) {
+	if (!allowPrivate && isPrivate(ip)) {
 		throw new Error("Private IP addresses are prohibited.")
 	}
 	

@@ -5,7 +5,7 @@ import HTTPError from "http-errors"
 import { DTO, KVObject } from "../types"
 import { IExecutable, isExecutable } from "./Executable"
 import { BaseLocalsDTO, BaseUserDTO } from "../dto"
-import { IApp } from "./App"
+import { AppMode, IApp } from "./App"
 import { IValidator, Validator } from "./Validator"
 import { Responder } from "./Responder"
 import { IBaseUser } from "./User"
@@ -123,7 +123,8 @@ export abstract class Context<
 	
 	get ipAddress(): string {
 		if (!this._ipAddress) {
-			this._ipAddress = resolveIpAddressFromIncomingMessage(this.koaCtx.req)
+			// make sure we only allow local ip addresses in development
+			this._ipAddress = resolveIpAddressFromIncomingMessage(this.koaCtx.req, this.app.opts.mode === AppMode.DEVELOPMENT)
 		}
 		
 		return this._ipAddress
