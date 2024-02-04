@@ -1,12 +1,13 @@
 import { createMockAppWithContext } from "./fixtures/createMockAppWithContext.fixture"
 import { expect } from "chai"
-import { fromJson, getVersionString, uuid } from "../helpers"
+import { getVersionString, uuid } from "../helpers"
 import Root from "./app/modules/Root.vue"
 import { RootIndexDTO } from "./app/modules/Root.dto"
 import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { ViewData } from "../types"
 import { expectToIncludeInOrder } from "./fixtures/expectToIncludeInOrder"
 import { render } from "../helpers/backend"
+import { extractAndParseEncodedViewData } from "./fixtures/extractEncodedViewData"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext()
@@ -27,15 +28,10 @@ describe("Renderer", () => {
 	})
 	
 	it("should encode view data into the page", async () => {
-		const str = `window.__ENCODED_VIEW__ = "`
-		
 		await mock.ctx.respond(render(NestedTest))
 		const r = mock.ctx.koaCtx.body as string
 		
-		expect(r).to.include(str)
-		
-		const encoded = r.split(str)[1].split("\"")[0]
-		const data = fromJson(decodeURIComponent(encoded))
+		const data = extractAndParseEncodedViewData(r)
 		
 		expect(data).to.deep.equal({
 			file: "NestedLayouts/A/B/C/NestedTest.vue",

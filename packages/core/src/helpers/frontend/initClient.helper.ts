@@ -62,21 +62,21 @@ export async function initClient(ctx: __WebpackModuleApi.RequireContext) {
 	
 	log("Loading view at:", viewFilePath)
 	
-	const viewComponent = ctx(normalize(viewData.file)) as ViewComponent
+	const viewComponent = await ctx(normalize(viewData.file)) as ViewComponent
 	
 	if (!viewComponent || !viewComponent.default) {
 		log("Could not find component:", viewFilePath, viewComponent)
 		throw new Error(`View at path "${viewFilePath}" not found. Available views: ${ctx.keys().join(", ")}`)
 	}
 	
-	log("Loaded view:", viewComponent.default)
+	log("Loaded view:", viewComponent.default.__FILENAME__)
 	
 	// load layouts
 	const layouts = await Promise.all(
 		viewData
 			.layoutFiles
 			.map(async (file) => {
-				const layout = ctx(file)
+				const layout = await ctx(file)
 				
 				if (!layout) {
 					throw new Error("LAYOUT NOT FOUND: " + file)
