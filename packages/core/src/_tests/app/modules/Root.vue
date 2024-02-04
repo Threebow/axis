@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import type { CustomLocalsDTO, RootIndexDTO } from "./Root.dto"
-	import { toJson } from "../../../helpers/json.helper"
+	import { toJson } from "../../../index.client"
 
 	defineProps<RootIndexDTO & CustomLocalsDTO>()
 </script>

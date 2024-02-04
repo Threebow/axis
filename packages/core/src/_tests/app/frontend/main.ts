@@ -1,4 +1,4 @@
-import { initClient } from "../../../helpers/frontend/initClient.helper"
+import { initClient } from "../../../index.client"
 
 import "./main.scss"
 
