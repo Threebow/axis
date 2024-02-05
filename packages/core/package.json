@@ -19,12 +19,17 @@
 			"import": "./dist/module/client/index.js",
 			"require": "./dist/module/client/index.js",
 			"types": "./dist/ts/index.client.d.ts"
+		},
+		"./webpack": {
+			"import": "./webpack/index.js",
+			"require": "./webpack/index.js"
 		}
 	},
 	"main": "./dist/module/server/index.js",
 	"types": "./dist/ts/index.d.ts",
 	"files": [
-		"dist/**/*"
+		"dist/**/*",
+		"webpack/**/*"
 	],
 	"engines": {
 		"node": "^20.10.0",
