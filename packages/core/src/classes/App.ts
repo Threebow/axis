@@ -60,7 +60,7 @@ export type AppOptions<
 	 * This is used to inject the user into the context.
 	 * If the user is not found, this should throw.
 	 */
-	resolveUser: (id: string) => Promise<UserClass>
+	resolveUser: (id: string) => Promise<UserClass | false>
 	
 	/**
 	 * Used to extend the default app context. The constructor of the context class to use.

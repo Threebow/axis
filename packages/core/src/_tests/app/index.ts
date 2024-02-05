@@ -21,12 +21,10 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 		errorPage: ErrorPage,
 		
 		// TODO: use a service or something?
-		async resolveUser(id: string): Promise<IUser> {
+		async resolveUser(id: string): Promise<IUser | false> {
 			// simulate database access
 			await sleep(100)
-			
-			const user = MOCK_USERS.find(u => u.id === id)
-			return user ?? Promise.reject(new Error("User not found."))
+			return MOCK_USERS.find(u => u.id === id) ?? false
 		},
 		
 		dist: __DIST__,

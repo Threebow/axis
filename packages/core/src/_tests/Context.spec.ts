@@ -31,21 +31,35 @@ describe("Context", () => {
 	})
 	
 	describe("Authentication", () => {
-		const testUser = sample(MOCK_USERS)!
-		
-		const mock = createMockAppWithContext({
-			sessionData: {
-				userId: testUser.id
-			}
+		describe("Valid session", () => {
+			const testUser = sample(MOCK_USERS)!
+			
+			const mock = createMockAppWithContext({
+				sessionData: {
+					userId: testUser.id
+				}
+			})
+			
+			it("should load the correct user", () => {
+				expect(mock.ctx.user).to.equal(testUser)
+			})
+			
+			it("should log the user out", () => {
+				mock.ctx.logout()
+				expect(mock.ctx.user).to.be.null
+			})
 		})
 		
-		it("should load the correct user", () => {
-			expect(mock.ctx.user).to.equal(testUser)
-		})
-		
-		it("should log the user out", () => {
-			mock.ctx.logout()
-			expect(mock.ctx.user).to.be.null
+		describe("Invalid session", () => {
+			const mock = createMockAppWithContext({
+				sessionData: {
+					userId: "invalid-id"
+				}
+			})
+			
+			it("should not load a user", () => {
+				expect(mock.ctx.user).to.be.null
+			})
 		})
 	})
 	

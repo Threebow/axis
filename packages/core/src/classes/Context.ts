@@ -138,8 +138,12 @@ export abstract class Context<
 		
 		// extract user from session
 		if (this.session.userId) {
-			this._user = await this.app.opts
+			const resolved = await this.app.opts
 				.resolveUser(this.session.userId)
+			
+			if (resolved !== false) {
+				this._user = resolved
+			}
 		}
 		
 		// mark us as initialized
