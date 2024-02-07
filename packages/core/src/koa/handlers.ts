@@ -50,7 +50,7 @@ export function genericErrorHandler<
 			
 			// report error to sentry if it's a server error or a bad request
 			let eventId: string | undefined = undefined
-			if (status === 400 || status >= 500) {
+			if (status >= 500) {
 				eventId = handleError(e, "generic request error", false, { request: koaCtx.request })
 			}
 			
@@ -94,7 +94,7 @@ export function httpErrorTransformer() {
 		} catch (e: any) {
 			// transform zod errors into bad request errors
 			if (e instanceof ZodError) {
-				const he = new HTTPError.BadRequest(fromZodError(e).toString())
+				const he = new HTTPError.UnprocessableEntity(fromZodError(e).toString())
 				he.expose = true
 				throw he
 			}
