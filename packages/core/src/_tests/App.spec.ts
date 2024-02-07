@@ -177,19 +177,14 @@ describe("Application", () => {
 			})
 			
 			it("should return a validation error if provided an invalid body", async () => {
-				stub(console, "error")
-				
-				// TODO: extend to support sentry with simple helpers like .to.be.an.eventId()
-				
 				const res = await r("POST", "/todos", { title: -1 })
 				
 				assert(!res.success)
-				expect(res.data).to.have.keys("status", "eventId", "extra")
-				expect(res.data.status).to.equal(400)
-				expect(res.data.eventId).to.be.a("string").with.length(32)
-				expect(res.data.extra).to.equal("Validation error: Expected string, received number at \"title\"")
 				
-				expect(console.error).to.have.been.calledWith("Event ID:")
+				expect(res.data).to.deep.equal({
+					status: 422,
+					extra: "Validation error: Expected string, received number at \"title\""
+				})
 			})
 		})
 		
