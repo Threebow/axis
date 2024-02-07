@@ -39,7 +39,8 @@
 		"clean": "rm -rf ./dist",
 		"test": "pnpm clean && webpack --mode=production --env=TARGET=TESTS && c8 mocha --trace-warnings ./dist/tests/backend/index.js",
 		"demo": "pnpm clean && webpack --mode=production --env=TARGET=DEMO && node ./dist/demo/backend/index.js",
-		"build": "pnpm clean && webpack --mode=production --env=TARGET=MODULE"
+		"build": "pnpm clean && webpack --mode=production --env=TARGET=MODULE",
+		"prepublishOnly": "pnpm test && pnpm build"
 	},
 	"c8": {
 		"exclude": [
