@@ -74,11 +74,6 @@ export type AppOptions<
 	moduleRoot: string
 	
 	/**
-	 * A freshly-created require context that targets the modules directory.
-	 */
-	modules: __WebpackModuleApi.RequireContext
-	
-	/**
 	 * Various options for the renderer. If undefined, the renderer will be unusable.
 	 */
 	renderer?: {
