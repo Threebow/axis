@@ -1,7 +1,7 @@
 import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
 import { createMockApp } from "./app"
-import { createRequester } from "../helpers"
+import { createRequester, uuid } from "../helpers"
 import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
 
 describe("Application", () => {
@@ -42,21 +42,29 @@ describe("Application", () => {
 		})
 	})
 	
-	describe("Root Controller", () => {
-		createMockApp()
+	describe("Health Check", () => {
+		const test = { id: uuid() }
+		
+		createMockApp(undefined, undefined, test)
 		
 		const r = createRequester({ baseURL: "http://localhost:3000" })
 		
-		it("should respond to a health check", async () => {
+		it("should respond to a health check with the correct data", async () => {
 			const res = await r("GET", "/health-check")
 			
 			// deep equal res object
 			expect(res).to.deep.equal({
 				success: true,
 				status: 200,
-				data: "OK"
+				data: test
 			})
 		})
+	})
+	
+	describe("Root Controller", () => {
+		createMockApp()
+		
+		const r = createRequester({ baseURL: "http://localhost:3000" })
 		
 		it("should return hello world from the index route", async () => {
 			const res = await r("GET", "/")

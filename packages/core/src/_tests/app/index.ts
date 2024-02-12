@@ -12,7 +12,11 @@ import ErrorPage from "./modules/Error.vue"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, any, any> {
+export function createMockApp(
+	addFixtures = true,
+	port = 3000,
+	healthCheckData?: KVObject
+): IApp<any, any, any, any> {
 	const app = new App<CustomUserDTO, IUser, CustomLocalsDTO, CustomContext>({
 		mode: __DEV__ ? AppMode.DEVELOPMENT : AppMode.PRODUCTION,
 		port,
@@ -40,7 +44,10 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 				author: "Threebow",
 				image: "https://arionstudios.com/logo.png"
 			}
-		}
+		},
+		healthCheckData: healthCheckData
+			? () => healthCheckData
+			: undefined
 	})
 	
 	if (addFixtures) {

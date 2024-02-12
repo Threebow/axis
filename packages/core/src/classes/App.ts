@@ -12,6 +12,7 @@ import { fromJson, getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
 import { resolve } from "path"
 import { readFileSync } from "fs"
+import { PotentialPromise } from "webpack-cli"
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -95,6 +96,11 @@ export type AppOptions<
 	},
 	
 	/**
+	 * Optional data returned from health checks
+	 */
+	healthCheckData?: () => PotentialPromise<KVObject>
+	
+	/**
 	 * The filepath to the directory that contains the app's built files
 	 */
 	dist: string
@@ -173,9 +179,12 @@ export class App<
 		const rootController = new opts.rootController(this as IApp<any, any, any, any>)
 		
 		// add a simple health check route
-		rootController.router.get("/health-check", (ctx) => {
+		rootController.router.get("/health-check", async (ctx) => {
 			ctx.status = 200
-			ctx.body = "OK"
+			
+			if (opts.healthCheckData) {
+				ctx.body = await opts.healthCheckData()
+			}
 		})
 		
 		this.koa
