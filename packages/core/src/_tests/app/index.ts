@@ -40,8 +40,7 @@ export function createMockApp(addFixtures = true, port = 3000): IApp<any, any, a
 				author: "Threebow",
 				image: "https://arionstudios.com/logo.png"
 			}
-		},
-		modules: require.context("./modules", true)
+		}
 	})
 	
 	if (addFixtures) {
