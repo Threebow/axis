@@ -90,7 +90,6 @@ export type AppOptions<
 		
 		/**
 		 * A freshly-created require context that targets the layout components.
-		 * TODO: should this and moduleRoot be merged?
 		 */
 		layouts: __WebpackModuleApi.RequireContext,
 		
