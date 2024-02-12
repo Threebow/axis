@@ -92,6 +92,11 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 	}
 	
 	override async execute(app: IApp, ctx: IContext): Promise<void> {
+		// ensure the app has a renderer
+		if (!app.opts.renderer) {
+			throw new Error("Cannot execute renderer with no app renderer options defined.")
+		}
+		
 		// ensure we have been provided a view before proceeding
 		if (!this.view) {
 			throw new Error("Cannot execute renderer with no view set.")

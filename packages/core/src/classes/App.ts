@@ -79,9 +79,9 @@ export type AppOptions<
 	modules: __WebpackModuleApi.RequireContext
 	
 	/**
-	 * Various options for the renderer.
+	 * Various options for the renderer. If undefined, the renderer will be unusable.
 	 */
-	renderer: {
+	renderer?: {
 		/**
 		 * Path to the transpiled Pug index source file located in the build output.
 		 * @example "./dist/backend/index.pug"

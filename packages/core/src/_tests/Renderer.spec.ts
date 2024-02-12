@@ -1,5 +1,5 @@
 import { createMockAppWithContext } from "./fixtures/createMockAppWithContext.fixture"
-import { expect } from "chai"
+import { assert, expect } from "chai"
 import { getVersionString, uuid } from "../helpers"
 import Root from "./app/modules/Root.vue"
 import { RootIndexDTO } from "./app/modules/Root.dto"
@@ -66,6 +66,7 @@ describe("Renderer", () => {
 	
 	describe("Metadata", () => {
 		it("should be injected into the appropriate meta tags", async () => {
+			assert(mock.app.opts.renderer != null)
 			const meta = mock.app.opts.renderer.defaultPageMeta
 			
 			await mock.ctx.respond(render(Root))
