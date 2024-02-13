@@ -136,8 +136,8 @@ export abstract class Context<
 			throw new Error("Context already initialized.")
 		}
 		
-		// extract user from session
-		if (this.session.userId) {
+		// extract user from session if sessions are enabled and a user ID is set
+		if (this.app.opts.sessionKey != null && this.session.userId) {
 			const resolved = await this.app.opts
 				.resolveUser?.(this.session.userId) ?? false
 			
