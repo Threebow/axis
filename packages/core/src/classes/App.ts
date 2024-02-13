@@ -59,9 +59,10 @@ export type AppOptions<
 	/**
 	 * A function that resolves the user from the session.
 	 * This is used to inject the user into the context.
-	 * If the user is not found, this should throw.
+	 * If the user is not found, this can return false.
+	 * If this is not provided, users will not be resolved.
 	 */
-	resolveUser: (id: string) => Promise<UserClass | false>
+	resolveUser?: (id: string) => Promise<UserClass | false>
 	
 	/**
 	 * Used to extend the default app context. The constructor of the context class to use.

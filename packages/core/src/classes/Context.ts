@@ -139,7 +139,7 @@ export abstract class Context<
 		// extract user from session
 		if (this.session.userId) {
 			const resolved = await this.app.opts
-				.resolveUser(this.session.userId)
+				.resolveUser?.(this.session.userId) ?? false
 			
 			if (resolved !== false) {
 				this._user = resolved
