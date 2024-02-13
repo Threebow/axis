@@ -1,5 +1,5 @@
 import { createRequester } from "../../helpers"
 
-export function createMockRequester(): ReturnType<typeof createRequester> {
-	return createRequester({ baseURL: "http://localhost:3000" })
+export function createMockRequester(port = 3000): ReturnType<typeof createRequester> {
+	return createRequester({ baseURL: `http://localhost:${port}` })
 }
