@@ -1,5 +1,6 @@
-import { createMockApp, createMockContext, MockContextOptions } from "../app"
 import { CustomContext } from "../app/context"
+import { createMockApp } from "./createMockApp.fixture"
+import { createMockContext, MockContextOptions } from "./createMockContext.fixture"
 
 export function createMockAppWithContext(opts?: MockContextOptions) {
 	const app = createMockApp(opts?.addFixtures)

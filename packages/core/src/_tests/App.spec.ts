@@ -1,8 +1,8 @@
 import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
-import { createMockApp } from "./app"
-import { createRequester, uuid } from "../helpers"
+import { uuid } from "../helpers"
 import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
+import { createMockApp, createMockRequester } from "./fixtures"
 
 describe("Application", () => {
 	describe("Boot", () => {
@@ -47,7 +47,7 @@ describe("Application", () => {
 		
 		createMockApp(undefined, undefined, test)
 		
-		const r = createRequester({ baseURL: "http://localhost:3000" })
+		const r = createMockRequester()
 		
 		it("should respond to a health check with the correct data", async () => {
 			const res = await r("GET", "/health-check")
@@ -64,7 +64,7 @@ describe("Application", () => {
 	describe("Root Controller", () => {
 		createMockApp()
 		
-		const r = createRequester({ baseURL: "http://localhost:3000" })
+		const r = createMockRequester()
 		
 		it("should return hello world from the index route", async () => {
 			const res = await r("GET", "/")

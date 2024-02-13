@@ -1,11 +1,10 @@
-import { createMockAppWithContext } from "./fixtures/createMockAppWithContext.fixture"
-import { extractEncodedViewData } from "./fixtures/extractEncodedViewData"
 import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { render } from "../helpers/backend"
 import { afterEach } from "node:test"
 import { initClient } from "../helpers/frontend"
 import { assert, expect } from "chai"
 import { stub } from "sinon"
+import { createMockAppWithContext, extractEncodedViewData } from "./fixtures"
 
 describe("Init client helper", () => {
 	const mock = createMockAppWithContext()

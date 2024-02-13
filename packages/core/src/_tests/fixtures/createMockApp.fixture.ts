@@ -1,14 +1,13 @@
-import { RootController } from "./modules/Root.controller"
-import { CustomContext } from "./context"
-import { App, AppMode, IApp, IContext } from "../../classes"
-import { IUser, MOCK_USERS } from "./classes/User.class"
-import { CustomLocalsDTO, CustomUserDTO } from "./modules/Root.dto"
-import { sleep } from "../../helpers"
-import { mockKoaContext } from "../mocks/koa"
 import { KVObject } from "../../types"
-import { fileURLToPath } from "url"
+import { App, AppMode, IApp } from "../../classes"
 import { dirname, resolve } from "path"
-import ErrorPage from "./modules/Error.vue"
+import { fileURLToPath } from "url"
+import { CustomLocalsDTO, CustomUserDTO } from "../app/modules/Root.dto"
+import { IUser, MOCK_USERS } from "../app/classes/User.class"
+import { CustomContext } from "../app/context"
+import { RootController } from "../app/modules/Root.controller"
+import ErrorPage from "../app/modules/Error.vue"
+import { sleep } from "../../helpers"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -34,10 +33,10 @@ export function createMockApp(
 		dist: __DIST__,
 		
 		context: CustomContext,
-		moduleRoot: resolve(__dirname, "./modules"),
+		moduleRoot: resolve(__dirname, "../app/modules"),
 		renderer: {
 			indexPage: "./src/frontend/index.pug",
-			layouts: require.context("./modules", true, __LAYOUT_REGEX__),
+			layouts: require.context("../app/modules", true, __LAYOUT_REGEX__),
 			defaultPageMeta: {
 				title: "AxisJS",
 				description: "A framework for building web applications",
@@ -56,30 +55,4 @@ export function createMockApp(
 	}
 	
 	return app
-}
-
-export type MockContextOptions = Partial<{
-	sessionData: KVObject
-	headers: KVObject
-	addFixtures: boolean
-	dontInitialize: boolean
-}>
-
-export async function createMockContext<Context extends IContext>(
-	app: IApp<any, any, any, Context>,
-	opts: MockContextOptions = {}
-): Promise<Context> {
-	const ctx = app.createContext(mockKoaContext({ headers: opts.headers ?? {} }, {}, app.koa))
-	
-	if (opts.sessionData) {
-		for (const i in opts.sessionData) {
-			ctx.session[i] = opts.sessionData[i]
-		}
-	}
-	
-	if (!opts.dontInitialize) {
-		await ctx.initialize()
-	}
-	
-	return ctx
 }

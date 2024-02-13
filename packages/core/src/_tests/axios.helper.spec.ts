@@ -1,12 +1,11 @@
 import { assert, expect } from "chai"
-import { createMockApp } from "./app"
-import { createRequester } from "../helpers"
 import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
+import { createMockApp, createMockRequester } from "./fixtures"
 
 describe("Axios helper", () => {
 	createMockApp()
 	
-	const r = createRequester({ baseURL: "http://localhost:3000" })
+	const r = createMockRequester()
 	
 	it("should return the correct properties on a successful request", async () => {
 		const res = await r("GET", "/todos")

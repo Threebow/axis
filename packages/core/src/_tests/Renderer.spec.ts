@@ -1,13 +1,11 @@
-import { createMockAppWithContext } from "./fixtures/createMockAppWithContext.fixture"
 import { assert, expect } from "chai"
 import { getVersionString, uuid } from "../helpers"
 import Root from "./app/modules/Root.vue"
 import { RootIndexDTO } from "./app/modules/Root.dto"
 import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { ViewData } from "../types"
-import { expectToIncludeInOrder } from "./fixtures/expectToIncludeInOrder"
 import { render } from "../helpers/backend"
-import { extractAndParseEncodedViewData } from "./fixtures/extractEncodedViewData"
+import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "./fixtures"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext()

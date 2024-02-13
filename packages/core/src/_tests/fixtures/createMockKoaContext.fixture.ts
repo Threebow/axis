@@ -1,7 +1,7 @@
 import { Duplex, Readable, Writable } from "stream"
 import Koa, { Context } from "koa"
 
-export function mockKoaContext(req?: any, res?: any, app?: any): Context {
+export function createMockKoaContext(req?: any, res?: any, app?: any): Context {
 	const socket = new Duplex()
 	req = Object.assign({ headers: {}, socket }, Readable.prototype, req)
 	res = Object.assign({ _headers: {}, socket }, Writable.prototype, res)

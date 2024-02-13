@@ -1,4 +1,4 @@
-import { createMockApp } from "./index"
+import { createMockApp } from "../fixtures"
 
 const app = await createMockApp(false)
 const { host, port } = await app.boot()

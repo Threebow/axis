@@ -4,6 +4,12 @@ import chaiUuid from "chai-uuid"
 import chaiString from "chai-string"
 import chaiAsPromised from "chai-as-promised"
 
+process.on("unhandledRejection", (e: any) => {
+	console.error("Failed to run tests:")
+	console.error(e)
+	process.exit(1)
+})
+
 // install chai plugins
 chaiUse(sinonChai)
 chaiUse(chaiUuid)

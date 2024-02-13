@@ -1,20 +1,19 @@
 import { assert, expect } from "chai"
 import { isRef } from "vue"
 import { restore } from "sinon"
-import { createMockApp } from "./app"
-import { createRequester } from "../helpers"
 import { TodoDTO } from "./app/modules/Todo/Todo.dto"
 import { ErrorDTO } from "../dto"
 import { FetcherControls, useFetcher } from "../helpers/frontend"
+import { createMockApp, createMockRequester } from "./fixtures"
 
 describe("Fetcher helper", () => {
 	const delay = 50
 	
-	const app = createMockApp()
+	createMockApp()
 	
 	let controls: FetcherControls<any>
 	
-	const r = createRequester({ baseURL: "http://localhost:3000" })
+	const r = createMockRequester()
 	
 	const createMockTodo = async (title = "Test Todo"): Promise<TodoDTO> => {
 		const item = await r<TodoDTO>("POST", "/todos", { title })

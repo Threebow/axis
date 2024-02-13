@@ -10,3 +10,6 @@ export * from "./helpers"
 export * from "./helpers/backend"
 export * from "./stdlib"
 export * from "./types"
+
+// useful to expose our fixtures for downstream testing
+export * from "./_tests/fixtures"
