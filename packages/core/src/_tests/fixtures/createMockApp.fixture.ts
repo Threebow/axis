@@ -1,5 +1,5 @@
 import { KVObject } from "../../types"
-import { App, IApp } from "../../classes"
+import { App, AppMode, IApp } from "../../classes"
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { CustomLocalsDTO, CustomUserDTO } from "../app/modules/Root.dto"
@@ -8,7 +8,6 @@ import { CustomContext } from "../app/context"
 import { RootController } from "../app/modules/Root.controller"
 import ErrorPage from "../app/modules/Error.vue"
 import { sleep } from "../../helpers"
-import { AppMode } from "../../classes/AppOptions"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
