@@ -2,11 +2,12 @@ import { join, parse, relative, resolve } from "path"
 import { renderToString } from "vue/server-renderer"
 import { compileFile, compileTemplate } from "pug"
 import { DTO, PageData, PageMeta, ViewComponent, ViewData } from "../types"
-import { AppMode, IApp } from "./App"
+import { IApp } from "./App"
 import { fromJson, toJson } from "../helpers"
 import { IResponder, Responder } from "./Responder"
 import { IContext } from "./Context"
 import { createApp } from "../createApp"
+import { AppMode } from "./AppOptions"
 
 const PAGE_CACHE = new Map<string, compileTemplate>()
 

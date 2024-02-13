@@ -5,119 +5,26 @@ import bodyParser from "koa-bodyparser"
 import session from "koa-session"
 import { BaseLocalsDTO, BaseUserDTO } from "../dto"
 import { IBaseUser } from "./User"
-import { ContextConstructor, IContext } from "./Context"
-import { ControllerConstructor } from "./Controller"
-import { KVObject, PageMeta, ViewComponent } from "../types"
+import { IContext } from "./Context"
 import { fromJson, getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
 import { resolve } from "path"
 import { existsSync, readFileSync } from "fs"
-import { PotentialPromise } from "webpack-cli"
-
-export enum AppMode {
-	DEVELOPMENT,
-	PRODUCTION
-}
-
-export type AppOptions<
-	UserDTO extends BaseUserDTO,
-	UserClass extends IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO>,
-	Context extends IContext<UserDTO, UserClass, LocalsDTO>
-> = {
-	/**
-	 * The mode the app is running in.
-	 */
-	mode: AppMode
-	
-	/**
-	 * The host the app should listen on.
-	 */
-	host?: string
-	
-	/**
-	 * The port the app should listen on.
-	 */
-	port?: number
-	
-	/**
-	 * The secret used to sign the session cookie.
-	 */
-	sessionKey?: string
-	
-	/**
-	 * The constructor of the root controller of the app.
-	 */
-	rootController: ControllerConstructor
-	
-	/**
-	 * The error page to render when an error occurs.
-	 * This should be a Vue component with {ErrorDTO} as its props.
-	 */
-	errorPage: ViewComponent
-	
-	/**
-	 * A function that resolves the user from the session.
-	 * This is used to inject the user into the context.
-	 * If the user is not found, this can return false.
-	 * If this is not provided, users will not be resolved.
-	 */
-	resolveUser?: (id: string) => Promise<UserClass | false>
-	
-	/**
-	 * Used to extend the default app context. The constructor of the context class to use.
-	 */
-	context: ContextConstructor<Context>
-	
-	/**
-	 * The root directory of the app modules.
-	 * @example "./src/modules"
-	 */
-	moduleRoot: string
-	
-	/**
-	 * Various options for the renderer. If undefined, the renderer will be unusable.
-	 */
-	renderer?: {
-		/**
-		 * Path to the transpiled Pug index source file located in the build output.
-		 * @example "./dist/backend/index.pug"
-		 */
-		indexPage: string
-		
-		/**
-		 * A freshly-created require context that targets the layout components.
-		 */
-		layouts: __WebpackModuleApi.RequireContext,
-		
-		/**
-		 * The default page meta to use when none is provided per view.
-		 */
-		defaultPageMeta: PageMeta
-	},
-	
-	/**
-	 * Optional data returned from health checks
-	 */
-	healthCheckData?: () => PotentialPromise<KVObject>
-	
-	/**
-	 * The filepath to the directory that contains the app's built files
-	 */
-	dist: string
-}
+import { AppMode, AppOptions } from "./AppOptions"
+import { KVObject } from "../types"
 
 /**
  * Defines the host and port that the app has successfully started to listen on.
  */
-type AppBootResult = {
+export type AppBootResult = {
 	host: string
 	port: number
 }
 
-// FIXME: figure out how to make the two more DRY by not repeating the generic types
-
-type AssetManifest = KVObject<string | undefined>
+/**
+ * A manifest of assets that have been built. This is resolved automatically.
+ */
+export type AssetManifest = KVObject<string | undefined>
 
 export interface IApp<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
