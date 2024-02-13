@@ -7,7 +7,7 @@ import { stub } from "sinon"
 import { createMockAppWithContext, extractEncodedViewData } from "./fixtures"
 
 describe("Init client helper", () => {
-	const mock = createMockAppWithContext()
+	const mock = createMockAppWithContext({ useRenderer: true })
 	
 	it("should read and load the view and layouts correctly", async () => {
 		stub(console, "log")

@@ -6,7 +6,7 @@ import { createMockApp, createMockRequester } from "./fixtures"
 
 describe("Application", () => {
 	describe("Boot", () => {
-		const app = createMockApp(false)
+		const app = createMockApp({ addFixtures: false })
 		
 		it("should boot on the provided host and port", async () => {
 			app.opts.host = "127.0.0.1"
@@ -30,7 +30,7 @@ describe("Application", () => {
 	})
 	
 	describe("Shutdown", () => {
-		const app = createMockApp(false)
+		const app = createMockApp({ addFixtures: false })
 		
 		beforeEach(() => app.boot())
 		
@@ -45,7 +45,7 @@ describe("Application", () => {
 	describe("Health Check", () => {
 		const test = { id: uuid() }
 		
-		createMockApp(undefined, undefined, test)
+		createMockApp({ healthCheckData: test })
 		
 		const r = createMockRequester()
 		

@@ -8,7 +8,9 @@ import { render } from "../helpers/backend"
 import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "./fixtures"
 
 describe("Renderer", () => {
-	const mock = createMockAppWithContext()
+	const mock = createMockAppWithContext({
+		useRenderer: true
+	})
 	
 	it("should render an HTML page from a Vue component with props", async () => {
 		const data: RootIndexDTO = { uuid: uuid() }

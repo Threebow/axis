@@ -1,12 +1,12 @@
 import { CustomContext } from "../app/context"
-import { createMockApp } from "./createMockApp.fixture"
+import { createMockApp, MockAppOptions } from "./createMockApp.fixture"
 import { createMockContext, MockContextOptions } from "./createMockContext.fixture"
 
-export function createMockAppWithContext(opts?: MockContextOptions) {
-	const app = createMockApp(opts?.addFixtures)
+export function createMockAppWithContext(appOpts?: Partial<MockAppOptions>, ctxOpts?: MockContextOptions) {
+	const app = createMockApp(appOpts)
 	
 	let ctx: CustomContext
-	beforeEach(async () => ctx = await createMockContext<CustomContext>(app, opts))
+	beforeEach(async () => ctx = await createMockContext<CustomContext>(app, ctxOpts))
 	
 	return {
 		app,

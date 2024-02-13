@@ -14,19 +14,32 @@ describe("Context", () => {
 	})
 	
 	describe("Session", () => {
-		const mock = createMockAppWithContext()
-		
-		it("should have an accessible session", () => {
-			expect(mock.ctx.session).to.be.an("object")
+		describe("Sessions disabled", () => {
+			const mock = createMockAppWithContext()
+			
+			it("should throw an error if the session is accessed", () => {
+				return expect(() => mock.ctx.session).to.throw(
+					"Sessions are disabled. Please provide the `sessionKey` property to enable them, or stop "
+					+ "using the `ctx.session` accessor."
+				)
+			})
 		})
 		
-		it("should throw an error if the session is not initialized when accessed", () => {
-			mock.ctx.koaCtx.session = null
-			return expect(() => mock.ctx.session).to.throw("Session not initialized.")
-		})
-		
-		it("should not load a user", () => {
-			expect(mock.ctx.user).to.be.null
+		describe("Sessions enabled", () => {
+			const mock = createMockAppWithContext({ useSession: true })
+			
+			it("should have an accessible session", () => {
+				expect(mock.ctx.session).to.be.an("object")
+			})
+			
+			it("should throw an error if the session is not initialized when accessed", () => {
+				mock.ctx.koaCtx.session = null
+				return expect(() => mock.ctx.session).to.throw("Session not initialized.")
+			})
+			
+			it("should not load a user", () => {
+				expect(mock.ctx.user).to.be.null
+			})
 		})
 	})
 	
@@ -34,11 +47,10 @@ describe("Context", () => {
 		describe("Valid session", () => {
 			const testUser = sample(MOCK_USERS)!
 			
-			const mock = createMockAppWithContext({
-				sessionData: {
-					userId: testUser.id
-				}
-			})
+			const mock = createMockAppWithContext(
+				{ useSession: true },
+				{ sessionData: { userId: testUser.id } }
+			)
 			
 			it("should load the correct user", () => {
 				expect(mock.ctx.user).to.equal(testUser)
@@ -51,11 +63,10 @@ describe("Context", () => {
 		})
 		
 		describe("Invalid session", () => {
-			const mock = createMockAppWithContext({
-				sessionData: {
-					userId: "invalid-id"
-				}
-			})
+			const mock = createMockAppWithContext(
+				{ useSession: true },
+				{ sessionData: { userId: "invalid-id" } }
+			)
 			
 			it("should not load a user", () => {
 				expect(mock.ctx.user).to.be.null
@@ -64,7 +75,7 @@ describe("Context", () => {
 	})
 	
 	describe("IP Address", () => {
-		const mock = createMockAppWithContext({
+		const mock = createMockAppWithContext(undefined, {
 			headers: {
 				["do-connecting-ip"]: "8.8.8.8"
 			}
@@ -77,7 +88,7 @@ describe("Context", () => {
 	
 	describe("Responses", () => {
 		describe("Context", () => {
-			const mock = createMockAppWithContext({
+			const mock = createMockAppWithContext(undefined, {
 				dontInitialize: true
 			})
 			

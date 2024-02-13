@@ -133,6 +133,8 @@ export interface IApp<
 	
 	readonly assetManifest: AssetManifest
 	
+	readonly useSessions: boolean
+	
 	boot(): Promise<AppBootResult>
 	
 	createContext(koaCtx: Koa.Context): Context
@@ -148,6 +150,10 @@ export class App<
 > implements IApp<UserDTO, UserClass, LocalsDTO, Context> {
 	readonly version = getVersionString()
 	
+	// create koa and server instances
+	readonly koa = new Koa<void, Context>()
+	readonly koaServer = createServer(this.koa.callback())
+	
 	// read asset manifest
 	private readonly manifestPath = resolve(this.opts.dist, "./assets-manifest.json")
 	
@@ -155,14 +161,13 @@ export class App<
 		? fromJson(readFileSync(this.manifestPath, "utf8"))
 		: {}
 	
-	// create koa and server instances
-	readonly koa = new Koa<void, Context>()
-	readonly koaServer = createServer(this.koa.callback())
+	// determine if sessions are enabled
+	readonly useSessions = this.opts.sessionKey != null
 	
 	constructor(readonly opts: AppOptions<UserDTO, UserClass, LocalsDTO, Context>) {
 		// set session key
-		if (opts.sessionKey) {
-			this.koa.keys = [opts.sessionKey]
+		if (this.useSessions) {
+			this.koa.keys = [this.opts.sessionKey!]
 		}
 		
 		// define error handlers
@@ -181,7 +186,7 @@ export class App<
 			.use(bodyParser())
 		
 		// enable session middleware if session key is set
-		if (opts.sessionKey) {
+		if (this.useSessions) {
 			this.koa.use(session({}, this.koa))
 		}
 		

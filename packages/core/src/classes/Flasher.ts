@@ -37,7 +37,10 @@ export class Flasher implements IFlasher {
 	}
 	
 	execute(app: IApp, ctx: IContext): Promise<void> {
-		ctx.session.flashMessages = this.messages
+		if (app.useSessions) {
+			ctx.session.flashMessages = this.messages
+		}
+		
 		return Promise.resolve()
 	}
 }

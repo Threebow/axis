@@ -92,6 +92,13 @@ export abstract class Context<
 	get session(): Session {
 		const session = this.koaCtx.session
 		
+		if (!this.app.useSessions) {
+			throw new Error(
+				"Sessions are disabled. Please provide the `sessionKey` property to enable them, or "
+				+ "stop using the `ctx.session` accessor."
+			)
+		}
+		
 		if (!session) {
 			throw new Error("Session not initialized.")
 		}

@@ -11,17 +11,32 @@ import { sleep } from "../../helpers"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export function createMockApp(
-	addFixtures = true,
-	port = 3000,
+export type MockAppOptions = {
+	addFixtures: boolean
+	port: number
 	healthCheckData?: KVObject
-): IApp<any, any, any, any> {
+	useRenderer: boolean
+	useSession: boolean
+}
+
+export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, any, any> {
+	opts = {
+		addFixtures: true,
+		port: 3000,
+		useRenderer: false,
+		useSession: false,
+		...opts
+	}
+	
 	const app = new App<CustomUserDTO, IUser, CustomLocalsDTO, CustomContext>({
 		mode: __DEV__ ? AppMode.DEVELOPMENT : AppMode.PRODUCTION,
-		port,
-		sessionKey: "blowfish",
+		port: opts.port,
+		sessionKey: opts.useSession ? "blowfish" : undefined,
 		rootController: RootController,
 		errorPage: ErrorPage,
+		dist: __DIST__,
+		context: CustomContext,
+		moduleRoot: resolve(__dirname, "../app/modules"),
 		
 		// TODO: use a service or something?
 		async resolveUser(id: string): Promise<IUser | false> {
@@ -30,26 +45,25 @@ export function createMockApp(
 			return MOCK_USERS.find(u => u.id === id) ?? false
 		},
 		
-		dist: __DIST__,
-		
-		context: CustomContext,
-		moduleRoot: resolve(__dirname, "../app/modules"),
-		renderer: {
-			indexPage: "./src/frontend/index.pug",
-			layouts: require.context("../app/modules", true, __LAYOUT_REGEX__),
-			defaultPageMeta: {
-				title: "AxisJS",
-				description: "A framework for building web applications",
-				author: "Threebow",
-				image: "https://arionstudios.com/logo.png"
+		renderer: opts.useRenderer
+			? {
+				indexPage: "./src/frontend/index.pug",
+				layouts: require.context("../app/modules", true, __LAYOUT_REGEX__),
+				defaultPageMeta: {
+					title: "AxisJS",
+					description: "A framework for building web applications",
+					author: "Threebow",
+					image: "https://arionstudios.com/logo.png"
+				}
 			}
-		},
-		healthCheckData: healthCheckData
-			? () => healthCheckData
+			: undefined,
+		
+		healthCheckData: opts.healthCheckData
+			? () => opts!.healthCheckData!
 			: undefined
 	})
 	
-	if (addFixtures) {
+	if (opts.addFixtures) {
 		before(() => app.boot())
 		after(() => app.shutdown())
 	}

@@ -77,7 +77,9 @@ export abstract class Controller {
 		await ctx.initialize()
 		
 		// store this last loaded route in the user's session
-		ctx.session.lastRequest = koaCtx.request.path
+		if (this.app.useSessions) {
+			ctx.session.lastRequest = koaCtx.request.path
+		}
 		
 		// first of all, if we have validation rules, we need to run them
 		if (route.validators.length > 0) {

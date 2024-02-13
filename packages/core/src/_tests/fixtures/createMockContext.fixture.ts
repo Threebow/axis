@@ -5,7 +5,6 @@ import { createMockKoaContext } from "./createMockKoaContext.fixture"
 export type MockContextOptions = Partial<{
 	sessionData: KVObject
 	headers: KVObject
-	addFixtures: boolean
 	dontInitialize: boolean
 }>
 
