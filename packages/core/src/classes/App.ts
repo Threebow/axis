@@ -11,7 +11,7 @@ import { KVObject, PageMeta, ViewComponent } from "../types"
 import { fromJson, getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
 import { resolve } from "path"
-import { readFileSync } from "fs"
+import { existsSync, readFileSync } from "fs"
 import { PotentialPromise } from "webpack-cli"
 
 export enum AppMode {
@@ -148,7 +148,11 @@ export class App<
 	readonly version = getVersionString()
 	
 	// read asset manifest
-	readonly assetManifest: AssetManifest = fromJson(readFileSync(resolve(this.opts.dist, "./assets-manifest.json"), "utf8"))
+	private readonly manifestPath = resolve(this.opts.dist, "./assets-manifest.json")
+	
+	readonly assetManifest: AssetManifest = existsSync(this.manifestPath)
+		? fromJson(readFileSync(this.manifestPath, "utf8"))
+		: {}
 	
 	// create koa and server instances
 	readonly koa = new Koa<void, Context>()
