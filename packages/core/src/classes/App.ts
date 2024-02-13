@@ -43,7 +43,7 @@ export type AppOptions<
 	/**
 	 * The secret used to sign the session cookie.
 	 */
-	sessionKey: string
+	sessionKey?: string
 	
 	/**
 	 * The constructor of the root controller of the app.
@@ -160,7 +160,9 @@ export class App<
 	
 	constructor(readonly opts: AppOptions<UserDTO, UserClass, LocalsDTO, Context>) {
 		// set session key
-		this.koa.keys = [opts.sessionKey]
+		if (opts.sessionKey) {
+			this.koa.keys = [opts.sessionKey]
+		}
 		
 		// define error handlers
 		this.koa
@@ -176,7 +178,11 @@ export class App<
 		this.koa
 			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
 			.use(bodyParser())
-			.use(session({}, this.koa))
+		
+		// enable session middleware if session key is set
+		if (opts.sessionKey) {
+			this.koa.use(session({}, this.koa))
+		}
 		
 		// mount the root controller
 		// FIXME: should not be casting to any so aggressively
