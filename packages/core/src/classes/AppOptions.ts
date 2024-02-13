@@ -10,6 +10,33 @@ export enum AppMode {
 	PRODUCTION
 }
 
+/**
+ * Various options for the renderer. If undefined, the renderer will be unusable.
+ */
+export type RendererOptions = {
+	/**
+	 * Path to the transpiled Pug index source file located in the build output.
+	 * @example "./dist/backend/index.pug"
+	 */
+	indexPage: string
+	
+	/**
+	 * The error page to render when an error occurs.
+	 * This should be a Vue component with {ErrorDTO} as its props.
+	 */
+	errorPage: ViewComponent
+	
+	/**
+	 * A freshly-created require context that targets the layout components.
+	 */
+	layouts: __WebpackModuleApi.RequireContext,
+	
+	/**
+	 * The default page meta to use when none is provided per view.
+	 */
+	defaultPageMeta: PageMeta
+}
+
 export type AppOptions<
 	UserDTO extends BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO>,
@@ -42,12 +69,6 @@ export type AppOptions<
 	rootController: ControllerConstructor
 	
 	/**
-	 * The error page to render when an error occurs.
-	 * This should be a Vue component with {ErrorDTO} as its props.
-	 */
-	errorPage: ViewComponent
-	
-	/**
 	 * A function that resolves the user from the session.
 	 * This is used to inject the user into the context.
 	 * If the user is not found, this can return false.
@@ -67,25 +88,9 @@ export type AppOptions<
 	moduleRoot: string
 	
 	/**
-	 * Various options for the renderer. If undefined, the renderer will be unusable.
+	 * Options for the renderer. If undefined, the renderer will be unusable.
 	 */
-	renderer?: {
-		/**
-		 * Path to the transpiled Pug index source file located in the build output.
-		 * @example "./dist/backend/index.pug"
-		 */
-		indexPage: string
-		
-		/**
-		 * A freshly-created require context that targets the layout components.
-		 */
-		layouts: __WebpackModuleApi.RequireContext,
-		
-		/**
-		 * The default page meta to use when none is provided per view.
-		 */
-		defaultPageMeta: PageMeta
-	},
+	renderer?: RendererOptions
 	
 	/**
 	 * Optional data returned from health checks

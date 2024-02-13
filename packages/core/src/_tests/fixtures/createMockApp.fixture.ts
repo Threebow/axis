@@ -34,7 +34,6 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		port: opts.port,
 		sessionKey: opts.useSession ? "blowfish" : undefined,
 		rootController: RootController,
-		errorPage: ErrorPage,
 		dist: __DIST__,
 		context: CustomContext,
 		moduleRoot: resolve(__dirname, "../app/modules"),
@@ -49,6 +48,7 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		renderer: opts.useRenderer
 			? {
 				indexPage: "./src/frontend/index.pug",
+				errorPage: ErrorPage,
 				layouts: require.context("../app/modules", true, __LAYOUT_REGEX__),
 				defaultPageMeta: {
 					title: "AxisJS",

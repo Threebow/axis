@@ -4,7 +4,6 @@ import { ZodError } from "zod"
 import { fromZodError } from "zod-validation-error"
 import { BaseLocalsDTO, BaseUserDTO, ErrorDTO } from "../dto"
 import { AppErrorType, IApp, IBaseUser, IContext, isAppError, Responder } from "../classes"
-import { ViewComponent } from "../types"
 import { handleError } from "../helpers"
 import { render } from "../helpers/backend"
 
@@ -32,17 +31,13 @@ export function genericErrorHandler<
 	UserClass extends IBaseUser<UserDTO>,
 	LocalsDTO extends BaseLocalsDTO<UserDTO>,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO>
->(opts: {
-	app: IApp<UserDTO, UserClass, LocalsDTO, Context>
-	expose: boolean
-	errorPage: ViewComponent
-}) {
+>(app: IApp<UserDTO, UserClass, LocalsDTO, Context>) {
 	return async (koaCtx: KoaContext, next: KoaNext) => {
 		try {
 			await next()
 		} catch (e: any) {
 			// create new context for the error response
-			const errCtx = opts.app.createContext(koaCtx)
+			const errCtx = app.createContext(koaCtx)
 			await errCtx.initialize()
 			
 			// calculate response status
@@ -66,10 +61,10 @@ export function genericErrorHandler<
 			let r: any
 			
 			// either respond with json data, or render error view, depending on request
-			if (errCtx.isJsonRequest) {
+			if (errCtx.isJsonRequest || !app.opts.renderer) {
 				r = new Responder().send(data)
 			} else {
-				r = render(opts.errorPage, data)
+				r = render(app.opts.renderer.errorPage, data)
 			}
 			
 			r.setError()

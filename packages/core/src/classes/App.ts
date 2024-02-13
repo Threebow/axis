@@ -10,7 +10,7 @@ import { fromJson, getVersionString } from "../helpers"
 import { fatalErrorHandler, genericErrorHandler, httpErrorTransformer } from "../koa/handlers"
 import { resolve } from "path"
 import { existsSync, readFileSync } from "fs"
-import { AppMode, AppOptions } from "./AppOptions"
+import { AppOptions } from "./AppOptions"
 import { KVObject } from "../types"
 
 /**
@@ -80,11 +80,7 @@ export class App<
 		// define error handlers
 		this.koa
 			.use(fatalErrorHandler())
-			.use(genericErrorHandler({
-				app: this,
-				expose: opts.mode === AppMode.DEVELOPMENT,
-				errorPage: opts.errorPage
-			}))
+			.use(genericErrorHandler(this))
 			.use(httpErrorTransformer())
 		
 		// add some generic middleware
