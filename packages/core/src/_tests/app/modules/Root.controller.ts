@@ -47,4 +47,12 @@ export class RootController extends Controller {
 	unimplemented() {
 		// returns nothing on purpose
 	}
+	
+	@Get("/test-middleware")
+	testMiddleware(ctx: CustomContext) {
+		return {
+			// this value is set by middleware
+			called: ctx.session.CustomMiddlewareExecuted
+		}
+	}
 }
