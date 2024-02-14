@@ -90,7 +90,7 @@ export abstract class Controller {
 		
 		// run middleware
 		for (let i = 0; i < this.middleware.length; i++) {
-			const mw = new this.middleware[i]()
+			const mw = new this.middleware[i](this.app)
 			
 			if (!await mw.execute(ctx)) {
 				return

@@ -1,9 +1,20 @@
 import { isNil } from "lodash-es"
 import { IContext } from "./Context"
+import { IApp } from "./App"
 
-export type MiddlewareConstructor = new () => Middleware
+export interface IMiddleware {
+	readonly app: IApp
+	
+	execute(ctx: IContext): Promise<boolean>
+}
 
-export abstract class Middleware {
+export type MiddlewareConstructor = new (app: IApp) => IMiddleware
+
+export abstract class Middleware implements IMiddleware {
+	constructor(public readonly app: IApp) {
+		// ...
+	}
+	
 	protected abstract run(ctx: IContext): any
 	
 	async execute(ctx: IContext) {
