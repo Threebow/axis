@@ -13,6 +13,7 @@ export type Decimal = {
 	readonly s: number,
 	readonly e: number,
 	readonly d: number[] | null
+	toString(): string
 }
 
 export function isDecimal(x: any): x is Decimal {
