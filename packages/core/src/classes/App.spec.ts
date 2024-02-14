@@ -1,8 +1,8 @@
 import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
 import { uuid } from "../helpers"
-import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
-import { createMockApp, createMockRequester } from "./fixtures"
+import { createMockApp, createMockRequester } from "../_tests/fixtures"
+import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
 
 describe("Application", () => {
 	describe("Boot", () => {

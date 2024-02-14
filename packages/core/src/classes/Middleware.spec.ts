@@ -1,6 +1,6 @@
-import { createMockApp, createMockRequester } from "./fixtures"
 import { expect } from "chai"
 import { RequestResult } from "../helpers"
+import { createMockApp, createMockRequester } from "../_tests/fixtures"
 
 describe("Middleware", () => {
 	createMockApp({ useSession: true })

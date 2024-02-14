@@ -1,11 +1,11 @@
 import { assert, expect } from "chai"
 import { getVersionString, uuid } from "../helpers"
-import Root from "./app/modules/Root.vue"
-import { RootIndexDTO } from "./app/modules/Root.dto"
-import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import { ViewData } from "../types"
 import { render } from "../helpers/backend"
-import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "./fixtures"
+import { RootIndexDTO } from "../_tests/app/modules/Root.dto"
+import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "../_tests/fixtures"
+import NestedTest from "../_tests/app/modules/NestedLayouts/A/B/C/NestedTest.vue"
+import Root from "../_tests/app/modules/Root.vue"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext({

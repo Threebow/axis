@@ -1,10 +1,9 @@
-import NestedTest from "./app/modules/NestedLayouts/A/B/C/NestedTest.vue"
-import { render } from "../helpers/backend"
-import { afterEach } from "node:test"
-import { initClient } from "../helpers/frontend"
 import { assert, expect } from "chai"
 import { stub } from "sinon"
-import { createMockAppWithContext, extractEncodedViewData } from "./fixtures"
+import { initClient } from "./initClient.helper"
+import { createMockAppWithContext, extractEncodedViewData } from "../../_tests/fixtures"
+import { render } from "../backend"
+import NestedTest from "../../_tests/app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 
 describe("Init client helper", () => {
 	const mock = createMockAppWithContext({ useRenderer: true })
@@ -21,7 +20,7 @@ describe("Init client helper", () => {
 		
 		// make sure this throws for a good reason, and not because the modules couldn't be found
 		await assert.isRejected(
-			initClient(require.context("./app/modules", true, __FRONTEND_INIT_REGEX__)),
+			initClient(require.context("../../_tests/app/modules", true, __FRONTEND_INIT_REGEX__)),
 			"document is not defined"
 		)
 		

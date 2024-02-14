@@ -17,5 +17,5 @@ chaiUse(chaiString)
 chaiUse(chaiAsPromised)
 
 // load all test files through Webpack
-const ctx = require.context("./", true, /\.spec\.ts$/)
+const ctx = require.context("../", true, /\.spec\.ts$/)
 ctx.keys().forEach(ctx)

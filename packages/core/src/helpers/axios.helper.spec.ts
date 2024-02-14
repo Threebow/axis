@@ -1,6 +1,6 @@
 import { assert, expect } from "chai"
-import { MOCK_TODOS } from "./app/modules/Todo/Todo.dto"
-import { createMockApp, createMockRequester } from "./fixtures"
+import { createMockApp, createMockRequester } from "../_tests/fixtures"
+import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
 
 describe("Axios helper", () => {
 	createMockApp()

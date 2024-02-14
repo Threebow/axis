@@ -1,10 +1,10 @@
 import { assert, expect } from "chai"
 import { isRef } from "vue"
 import { restore } from "sinon"
-import { TodoDTO } from "./app/modules/Todo/Todo.dto"
-import { ErrorDTO } from "../dto"
-import { FetcherControls, useFetcher } from "../helpers/frontend"
-import { createMockApp, createMockRequester } from "./fixtures"
+import { createMockApp, createMockRequester } from "../../_tests/fixtures"
+import { FetcherControls, useFetcher } from "./fetcher.helper"
+import { TodoDTO } from "../../_tests/app/modules/Todo/Todo.dto"
+import { ErrorDTO } from "../../dto"
 
 describe("Fetcher helper", () => {
 	const delay = 50

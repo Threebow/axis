@@ -1,8 +1,8 @@
 import { assert, expect } from "chai"
-import { createMockAppWithContext } from "./fixtures"
-import { MOCK_USERS } from "./app/classes/User.class"
 import { sample } from "lodash-es"
 import { redirect, status } from "../helpers/backend"
+import { createMockAppWithContext } from "../_tests/fixtures"
+import { MOCK_USERS } from "../_tests/app/classes/User.class"
 
 describe("Context", () => {
 	describe("Initialization", () => {
