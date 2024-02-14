@@ -1,6 +1,6 @@
 {
 	"name": "@axisjs/core",
-	"version": "11.8.1",
+	"version": "11.9.0",
 	"description": "Full-stack framework with SSR for Node",
 	"author": "Threebow",
 	"type": "module",
