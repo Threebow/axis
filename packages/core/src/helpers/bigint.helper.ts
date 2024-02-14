@@ -1,4 +1,4 @@
-import { isNumber } from "lodash-es"
+import { isNumber, isString } from "lodash-es"
 import { DecimalBigInt } from "../types"
 
 export function isBigInt(x: any): x is bigint {
@@ -46,6 +46,8 @@ export function decimalToBigInt(val: Decimal): bigint {
 	return BigInt(decimalString)
 }
 
-export function coerceBigInt(n: DecimalBigInt): bigint {
-	return isBigInt(n) ? n : decimalToBigInt(n)
+export function coerceBigInt(n: DecimalBigInt | string): bigint {
+	if (isBigInt(n)) return n
+	if (isString(n)) return BigInt(n)
+	return decimalToBigInt(n)
 }
