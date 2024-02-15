@@ -55,3 +55,8 @@ export type ViewData = {
 	props: DTO,
 	locals: BaseLocalsDTO<BaseUserDTO>
 }
+
+/**
+ * A record with implicit undefined values.
+ */
+export type ImplicitRecord<K extends string | number | symbol, T> = Record<K, T | undefined>
