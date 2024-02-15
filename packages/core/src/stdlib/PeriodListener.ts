@@ -4,8 +4,8 @@ import { sleep } from "../helpers"
 export class PeriodListener extends Listener<void> {
 	private stopped = false
 	
-	constructor(private readonly interval: number) {
-		super()
+	constructor(name: string, private readonly interval: number) {
+		super(name)
 		
 		process.nextTick(() => this.process())
 	}

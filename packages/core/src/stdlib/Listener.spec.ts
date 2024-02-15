@@ -2,6 +2,7 @@ import { Listener } from "../stdlib"
 import { sleep } from "../helpers"
 import { restore, stub } from "sinon"
 import { expect } from "chai"
+import { DateTime } from "luxon"
 
 describe("Listener", () => {
 	type TestType = {
@@ -10,6 +11,10 @@ describe("Listener", () => {
 	}
 	
 	class TestListener extends Listener<TestType> {
+		constructor() {
+			super("Test Listener")
+		}
+		
 		test(input: TestType) {
 			this.trigger(input)
 		}
@@ -31,9 +36,11 @@ describe("Listener", () => {
 		expect(result).to.deep.equal(input)
 	})
 	
-	it("should exit cleanly and log an eventId to stderr if a handler throws an error", async () => {
+	it("should log the listener name, time, and eventId to stderr and exit cleanly if a handler throws an error", async () => {
+		let errors = ""
+		
 		stub(process, "exit")
-		stub(console, "error")
+		stub(console, "error").callsFake((...args: any[]) => errors += args.join("\n") + "\n")
 		
 		const input: TestType = {
 			a: "hello",
@@ -42,7 +49,10 @@ describe("Listener", () => {
 		
 		const listener = new TestListener()
 		
+		let time
+		
 		listener.on(() => {
+			time = DateTime.now().toLocaleString(DateTime.DATETIME_HUGE_WITH_SECONDS)
 			throw new Error("test")
 		})
 		
@@ -50,8 +60,11 @@ describe("Listener", () => {
 		
 		await sleep(50)
 		
+		expect(time).to.be.a("string")
 		expect(process.exit).to.have.been.called
-		expect(console.error).to.have.been.calledWith("Event ID:")
+		expect(errors).to.include("ERROR:\nlistener: Test Listener")
+		expect(errors).to.include("Event ID:")
+		expect(errors).to.include(time)
 	})
 	
 	afterEach(() => restore())
