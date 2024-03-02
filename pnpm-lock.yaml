@@ -32,24 +32,6 @@ importers:
       '@axisjs/filename-loader':
         specifier: workspace:^
         version: link:../filename-loader
-      '@fortawesome/fontawesome-pro':
-        specifier: ^6.5.1
-        version: 6.5.1
-      '@fortawesome/fontawesome-svg-core':
-        specifier: ^6.5.1
-        version: 6.5.1
-      '@fortawesome/free-brands-svg-icons':
-        specifier: ^6.5.1
-        version: 6.5.1
-      '@fortawesome/pro-duotone-svg-icons':
-        specifier: ^6.5.1
-        version: 6.5.1
-      '@fortawesome/pro-solid-svg-icons':
-        specifier: ^6.5.1
-        version: 6.5.1
-      '@fortawesome/sharp-solid-svg-icons':
-        specifier: ^6.5.1
-        version: 6.5.1
       '@prisma/client':
         specifier: 5.8.0
         version: 5.8.0(prisma@5.9.0)
@@ -1902,58 +1884,6 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@fortawesome/fontawesome-common-types@6.5.1:
-    resolution: {integrity: sha512-GkWzv+L6d2bI5f/Vk6ikJ9xtl7dfXtoRu3YGE6nq0p/FFqA1ebMOAWg3XgRyb0I6LYyYkiAo+3/KrwuBp8xG7A==, tarball: https://npm.fontawesome.com/@fortawesome/fontawesome-common-types/-/6.5.1/fontawesome-common-types-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-pro@6.5.1:
-    resolution: {integrity: sha512-XLi5HOQ3XLNtM9UhrCyT5jEj0RHkx5GfzKDmUPpVTea4C/Ekj5plOYVAp9dUWgH+NWo3IrVpwhsnhIFh/FZPgA==, tarball: https://npm.fontawesome.com/@fortawesome/fontawesome-pro/-/6.5.1/fontawesome-pro-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-svg-core@6.5.1:
-    resolution: {integrity: sha512-MfRCYlQPXoLlpem+egxjfkEuP9UQswTrlCOsknus/NcMoblTH2g0jPrapbcIb04KGA7E2GZxbAccGZfWoYgsrQ==, tarball: https://npm.fontawesome.com/@fortawesome/fontawesome-svg-core/-/6.5.1/fontawesome-svg-core-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.5.1
-    dev: false
-
-  /@fortawesome/free-brands-svg-icons@6.5.1:
-    resolution: {integrity: sha512-093l7DAkx0aEtBq66Sf19MgoZewv1zeY9/4C7vSKPO4qMwEsW/2VYTUTpBtLwfb9T2R73tXaRDPmE4UqLCYHfg==, tarball: https://npm.fontawesome.com/@fortawesome/free-brands-svg-icons/-/6.5.1/free-brands-svg-icons-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.5.1
-    dev: false
-
-  /@fortawesome/pro-duotone-svg-icons@6.5.1:
-    resolution: {integrity: sha512-ywRh7WpcUD4To4TBFZc2EzbFblWiccNf9wwLFK56J7t8mO9ITQJAIPpT8x7DBrqejfbw9B4F6aH5fY6mfi0egg==, tarball: https://npm.fontawesome.com/@fortawesome/pro-duotone-svg-icons/-/6.5.1/pro-duotone-svg-icons-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.5.1
-    dev: false
-
-  /@fortawesome/pro-solid-svg-icons@6.5.1:
-    resolution: {integrity: sha512-UnJzqw7w+RVtEnQ2Bqg09bGYkJEZRkTnbgweZDTznHjtxsJzQdJkD3hJPL6N00c8GbWpRYslNDnTNDGVSd94cQ==, tarball: https://npm.fontawesome.com/@fortawesome/pro-solid-svg-icons/-/6.5.1/pro-solid-svg-icons-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.5.1
-    dev: false
-
-  /@fortawesome/sharp-solid-svg-icons@6.5.1:
-    resolution: {integrity: sha512-IYRaD4FKokprj63Qu+blYXgLioPFQx3ecimYk8ENd4cpySOYgP8tPRy5TSSq0udkXKAjfkeYUAXhQ88OD0qyiw==, tarball: https://npm.fontawesome.com/@fortawesome/sharp-solid-svg-icons/-/6.5.1/sharp-solid-svg-icons-6.5.1.tgz}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.5.1
-    dev: false
-
   /@ioredis/commands@1.2.0:
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
     dev: false
@@ -2260,9 +2190,6 @@ packages:
     resolution: {integrity: sha512-xYMrD3TMAulV67IaFvExAsGbTTlNZR2SatAJCwwaoYwgi4pLVvIxtVec6+x47zPesZ0/eJyanjUfinOE5e4crw==}
     peerDependencies:
       webpack: ^4.1.0 || ^5.0.0-0
-    peerDependenciesMeta:
-      '@vue/compiler-sfc':
-        optional: true
     dependencies:
       '@vue/compiler-sfc': 3.4.15
       chalk: 4.1.2

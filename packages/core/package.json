@@ -60,12 +60,6 @@
 	"homepage": "https://github.com/threebow/axis#readme",
 	"dependencies": {
 		"@axisjs/filename-loader": "workspace:^",
-		"@fortawesome/fontawesome-pro": "^6.5.1",
-		"@fortawesome/fontawesome-svg-core": "^6.5.1",
-		"@fortawesome/free-brands-svg-icons": "^6.5.1",
-		"@fortawesome/pro-duotone-svg-icons": "^6.5.1",
-		"@fortawesome/pro-solid-svg-icons": "^6.5.1",
-		"@fortawesome/sharp-solid-svg-icons": "^6.5.1",
 		"@prisma/client": "5.8.0",
 		"@sentry/browser": "^7.99.0",
 		"@sentry/node": "^7.92.0",
