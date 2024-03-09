@@ -1,12 +1,7 @@
 import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
 import { uuid } from "../helpers"
-import {
-	buildStringFromStubCalls,
-	createMockApp,
-	createMockRequester,
-	expectToIncludeInOrder
-} from "../_tests/fixtures"
+import { buildStringFromStubCalls, createMockApp, createMockRequester } from "../_tests/fixtures"
 import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
 
 describe("Application", () => {
@@ -63,6 +58,22 @@ describe("Application", () => {
 				status: 200,
 				data: test
 			})
+		})
+	})
+	
+	describe("Logging", () => {
+		createMockApp({ loggingEnabled: true })
+		
+		const r = createMockRequester()
+		
+		it("should log requests if logging is enabled", async () => {
+			const logs = buildStringFromStubCalls(
+				stub(process.stdout, "write")
+			)
+			
+			await r("GET", "/health-check")
+			
+			expect(logs.content).to.startWith("GET /health-check 200")
 		})
 	})
 	

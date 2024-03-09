@@ -101,4 +101,9 @@ export type AppOptions<
 	 * The filepath to the directory that contains the app's built files
 	 */
 	dist: string
+	
+	/**
+	 * Whether to enable request logging
+	 */
+	loggingEnabled?: boolean
 }

@@ -12,6 +12,7 @@ import { resolve } from "path"
 import { existsSync, readFileSync } from "fs"
 import { AppOptions } from "./AppOptions"
 import { KVObject } from "../types"
+import morgan from "morgan";
 
 /**
  * Defines the host and port that the app has successfully started to listen on.
@@ -87,6 +88,19 @@ export class App<
 		this.koa
 			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
 			.use(bodyParser())
+		
+		// enable logging
+		if (this.opts.loggingEnabled) {
+			const mw = morgan("tiny")
+			
+			this.koa.use((ctx, next) => {
+				return new Promise((resolve, reject) => {
+					mw(ctx.req, ctx.res, (err) => {
+						err ? reject(err) : resolve(ctx)
+					})
+				}).then(next)
+			})
+		}
 		
 		// enable session middleware if session key is set
 		if (this.useSessions) {

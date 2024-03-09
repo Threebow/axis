@@ -17,6 +17,7 @@ export type MockAppOptions = {
 	healthCheckData?: KVObject
 	useRenderer: boolean
 	useSession: boolean
+	loggingEnabled: boolean
 }
 
 export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, any, any> {
@@ -25,6 +26,7 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		port: 3000,
 		useRenderer: false,
 		useSession: false,
+		loggingEnabled: false,
 		...opts
 	}
 	
@@ -60,7 +62,9 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		
 		healthCheckData: opts.healthCheckData
 			? () => opts!.healthCheckData!
-			: undefined
+			: undefined,
+		
+		loggingEnabled: opts.loggingEnabled
 	})
 	
 	if (opts.addFixtures) {
