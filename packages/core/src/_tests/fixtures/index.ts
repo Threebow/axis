@@ -1,3 +1,4 @@
+export * from "./buildStringFromStubCalls.fixture"
 export * from "./createMockApp.fixture"
 export * from "./createMockAppWithContext.fixture"
 export * from "./createMockContext.fixture"

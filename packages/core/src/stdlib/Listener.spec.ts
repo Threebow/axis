@@ -3,6 +3,7 @@ import { sleep } from "../helpers"
 import { restore, stub } from "sinon"
 import { expect } from "chai"
 import { DateTime } from "luxon"
+import { buildStringFromStubCalls } from "../_tests/fixtures";
 
 describe("Listener", () => {
 	type TestType = {
@@ -37,10 +38,11 @@ describe("Listener", () => {
 	})
 	
 	it("should log the listener name, time, and eventId to stderr and exit cleanly if a handler throws an error", async () => {
-		let errors = ""
-		
 		stub(process, "exit")
-		stub(console, "error").callsFake((...args: any[]) => errors += args.join("\n") + "\n")
+		
+		const errors = buildStringFromStubCalls(
+			stub(console, "error")
+		)
 		
 		const input: TestType = {
 			a: "hello",
@@ -62,9 +64,9 @@ describe("Listener", () => {
 		
 		expect(time).to.be.a("string")
 		expect(process.exit).to.have.been.called
-		expect(errors).to.include("ERROR:\nlistener: Test Listener")
-		expect(errors).to.include("Event ID:")
-		expect(errors).to.include(time)
+		expect(errors.content).to.include("ERROR:\nlistener: Test Listener")
+		expect(errors.content).to.include("Event ID:")
+		expect(errors.content).to.include(time)
 	})
 	
 	afterEach(() => restore())
