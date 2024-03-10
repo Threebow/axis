@@ -4,6 +4,7 @@ import { ContextConstructor, IContext } from "./Context"
 import { ControllerConstructor } from "./Controller"
 import { KVObject, PageMeta, ViewComponent } from "../types"
 import { PotentialPromise } from "webpack-cli"
+import bodyParser from "koa-bodyparser";
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -106,4 +107,9 @@ export type AppOptions<
 	 * Whether to enable request logging
 	 */
 	loggingEnabled?: boolean
+	
+	/**
+	 * Body parser options
+	 */
+	bodyParserOptions?: bodyParser.Options
 }

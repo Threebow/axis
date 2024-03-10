@@ -8,6 +8,7 @@ import { CustomContext } from "../app/context"
 import { RootController } from "../app/modules/Root.controller"
 import ErrorPage from "../app/modules/Error.vue"
 import { sleep } from "../../helpers"
+import bodyParser from "koa-bodyparser";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -17,7 +18,8 @@ export type MockAppOptions = {
 	healthCheckData?: KVObject
 	useRenderer: boolean
 	useSession: boolean
-	loggingEnabled: boolean
+	loggingEnabled: boolean,
+	bodyParserOptions: bodyParser.Options
 }
 
 export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, any, any> {
@@ -64,7 +66,9 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 			? () => opts!.healthCheckData!
 			: undefined,
 		
-		loggingEnabled: opts.loggingEnabled
+		loggingEnabled: opts.loggingEnabled,
+		
+		bodyParserOptions: opts.bodyParserOptions
 	})
 	
 	if (opts.addFixtures) {

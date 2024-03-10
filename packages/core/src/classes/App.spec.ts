@@ -77,6 +77,44 @@ describe("Application", () => {
 		})
 	})
 	
+	
+	describe("Body Parser Settings", () => {
+		const body = {
+			data: "0".repeat(2_000_000)
+		}
+		
+		describe("Sensible Defaults", () => {
+			createMockApp()
+			
+			const r = createMockRequester()
+			
+			it("should return 413 when passed a large request", async () => {
+				const res = await r("PATCH", "/echo/1/2/3", body)
+				
+				assert(!res.success)
+				expect(res.data.status).to.equal(413)
+			})
+		})
+		
+		describe("Enlarged JSON limit", () => {
+			createMockApp({
+				bodyParserOptions: {
+					jsonLimit: "3mb"
+				}
+			})
+			
+			const r = createMockRequester()
+			
+			it("should allow large requests when configured correctly", async () => {
+				const res = await r("PATCH", "/echo/1/2/3", body)
+				
+				assert(res.success)
+				expect(res.status).to.equal(200)
+				expect(res.data.body).to.deep.equal(body)
+			})
+		})
+	})
+	
 	describe("Root Controller", () => {
 		createMockApp()
 		

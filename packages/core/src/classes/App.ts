@@ -87,7 +87,7 @@ export class App<
 		// add some generic middleware
 		this.koa
 			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
-			.use(bodyParser())
+			.use(bodyParser(opts.bodyParserOptions))
 		
 		// enable logging
 		if (this.opts.loggingEnabled) {
