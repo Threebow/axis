@@ -1,7 +1,6 @@
 import Koa from "koa"
 import { createServer, Server } from "http"
 import serve from "koa-static"
-import bodyParser from "koa-bodyparser"
 import session from "koa-session"
 import { BaseLocalsDTO, BaseUserDTO } from "../dto"
 import { IBaseUser } from "./User"
@@ -13,6 +12,7 @@ import { existsSync, readFileSync } from "fs"
 import { AppOptions } from "./AppOptions"
 import { KVObject } from "../types"
 import morgan from "morgan";
+import { bodyParser } from "@koa/bodyparser";
 
 /**
  * Defines the host and port that the app has successfully started to listen on.
@@ -87,7 +87,7 @@ export class App<
 		// add some generic middleware
 		this.koa
 			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))
-			.use(bodyParser(opts.bodyParserOptions))
+			.use(bodyParser({ ...(opts.bodyParserOptions ?? {}), encoding: "utf8" }))
 		
 		// enable logging
 		if (this.opts.loggingEnabled) {

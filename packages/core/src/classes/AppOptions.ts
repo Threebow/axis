@@ -4,7 +4,10 @@ import { ContextConstructor, IContext } from "./Context"
 import { ControllerConstructor } from "./Controller"
 import { KVObject, PageMeta, ViewComponent } from "../types"
 import { PotentialPromise } from "webpack-cli"
-import bodyParser from "koa-bodyparser";
+import { bodyParser } from "@koa/bodyparser"
+
+// good meme
+export type BodyParserOptions = Omit<NonNullable<Parameters<typeof bodyParser>[0]>, "encoding">
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -111,5 +114,5 @@ export type AppOptions<
 	/**
 	 * Body parser options
 	 */
-	bodyParserOptions?: bodyParser.Options
+	bodyParserOptions?: BodyParserOptions
 }

@@ -1,5 +1,5 @@
 import { KVObject } from "../../types"
-import { App, AppMode, IApp } from "../../classes"
+import { App, AppMode, BodyParserOptions, IApp } from "../../classes"
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { CustomLocalsDTO, CustomUserDTO } from "../app/modules/Root.dto"
@@ -8,7 +8,6 @@ import { CustomContext } from "../app/context"
 import { RootController } from "../app/modules/Root.controller"
 import ErrorPage from "../app/modules/Error.vue"
 import { sleep } from "../../helpers"
-import bodyParser from "koa-bodyparser";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -19,7 +18,7 @@ export type MockAppOptions = {
 	useRenderer: boolean
 	useSession: boolean
 	loggingEnabled: boolean,
-	bodyParserOptions: bodyParser.Options
+	bodyParserOptions: BodyParserOptions
 }
 
 export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, any, any> {
