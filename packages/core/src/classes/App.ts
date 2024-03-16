@@ -78,18 +78,18 @@ export class App<
 			this.koa.keys = [this.opts.sessionKey!]
 		}
 		
-		// define error handlers
-		this.koa
-			.use(fatalErrorHandler())
-			.use(genericErrorHandler(this))
-			.use(httpErrorTransformer())
-		
 		// apply custom error handlers
 		if (this.opts.errorHandlers?.length) {
 			for (const handler of this.opts.errorHandlers) {
 				this.koa.use(handler)
 			}
 		}
+		
+		// apply internal error handlers
+		this.koa
+			.use(fatalErrorHandler())
+			.use(genericErrorHandler(this))
+			.use(httpErrorTransformer())
 		
 		// add some generic middleware
 		this.koa
