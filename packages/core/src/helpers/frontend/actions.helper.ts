@@ -8,7 +8,8 @@ export type ActionsControls = {
 	isDoingAction: Ref<boolean>
 	doAction: (
 		guard: Ref<boolean>,
-		action: () => Promise<RequestResult> | -1
+		action: () => Promise<RequestResult> | -1,
+		onError?: (error: AxiosError, dto: ErrorDTO) => void
 	) => Promise<void>
 }
 
