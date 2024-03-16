@@ -8,6 +8,7 @@ import {
 	expectToIncludeInOrder
 } from "../_tests/fixtures"
 import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
+import HTTPError from "http-errors";
 
 describe("Application", () => {
 	describe("Boot", () => {
@@ -128,14 +129,13 @@ describe("Application", () => {
 			errorHandlers: Array
 				.from({ length: NUM_HANDLERS })
 				.map((_, i) => {
-					return async (ctx, next) => {
+					return async (_, next) => {
 						console.warn("H" + i)
 						
 						try {
 							await next()
 						} catch (e: any) {
-							ctx.status = 422
-							ctx.body = `H${i}: ${e.message}`
+							throw new HTTPError.UnavailableForLegalReasons(`H${i}: ${e.message}`)
 						}
 					}
 				})
@@ -150,14 +150,17 @@ describe("Application", () => {
 			
 			const res = await r("DELETE", "/unimplemented")
 			
-			assert(!res.success)
-			
+			// assert log order
 			const match = Array
 				.from({ length: NUM_HANDLERS })
 				.map((_, i) => "H" + i)
 			
 			expectToIncludeInOrder(logs.content, match)
-			expect(res.data).to.equal(`H${match.length - 1}: Not Implemented`)
+			
+			// assert response state
+			assert(!res.success)
+			expect(res.data.status).to.equal(451)
+			expect(res.data.extra).to.equal(`${match.join(": ")}: Not Implemented`)
 		})
 		
 		afterEach(() => restore())
