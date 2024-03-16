@@ -43,6 +43,7 @@ export function useActions(): ActionsControls {
 				// request was unsuccessful
 				if (onError) {
 					onError(r.error, r.data)
+					isDoingAction.value = false
 				} else {
 					throw r.error
 				}
