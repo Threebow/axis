@@ -75,8 +75,9 @@ describe("Application", () => {
 			
 			expect(logs.content).to.startWith("GET /health-check 200")
 		})
+		
+		afterEach(() => restore())
 	})
-	
 	
 	describe("Body Parser Settings", () => {
 		const body = {
