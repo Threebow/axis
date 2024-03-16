@@ -1,5 +1,5 @@
 import { KVObject } from "../../types"
-import { App, AppMode, BodyParserOptions, IApp } from "../../classes"
+import { App, AppMode, BodyParserOptions, ErrorHandler, IApp } from "../../classes"
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { CustomLocalsDTO, CustomUserDTO } from "../app/modules/Root.dto"
@@ -17,8 +17,9 @@ export type MockAppOptions = {
 	healthCheckData?: KVObject
 	useRenderer: boolean
 	useSession: boolean
-	loggingEnabled: boolean,
+	loggingEnabled: boolean
 	bodyParserOptions: BodyParserOptions
+	errorHandlers: ErrorHandler[]
 }
 
 export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, any, any> {
@@ -28,6 +29,7 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		useRenderer: false,
 		useSession: false,
 		loggingEnabled: false,
+		errorHandlers: [],
 		...opts
 	}
 	
@@ -67,7 +69,9 @@ export function createMockApp(opts?: Partial<MockAppOptions>): IApp<any, any, an
 		
 		loggingEnabled: opts.loggingEnabled,
 		
-		bodyParserOptions: opts.bodyParserOptions
+		bodyParserOptions: opts.bodyParserOptions,
+		
+		errorHandlers: opts.errorHandlers
 	})
 	
 	if (opts.addFixtures) {

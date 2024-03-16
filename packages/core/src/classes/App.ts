@@ -84,6 +84,13 @@ export class App<
 			.use(genericErrorHandler(this))
 			.use(httpErrorTransformer())
 		
+		// apply custom error handlers
+		if (this.opts.errorHandlers?.length) {
+			for (const handler of this.opts.errorHandlers) {
+				this.koa.use(handler)
+			}
+		}
+		
 		// add some generic middleware
 		this.koa
 			.use(serve(resolve(opts.dist, "./frontend"), { maxage: 24 * 60 * 60 * 1000 }))

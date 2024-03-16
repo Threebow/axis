@@ -1,7 +1,12 @@
 import { assert, expect } from "chai"
 import { restore, stub } from "sinon"
 import { uuid } from "../helpers"
-import { buildStringFromStubCalls, createMockApp, createMockRequester } from "../_tests/fixtures"
+import {
+	buildStringFromStubCalls,
+	createMockApp,
+	createMockRequester,
+	expectToIncludeInOrder
+} from "../_tests/fixtures"
 import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
 
 describe("Application", () => {
@@ -114,6 +119,48 @@ describe("Application", () => {
 				expect(res.data.body).to.deep.equal(body)
 			})
 		})
+	})
+	
+	describe("Custom Error Handlers", () => {
+		const NUM_HANDLERS = 3
+		
+		createMockApp({
+			errorHandlers: Array
+				.from({ length: NUM_HANDLERS })
+				.map((_, i) => {
+					return async (ctx, next) => {
+						console.warn("H" + i)
+						
+						try {
+							await next()
+						} catch (e: any) {
+							ctx.status = 422
+							ctx.body = `H${i}: ${e.message}`
+						}
+					}
+				})
+		})
+		
+		const r = createMockRequester()
+		
+		it("should call defined custom error handlers in the correct order", async () => {
+			const logs = buildStringFromStubCalls(
+				stub(console, "warn")
+			)
+			
+			const res = await r("DELETE", "/unimplemented")
+			
+			assert(!res.success)
+			
+			const match = Array
+				.from({ length: NUM_HANDLERS })
+				.map((_, i) => "H" + i)
+			
+			expectToIncludeInOrder(logs.content, match)
+			expect(res.data).to.equal(`H${match.length - 1}: Not Implemented`)
+		})
+		
+		afterEach(() => restore())
 	})
 	
 	describe("Root Controller", () => {

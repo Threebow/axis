@@ -5,9 +5,12 @@ import { ControllerConstructor } from "./Controller"
 import { KVObject, PageMeta, ViewComponent } from "../types"
 import { PotentialPromise } from "webpack-cli"
 import { bodyParser } from "@koa/bodyparser"
+import { Context as KoaContext, Next as KoaNext } from "koa"
 
 // good meme
 export type BodyParserOptions = Omit<NonNullable<Parameters<typeof bodyParser>[0]>, "encoding">
+
+export type ErrorHandler = (ctx: KoaContext, next: KoaNext) => Promise<void>
 
 export enum AppMode {
 	DEVELOPMENT,
@@ -115,4 +118,9 @@ export type AppOptions<
 	 * Body parser options
 	 */
 	bodyParserOptions?: BodyParserOptions
+	
+	/**
+	 * Additional error handlers that are ran before the internal error handlers.
+	 */
+	errorHandlers?: ErrorHandler[]
 }
