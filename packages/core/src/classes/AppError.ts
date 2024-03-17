@@ -1,15 +1,17 @@
 export enum AppErrorType {
 	NOT_FOUND,
-	INVALID_INPUT
+	INVALID_INPUT,
+	RENDER_FAILED
 }
 
 export interface IAppError extends Error {
 	readonly type: AppErrorType;
 	readonly message: string;
+	readonly cause?: any
 }
 
 export class AppError extends Error implements IAppError {
-	constructor(readonly type: AppErrorType, readonly message: string) {
+	constructor(readonly type: AppErrorType, readonly message: string, readonly cause?: any) {
 		super(type + ": " + message)
 		
 		this.name = this.constructor.name
