@@ -1,3 +1,3 @@
-export namespace Symbols {
+export namespace Constants {
 	export const LOCALS = Symbol("Locals")
 }

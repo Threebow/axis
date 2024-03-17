@@ -1,7 +1,7 @@
 import { ConcreteComponent, createSSRApp, h, resolveComponent } from "vue"
 import type { KVObject, ViewComponent, ViewData } from "./types"
 import { isString } from "lodash-es"
-import { Symbols } from "./symbols";
+import { Constants } from "./constants";
 
 function resolveComponentOrThrow(name: string): ConcreteComponent {
 	const comp = resolveComponent(name)
@@ -56,7 +56,7 @@ export function createApp(
 	const app = createSSRApp({ setup: () => createVueApp(viewData) }, viewData)
 	
 	// inject locals into the app so the locals composable can pick them up
-	app.provide(Symbols.LOCALS, viewData.locals)
+	app.provide(Constants.LOCALS, viewData.locals)
 	
 	// register the main view component
 	app.component("AppView", viewComponent)

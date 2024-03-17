@@ -147,7 +147,7 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		const appHtml = await renderToString(vue)
 			.catch(e => {
 				return Promise.reject(
-					new AppError(AppErrorType.RENDER_FAILED, "SSR Render failed: " + e.message, e)
+					new AppError(AppErrorType.RENDER_FAILED, "SSR render failed: " + e.message, e)
 				)
 			})
 		
