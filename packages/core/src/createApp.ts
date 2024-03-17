@@ -1,48 +1,47 @@
 import { ConcreteComponent, createSSRApp, h, resolveComponent } from "vue"
 import type { KVObject, ViewComponent, ViewData } from "./types"
 import { isString } from "lodash-es"
+import { Symbols } from "./symbols";
+
+function resolveComponentOrThrow(name: string): ConcreteComponent {
+	const comp = resolveComponent(name)
+	
+	if (isString(comp)) {
+		throw new Error(name + " component not found.")
+	}
+	
+	return comp
+}
+
+function mergeLocalsIntoProps(propDefs: KVObject, locals: KVObject): KVObject {
+	if (!propDefs) {
+		return {}
+	}
+	
+	const propsToAdd: KVObject = {}
+	
+	for (const i in locals) {
+		if (propDefs[i]) {
+			propsToAdd[i] = locals[i]
+		}
+	}
+	
+	return propsToAdd
+}
 
 function createVueApp(view: ViewData) {
-	function resolveComponentOrThrow(name: string): ConcreteComponent {
-		const comp = resolveComponent(name)
-		
-		if (isString(comp)) {
-			throw new Error(name + " component not found.")
-		}
-		
-		return comp
-	}
-	
-	function mergeLocalsIntoProps(propDefs: KVObject, locals: KVObject): KVObject {
-		if (!propDefs) {
-			return {}
-		}
-		
-		const propsToAdd: KVObject = {}
-		
-		for (const i in locals) {
-			if (propDefs[i]) {
-				propsToAdd[i] = locals[i]
-			}
-		}
-		
-		return propsToAdd
-	}
-	
 	const viewComponent = resolveComponentOrThrow("AppView")
 	
 	let vnode = h(
 		viewComponent,
-		mergeLocalsIntoProps(viewComponent.props, { ...view.locals, ...view.props })
+		mergeLocalsIntoProps(viewComponent.props, view.props)
 	)
 	
 	view.layoutFiles
 		.forEach((f, i, a) => {
 			const layoutComponent = resolveComponentOrThrow("Layout" + (a.length - i - 1))
-			const merged = mergeLocalsIntoProps(layoutComponent.props, view.locals)
-			
 			const node = vnode
-			vnode = h(layoutComponent, merged, () => node)
+			vnode = h(layoutComponent, () => node)
 		})
 	
 	return () => h("main", vnode)
@@ -55,6 +54,9 @@ export function createApp(
 ) {
 	// build and initialize the SSR app
 	const app = createSSRApp({ setup: () => createVueApp(viewData) }, viewData)
+	
+	// inject locals into the app so the locals composable can pick them up
+	app.provide(Symbols.LOCALS, viewData.locals)
 	
 	// register the main view component
 	app.component("AppView", viewComponent)

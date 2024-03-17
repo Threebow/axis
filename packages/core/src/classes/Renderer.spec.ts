@@ -6,6 +6,7 @@ import { RootIndexDTO } from "../_tests/app/modules/Root.dto"
 import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "../_tests/fixtures"
 import NestedTest from "../_tests/app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import Root from "../_tests/app/modules/Root.vue"
+import { MOCK_LINKS } from "../_tests/app/modules/middleware/Custom.middleware";
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext({
@@ -20,6 +21,21 @@ describe("Renderer", () => {
 		expect(mock.ctx.koaCtx.status).to.equal(200)
 		expect(mock.ctx.koaCtx.body).to.startWith("<!DOCTYPE html>").and.endWith("</html>")
 		expect(mock.ctx.koaCtx.body).to.include("UUID: " + data.uuid)
+	})
+	
+	it("should inject app locals", async () => {
+		const props: RootIndexDTO = { uuid: uuid() }
+		
+		mock.ctx.locals.links = MOCK_LINKS
+		
+		await mock.ctx.respond(render<RootIndexDTO>(Root, props))
+		
+		const data = extractAndParseEncodedViewData(mock.ctx.koaCtx.body as string)
+		
+		expect(data.locals).to.deep.equal({
+			__APP_VERSION__: getVersionString(),
+			links: MOCK_LINKS
+		})
 	})
 	
 	it("should render a preloader", async () => {
@@ -52,10 +68,15 @@ describe("Renderer", () => {
 	
 	describe("Layouts", () => {
 		it("should be rendered correctly", async () => {
+			mock.ctx.locals.links = MOCK_LINKS
+			
 			await mock.ctx.respond(render(NestedTest))
 			
 			expectToIncludeInOrder(mock.ctx.koaCtx.body, [
 				"Hello from Root.layout.vue!",
+				"Version: " + getVersionString(),
+				"Logged in as: ~",
+				`Links: ${MOCK_LINKS.map(l => l.name).join(",")}`,
 				"Hello from NestedLayouts.layout.vue!",
 				"Hello from unnamed layout.vue in B!",
 				"Hello from C.layout.vue!",
