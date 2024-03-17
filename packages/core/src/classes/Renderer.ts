@@ -8,6 +8,7 @@ import { IResponder, Responder } from "./Responder"
 import { IContext } from "./Context"
 import { createApp } from "../createApp"
 import { AppMode } from "./AppOptions"
+import { AppError, AppErrorType } from "./AppError";
 
 const PAGE_CACHE = new Map<string, compileTemplate>()
 
@@ -145,10 +146,9 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 		// render the app to html
 		const appHtml = await renderToString(vue)
 			.catch(e => {
-				// simply log out some additional data and rethrow the error, so we have some context
-				// TODO: better solution? handle in included error handler that detects vue render errors?
-				console.error("SSR Failed:", fromJson(view))
-				return Promise.reject(e)
+				return Promise.reject(
+					new AppError(AppErrorType.RENDER_FAILED, "SSR Render failed: " + e.message, e)
+				)
 			})
 		
 		// fetch the compiled page from cache if it exists
