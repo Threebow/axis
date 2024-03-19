@@ -2,6 +2,7 @@ import { ConcreteComponent, createSSRApp, h, resolveComponent } from "vue"
 import type { KVObject, ViewComponent, ViewData } from "./types"
 import { isString } from "lodash-es"
 import { Constants } from "./constants";
+import { createPinia } from "pinia";
 
 function resolveComponentOrThrow(name: string): ConcreteComponent {
 	const comp = resolveComponent(name)
@@ -54,6 +55,9 @@ export function createApp(
 ) {
 	// build and initialize the SSR app
 	const app = createSSRApp({ setup: () => createVueApp(viewData) }, viewData)
+	
+	// set up pinia
+	app.use(createPinia())
 	
 	// inject locals into the app so the locals composable can pick them up
 	app.provide(Constants.LOCALS, viewData.locals)
