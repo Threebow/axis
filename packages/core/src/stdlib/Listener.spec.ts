@@ -1,9 +1,9 @@
 import { Listener } from "../stdlib"
 import { sleep } from "../helpers"
 import { restore, stub } from "sinon"
-import { expect } from "chai"
+import { assert, expect } from "chai"
 import { DateTime } from "luxon"
-import { buildStringFromStubCalls } from "../_tests/fixtures";
+import { buildStringFromStubCalls } from "../_tests/fixtures"
 
 describe("Listener", () => {
 	type TestType = {
@@ -18,6 +18,10 @@ describe("Listener", () => {
 		
 		test(input: TestType) {
 			this.trigger(input)
+		}
+		
+		testAsync(input: TestType) {
+			return this.triggerAsync(input)
 		}
 	}
 	
@@ -67,6 +71,58 @@ describe("Listener", () => {
 		expect(errors.content).to.include("ERROR:\nlistener: Test Listener")
 		expect(errors.content).to.include("Event ID:")
 		expect(errors.content).to.include(time)
+	})
+	
+	it("should call a guard function and trigger the listener if the guard returns true", async () => {
+		const input: TestType = {
+			a: "hello",
+			b: 123
+		}
+		
+		const listener = new TestListener()
+		
+		let guardCalled = false
+		
+		// assignment returns true
+		listener.guard(() => guardCalled = true)
+		
+		const result = await new Promise((resolve) => {
+			listener.on(resolve)
+			listener.test(input)
+		})
+		
+		assert(guardCalled, "guard function was not called")
+		expect(result).to.deep.equal(input)
+	})
+	
+	it("should call a guard function and not trigger the listener if the guard returns false", async () => {
+		const input: TestType = {
+			a: "hello",
+			b: 123
+		}
+		
+		const listener = new TestListener()
+		
+		let guardCalled = false
+		
+		// assignment returns true
+		listener.guard(() => {
+			guardCalled = true
+			return false
+		})
+		
+		await new Promise<void>(async (resolve, reject) => {
+			listener.on(() => reject(new Error("Listener was triggered")))
+			
+			await listener.testAsync(input)
+			
+			// wait short while for event to be triggered
+			await sleep(50)
+			
+			resolve()
+		})
+		
+		assert(guardCalled, "guard function was not called")
 	})
 	
 	afterEach(() => restore())
