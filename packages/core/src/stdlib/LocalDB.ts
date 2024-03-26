@@ -1,4 +1,4 @@
-import { fromJson } from "../helpers"
+import { fromJson, toJson } from "../helpers"
 import { ensureStorageAvailable } from "../helpers/frontend"
 
 export interface ILocalDB {
@@ -23,10 +23,10 @@ export class LocalDB implements ILocalDB {
 			return
 		}
 		
-		return fromJson(item) as T
+		return fromJson(item)
 	}
 	
 	set<T>(key: string, value: T) {
-		this.driver.setItem(this.prefix(key), JSON.stringify(value))
+		this.driver.setItem(this.prefix(key), toJson(value))
 	}
 }
