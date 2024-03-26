@@ -3,8 +3,11 @@
 Axis is a framework for developing full-stack server-side rendered applications in Node and Vue. It lets you write
 your views in type-safe Vue components that share types with your controllers. It also supports full SSR by default,
 and will automatically load the files in your `modules` directory according to how you name them. Axis is heavily
-inspired by [NestJS](https://nestjs.com/) and [Nuxt](https://nuxt.com/). It's also not quite production ready, so you
-probably shouldn't use it for serious stuff.
+inspired by [NestJS](https://nestjs.com/) and [Nuxt](https://nuxt.com/).
+
+Axis has been under development since 2018. For the majority of that time, it has been a JavaScript-only framework.
+Only recently has it received a full TypeScript rewrite. Keep in mind that this rewrite is not quite production-ready
+yet, so you shouldn't use it for serious stuff.
 
 ## Features
 
