@@ -139,13 +139,16 @@ to use them if you don't want to, but they are available for your use if you des
 ```ts
 //// src/modules/Todo/Todo.service.ts
 import { createLogger, PeriodListener, handleError } from "@axisjs/core"
+import { emailService } from "../Email/Email.service" // imaginary service
 
 const log = createLogger("TodoService", "#29C1F6")
 
 // PeriodListener is like setInterval except it handles errors and respects async
 new PeriodListener("Todo:ProcessDueDateEmails", 60 * 1000)
+	.guard(() => emailService.isReady()) // don't run unless email service is ready
 	.on(async () => {
 		// TODO: check if any todos are past their due dates, if so, email the creator
+		await emailService.doStuff()
 	})
 	.onError((err: any) => {
 		handleError(err, "failed to process due date emails")
