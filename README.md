@@ -133,8 +133,8 @@ executed on boot.
 > #### Note on "services"
 > It is important to keep in mind the distinction of a service within Axis, and what most other frameworks consider a
 > "service". In Axis, service files are strictly files that are automatically ran in the backend context when the
-> app boots. It serves as a bootloader for the module. They are not meant to export a "service" class that contains
-> isolated units of business logic for external use across your app. Instead, this is what repositories are for.
+> app boots. It serves as a bootloader for the module. Although you are able to use them to export a "service" class
+> that contains isolated units of business logic, consider using repositories first for data access.
 
 Axis also includes several built-in classes that make developing some things a little bit easier. You aren't required
 to use them if you don't want to, but they are available for your use if you desire.
