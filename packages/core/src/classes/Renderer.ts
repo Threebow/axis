@@ -8,7 +8,7 @@ import { IResponder, Responder } from "./Responder"
 import { IContext } from "./Context"
 import { createApp } from "../createApp"
 import { AppMode } from "./AppOptions"
-import { AppError, AppErrorType } from "./AppError";
+import { AppError, AppErrorType } from "./AppError"
 
 const PAGE_CACHE = new Map<string, compileTemplate>()
 
@@ -129,8 +129,8 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			file: this.cleanPath(file),
 			layoutFiles: layouts.map(l => l.file),
 			props: data,
-			locals: {
-				...ctx.locals,
+			locals: ctx.locals,
+			appLocals: {
 				user: ctx.user?.toJson(),
 				__APP_VERSION__: app.version
 			}

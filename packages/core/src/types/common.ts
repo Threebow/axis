@@ -1,4 +1,4 @@
-import type { BaseLocalsDTO, BaseUserDTO } from "../dto"
+import type { AppLocalsDTO, BaseUserDTO } from "../dto"
 import type { Decimal } from "../helpers"
 
 export type DateString = Date | string
@@ -49,11 +49,12 @@ export type PageData = {
 	__ENCODED_VIEW__: string
 }
 
-export type ViewData = {
+export type ViewData<LocalsDTO extends KVObject = {}> = {
 	file: string
 	layoutFiles: string[]
-	props: DTO,
-	locals: BaseLocalsDTO<BaseUserDTO>
+	props: DTO
+	locals: LocalsDTO
+	appLocals: AppLocalsDTO<BaseUserDTO>
 }
 
 /**

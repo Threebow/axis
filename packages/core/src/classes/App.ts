@@ -2,7 +2,7 @@ import Koa from "koa"
 import { createServer, Server } from "http"
 import serve from "koa-static"
 import session from "koa-session"
-import { BaseLocalsDTO, BaseUserDTO } from "../dto"
+import { BaseUserDTO } from "../dto"
 import { IBaseUser } from "./User"
 import { IContext } from "./Context"
 import { fromJson, getVersionString } from "../helpers"
@@ -11,8 +11,11 @@ import { resolve } from "path"
 import { existsSync, readFileSync } from "fs"
 import { AppOptions } from "./AppOptions"
 import { KVObject } from "../types"
-import morgan from "morgan";
-import { bodyParser } from "@koa/bodyparser";
+import morgan from "morgan"
+import { bodyParser } from "@koa/bodyparser"
+import { Controller } from "./Controller"
+import { AppError, AppErrorType } from "./AppError"
+import { compile, PathFunction } from "path-to-regexp"
 
 /**
  * Defines the host and port that the app has successfully started to listen on.
@@ -30,7 +33,7 @@ export type AssetManifest = KVObject<string | undefined>
 export interface IApp<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject = {},
 	Context extends IContext<UserDTO, UserClass, LocalsDTO> = IContext<UserDTO, UserClass, LocalsDTO>
 > {
 	readonly opts: AppOptions<UserDTO, UserClass, LocalsDTO, Context>
@@ -48,12 +51,22 @@ export interface IApp<
 	createContext(koaCtx: Koa.Context): Context
 	
 	shutdown(): Promise<void>
+	
+	/**
+	 * Attempts to resolve a route's full path from the root controller
+	 */
+	resolveRouteFullPath<T extends KVObject = {}>(target: string, data?: T): string
+}
+
+type CachedRoute = {
+	fullPath: string
+	render?: PathFunction
 }
 
 export class App<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject = {},
 	Context extends IContext<UserDTO, UserClass, LocalsDTO> = IContext<UserDTO, UserClass, LocalsDTO>
 > implements IApp<UserDTO, UserClass, LocalsDTO, Context> {
 	readonly version = getVersionString()
@@ -72,12 +85,15 @@ export class App<
 	// determine if sessions are enabled
 	readonly useSessions = this.opts.sessionKey != null
 	
+	private readonly rootController: Controller
+	
+	private readonly routeCache: Map<string, CachedRoute> = new Map()
+	
 	constructor(readonly opts: AppOptions<UserDTO, UserClass, LocalsDTO, Context>) {
 		// set session key
 		if (this.useSessions) {
 			this.koa.keys = [this.opts.sessionKey!]
 		}
-		
 		
 		// apply internal error handlers
 		this.koa
@@ -120,7 +136,11 @@ export class App<
 		
 		// mount the root controller
 		// FIXME: should not be casting to any so aggressively
-		const rootController = new opts.rootController(this as IApp<any, any, any, any>)
+		const rootController = new opts.rootController(
+			this as IApp<any, any, any, any>,
+			undefined,
+			true
+		)
 		
 		// add a simple health check route
 		rootController.router.get("/health-check", async (ctx) => {
@@ -134,6 +154,8 @@ export class App<
 		this.koa
 			.use(rootController.router.routes())
 			.use(rootController.router.allowedMethods({ throw: true }))
+		
+		this.rootController = rootController
 	}
 	
 	boot(): Promise<AppBootResult> {
@@ -162,5 +184,40 @@ export class App<
 				resolve()
 			})
 		})
+	}
+	
+	resolveRouteFullPath<T extends KVObject = {}>(target: string, data?: T): string {
+		let cached = this.routeCache.get(target)
+		
+		// resolve and cache the route if we haven't done so yet
+		if (!cached) {
+			// attempt to find the route
+			const route = this.rootController.resolveRoute(target)
+			
+			// throw an error if the route was not found
+			if (!route) {
+				throw new AppError(
+					AppErrorType.INVALID_ROUTE,
+					`Unable to resolve route "${target}": not found`
+				)
+			}
+			
+			const fullPath = route.fullPath
+			
+			cached = {
+				fullPath,
+				render: fullPath.includes(":") ? compile(fullPath) : undefined
+			}
+			
+			// cache the result
+			this.routeCache.set(target, cached)
+		}
+		
+		// render the route if it has dynamic segments
+		if (data && cached.render) {
+			return cached.render(data)
+		}
+		
+		return cached.fullPath
 	}
 }

@@ -1,8 +1,11 @@
 import { ControllerConstructor } from "../classes"
+import { ensureStringStartsWith } from "../helpers/string.helper"
 
 export type MountedController = { uri: string, ctor: ControllerConstructor }
 
 export function Mount(uri: string, ctor: ControllerConstructor) {
+	uri = ensureStringStartsWith(uri, "/")
+	
 	return (target: any, key?: string | symbol) => {
 		let stack: MountedController[]
 		

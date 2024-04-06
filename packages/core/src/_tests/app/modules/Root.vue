@@ -1,11 +1,12 @@
 <script setup lang="ts">
-	import type { CustomLocalsDTO, RootIndexDTO } from "./Root.dto"
+	import type { CustomLocalsDTO, CustomUserDTO, RootIndexDTO } from "./Root.dto"
 	import { toJson } from "../../../helpers"
-	import { useLocals } from "../../../composables";
+	import { useAppLocals, useLocals } from "../../../composables"
 
 	const props = defineProps<RootIndexDTO>()
 
-	const { user, links } = useLocals<CustomLocalsDTO>()
+	const { links } = useLocals<CustomLocalsDTO>()
+	const { user } = useAppLocals<CustomUserDTO>()
 </script>
 
 <template lang="pug">

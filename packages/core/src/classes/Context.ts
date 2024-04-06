@@ -4,7 +4,7 @@ import { isFunction, isNil, isNumber } from "lodash-es"
 import HTTPError from "http-errors"
 import { DTO, KVObject } from "../types"
 import { IExecutable, isExecutable } from "./Executable"
-import { BaseLocalsDTO, BaseUserDTO } from "../dto"
+import { BaseUserDTO } from "../dto"
 import { IApp } from "./App"
 import { IValidator, Validator } from "./Validator"
 import { Responder } from "./Responder"
@@ -20,7 +20,7 @@ export type ContextResponse
 export interface IContext<
 	UserDTO extends BaseUserDTO = BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO> = IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO> = BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject = any,
 	Query extends KVObject = any,
 	Params extends KVObject = any,
 	Body extends KVObject = any
@@ -58,7 +58,7 @@ export type ContextConstructor<Context extends IContext<any, any, any>> = new (a
 export abstract class Context<
 	UserDTO extends BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject,
 	Query extends KVObject = any,
 	Params extends KVObject = any,
 	Body extends KVObject = any

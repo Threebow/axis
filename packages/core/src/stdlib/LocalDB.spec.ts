@@ -15,7 +15,8 @@ function createMockLocalStorage(): Storage {
 			return storage[key] ?? null
 		},
 		key(index: number): string | null {
-			return this.getItem(Object.keys(storage)[index])
+			const item = Object.keys(storage)[index]
+			return item != null ? this.getItem(item) : null
 		},
 		removeItem(key: string): void {
 			delete storage[key]

@@ -7,9 +7,7 @@ export function expectToIncludeInOrder(val: any, targets: string[]) {
 	
 	let str = val as string
 	
-	for (let i = 0; i < targets.length; i++) {
-		const target = targets[i]
-		
+	for (const target of targets) { 
 		const idx = str.indexOf(target)
 		
 		expect(idx).to.not.equal(-1, "Expected to find " + target + " in " + str)

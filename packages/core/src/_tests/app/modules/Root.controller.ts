@@ -11,9 +11,9 @@ import { render } from "../../../helpers/backend"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)
-@Mount("/nested-layouts", NestedLayoutsController)
+@Mount("nested-layouts", NestedLayoutsController)
 export class RootController extends Controller {
-	@Get("/")
+	@Get()
 	index() {
 		return "Hello world!"
 	}
@@ -33,7 +33,7 @@ export class RootController extends Controller {
 		return 201
 	}
 	
-	@Patch("/echo/:a/:b/:c")
+	@Patch("echo/:a/:b/:c")
 	echo(ctx: CustomContext) {
 		return {
 			params: ctx.params,

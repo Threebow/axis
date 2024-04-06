@@ -1,4 +1,4 @@
-import { BaseLocalsDTO, BaseUserDTO } from "../../../dto"
+import { BaseUserDTO } from "../../../dto"
 
 export type CustomUserDTO = BaseUserDTO & {
 	name: string
@@ -11,7 +11,7 @@ export type ExampleLink = {
 	href: string
 }
 
-export type CustomLocalsDTO = BaseLocalsDTO<CustomUserDTO> & {
+export type CustomLocalsDTO = {
 	links: ExampleLink[]
 }
 

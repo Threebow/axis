@@ -6,7 +6,7 @@ import { RootIndexDTO } from "../_tests/app/modules/Root.dto"
 import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "../_tests/fixtures"
 import NestedTest from "../_tests/app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import Root from "../_tests/app/modules/Root.vue"
-import { MOCK_LINKS } from "../_tests/app/modules/middleware/Custom.middleware";
+import { MOCK_LINKS } from "../_tests/app/modules/middleware/Custom.middleware"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext({
@@ -23,7 +23,7 @@ describe("Renderer", () => {
 		expect(mock.ctx.koaCtx.body).to.include("UUID: " + data.uuid)
 	})
 	
-	it("should inject app locals", async () => {
+	it("should inject user and app locals", async () => {
 		const props: RootIndexDTO = { uuid: uuid() }
 		
 		mock.ctx.locals.links = MOCK_LINKS
@@ -33,8 +33,11 @@ describe("Renderer", () => {
 		const data = extractAndParseEncodedViewData(mock.ctx.koaCtx.body as string)
 		
 		expect(data.locals).to.deep.equal({
-			__APP_VERSION__: getVersionString(),
 			links: MOCK_LINKS
+		})
+		
+		expect(data.appLocals).to.deep.equal({
+			__APP_VERSION__: getVersionString()
 		})
 	})
 	
@@ -57,7 +60,8 @@ describe("Renderer", () => {
 				"./NestedLayouts/A/B/layout.vue",
 				"./NestedLayouts/A/B/C/C.layout.vue"
 			],
-			locals: {
+			locals: {},
+			appLocals: {
 				__APP_VERSION__: getVersionString()
 			},
 			props: {}

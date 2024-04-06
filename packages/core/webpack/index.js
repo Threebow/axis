@@ -1,15 +1,16 @@
 import fs from "node:fs"
-import { globbySync } from "globby"
-import { resolve } from "node:path"
-import { config } from "dotenv"
+import {globbySync} from "globby"
+import {resolve} from "node:path"
+import {config} from "dotenv"
 import webpack from "webpack"
-import { VueLoaderPlugin } from "vue-loader"
+import {VueLoaderPlugin} from "vue-loader"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
-import { merge } from "webpack-merge"
+import {merge} from "webpack-merge"
 import nodeExternals from "webpack-node-externals"
 import WebpackAssetsManifest from "webpack-assets-manifest"
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
 import CopyPlugin from "copy-webpack-plugin"
+import TerserPlugin from "terser-webpack-plugin";
 
 function fsReadFile(file) {
 	// if the file is a directory, parse the relevant index file
@@ -152,6 +153,16 @@ export function createNodeConfig(base) {
 		externalsPresets: {node: true},
 		experiments: {
 			outputModule: true
+		},
+		optimization: {
+			minimizer: [
+				new TerserPlugin({
+					parallel: true,
+					terserOptions: {
+						keep_classnames: true
+					}
+				})
+			]
 		}
 	})
 }

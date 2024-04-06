@@ -2,10 +2,11 @@ import { Context as KoaContext, Next as KoaNext } from "koa"
 import HTTPError from "http-errors"
 import { ZodError } from "zod"
 import { fromZodError } from "zod-validation-error"
-import { BaseLocalsDTO, BaseUserDTO, ErrorDTO } from "../dto"
+import { BaseUserDTO, ErrorDTO } from "../dto"
 import { AppErrorType, IApp, IBaseUser, IContext, isAppError, Responder } from "../classes"
 import { handleError } from "../helpers"
 import { render } from "../helpers/backend"
+import { KVObject } from "../types"
 
 /**
  * Handle fatal application-level errors. This should be at the top of the middleware stack and should
@@ -29,7 +30,7 @@ export function genericErrorHandler<
 	// FIXME: how to avoid duplicating this everywhere?
 	UserDTO extends BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO>
 >(app: IApp<UserDTO, UserClass, LocalsDTO, Context>) {
 	return async (koaCtx: KoaContext, next: KoaNext) => {

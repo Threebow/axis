@@ -1,4 +1,4 @@
-import { BaseLocalsDTO, BaseUserDTO } from "../dto"
+import { BaseUserDTO } from "../dto"
 import { IBaseUser } from "./User"
 import { ContextConstructor, IContext } from "./Context"
 import { ControllerConstructor } from "./Controller"
@@ -47,7 +47,7 @@ export type RendererOptions = {
 export type AppOptions<
 	UserDTO extends BaseUserDTO,
 	UserClass extends IBaseUser<UserDTO>,
-	LocalsDTO extends BaseLocalsDTO<UserDTO>,
+	LocalsDTO extends KVObject,
 	Context extends IContext<UserDTO, UserClass, LocalsDTO>
 > = {
 	/**

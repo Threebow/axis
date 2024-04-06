@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-	import { useLocals } from "../../../composables";
-	import type { CustomLocalsDTO } from "./Root.dto";
-	import { computed } from "vue";
+	import { useAppLocals, useLocals } from "../../../composables"
+	import type { CustomLocalsDTO, CustomUserDTO } from "./Root.dto"
+	import { computed } from "vue"
 
-	const { __APP_VERSION__, user, links } = useLocals<CustomLocalsDTO>()
+	const { links } = useLocals<CustomLocalsDTO>()
+	const { user, __APP_VERSION__ } = useAppLocals<CustomUserDTO>()
 
 	// XXX: this is necessary because vue loader is bugged and can't infer the type of `l` when used in `map`
 	const mapped = computed(() => {

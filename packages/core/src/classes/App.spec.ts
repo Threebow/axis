@@ -8,7 +8,9 @@ import {
 	expectToIncludeInOrder
 } from "../_tests/fixtures"
 import { MOCK_TODOS } from "../_tests/app/modules/Todo/Todo.dto"
-import HTTPError from "http-errors";
+import HTTPError from "http-errors"
+import { AppErrorType, isAppError } from "./AppError"
+import { KVObject } from "../types"
 
 describe("Application", () => {
 	describe("Boot", () => {
@@ -45,6 +47,115 @@ describe("Application", () => {
 		it("should throw an error if the app is shut down more than once", async () => {
 			await app.shutdown()
 			await assert.isRejected(app.shutdown(), "Server is not running.")
+		})
+	})
+	
+	describe("Named Routes", () => {
+		const app = createMockApp()
+		
+		it("should throw an app error if the route does not exist", () => {
+			const tests: string[] = [
+				"this.route.does.not.exist",
+				"todos.destroy",
+				"nestedLayouts.aNestedLayouts.coolerTest"
+			]
+			
+			for (const test of tests) {
+				let err
+				
+				try {
+					app.resolveRouteFullPath(test)
+				} catch (e) {
+					err = e
+				}
+				
+				assert(isAppError(err), "Expected app error")
+				expect(err.type).to.eq(AppErrorType.INVALID_ROUTE)
+				expect(err.message).to.include(`"${test}"`)
+			}
+		})
+		
+		it("should resolve routes from route names", () => {
+			type CoolTest = {
+				input: string,
+				expectedOutput: string
+			}
+			
+			const tests: CoolTest[] = [
+				{
+					input: "index",
+					expectedOutput: "/"
+				},
+				{
+					input: "testMiddleware",
+					expectedOutput: "/test-middleware"
+				},
+				{
+					input: "todos.index",
+					expectedOutput: "/todos"
+				},
+				{
+					input: "todos.show",
+					expectedOutput: "/todos/:id"
+				},
+				{
+					input: "todos.store",
+					expectedOutput: "/todos"
+				},
+				{
+					input: "nestedLayouts.aNestedLayouts.coolTest",
+					expectedOutput: "/nested-layouts/a/cool-test"
+				},
+				{
+					input: "nestedLayouts.aNestedLayouts.customB.cNestedLayouts.testMiddleware",
+					expectedOutput: "/nested-layouts/a/b/c/test-middleware"
+				},
+				{
+					input: "nestedLayouts.aNestedLayouts.customB.someMethod",
+					expectedOutput: "/nested-layouts/a/b/some-method"
+				},
+				{
+					input: "echo",
+					expectedOutput: "/echo/:a/:b/:c"
+				}
+			]
+			
+			for (const test of tests) {
+				const resolved = app.resolveRouteFullPath(test.input)
+				expect(resolved).to.equal(test.expectedOutput)
+			}
+		})
+		
+		it("should fill in route parameters", () => {
+			type CoolTest = {
+				input: {
+					route: string
+					params: KVObject
+				}
+				expectedOutput: (params?: KVObject) => string
+			}
+			
+			const tests: CoolTest[] = [
+				{
+					input: {
+						route: "todos.show",
+						params: { id: uuid() }
+					},
+					expectedOutput: (p) => `/todos/${p!.id}`
+				},
+				{
+					input: {
+						route: "echo",
+						params: { a: 1, b: "2", c: "something" }
+					},
+					expectedOutput: () => `/echo/1/2/something`
+				}
+			]
+			
+			for (const { input: { route, params }, expectedOutput } of tests) {
+				const resolved = app.resolveRouteFullPath(route, params)
+				expect(resolved).to.equal(expectedOutput(params))
+			}
 		})
 	})
 	
@@ -304,4 +415,3 @@ describe("Application", () => {
 		afterEach(() => restore())
 	})
 })
-

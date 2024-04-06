@@ -4,4 +4,6 @@ function unique(str: string): string {
 
 export namespace Constants {
 	export const LOCALS = unique("Locals")
+	
+	export const APP_LOCALS = unique("AppLocals")
 }

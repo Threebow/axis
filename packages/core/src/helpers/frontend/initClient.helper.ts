@@ -51,7 +51,10 @@ function normalize(file: string): string {
 export async function initClient(ctx: __WebpackModuleApi.RequireContext) {
 	// Parse the view data from the window object
 	const rawView: string = (window as any).__ENCODED_VIEW__
-	const viewData = rawView ? fromJson<ViewData>(decodeURIComponent(rawView)) : null
+	
+	const viewData = rawView
+		? fromJson<ViewData>(decodeURIComponent(rawView))
+		: null
 	
 	// Sanity check to ensure we have a view to load
 	if (!viewData?.file) {

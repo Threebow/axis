@@ -1,7 +1,8 @@
 export enum AppErrorType {
-	NOT_FOUND,
-	INVALID_INPUT,
-	RENDER_FAILED
+	NOT_FOUND = "NOT_FOUND",
+	INVALID_INPUT = "INVALID_INPUT",
+	RENDER_FAILED = "RENDER_FAILED",
+	INVALID_ROUTE = "INVALID_ROUTE"
 }
 
 export interface IAppError extends Error {

@@ -56,6 +56,9 @@ importers:
       bulma:
         specifier: ^0.9.4
         version: 0.9.4
+      camelcase:
+        specifier: ^8.0.0
+        version: 8.0.0
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -95,6 +98,9 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
+      path-to-regexp:
+        specifier: ^6.2.1
+        version: 6.2.1
       pg:
         specifier: ^8.11.3
         version: 8.11.3
@@ -285,6 +291,9 @@ importers:
       sinon-chai:
         specifier: ^3.7.0
         version: 3.7.0(chai@5.0.3)(sinon@17.0.1)
+      terser-webpack-plugin:
+        specifier: ^5.3.10
+        version: 5.3.10(esbuild@0.20.0)(webpack@5.90.1)
       ts-loader:
         specifier: ^9.5.1
         version: 9.5.1(typescript@5.3.3)(webpack@5.90.1)
@@ -3054,6 +3063,11 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
     dev: true
+
+  /camelcase@8.0.0:
+    resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
+    engines: {node: '>=16'}
+    dev: false
 
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}

@@ -1,3 +1,5 @@
+import { ensureStringStartsWith } from "../helpers/string.helper"
+
 export enum RouteVerb {
 	GET = "get",
 	POST = "post",
@@ -14,6 +16,9 @@ export type RouteMetadata = {
 }
 
 function Route(verb: RouteVerb, uri: string) {
+	// prepend a slash if it's not there
+	uri = ensureStringStartsWith(uri, "/")
+	
 	return Reflect.metadata("route", { verb, uri })
 }
 
