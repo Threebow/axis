@@ -9,6 +9,7 @@ import { z } from "zod"
 import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
 import { render } from "../../../helpers/backend"
 import { GuardTestController } from "./GuardTest/GuardTest.controller"
+import Route from "../frontend/components/Route.vue"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)

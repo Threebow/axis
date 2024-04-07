@@ -55,6 +55,7 @@ export type ViewData<LocalsDTO extends KVObject = {}> = {
 	props: DTO
 	locals: LocalsDTO
 	appLocals: AppLocalsDTO<BaseUserDTO>
+	route?: string
 }
 
 /**

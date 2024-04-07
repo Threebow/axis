@@ -63,6 +63,9 @@ export function createApp(
 	app.provide(Constants.LOCALS, viewData.locals)
 	app.provide(Constants.APP_LOCALS, viewData.appLocals)
 	
+	// inject route name into the app so the route composables can pick it up
+	app.provide(Constants.ROUTE, viewData.route)
+	
 	// register the main view component
 	app.component("AppView", viewComponent)
 	

@@ -9,6 +9,7 @@ import { IContext } from "./Context"
 import { createApp } from "../createApp"
 import { AppMode } from "./AppOptions"
 import { AppError, AppErrorType } from "./AppError"
+import assert from "node:assert"
 
 const PAGE_CACHE = new Map<string, compileTemplate>()
 
@@ -27,6 +28,13 @@ export interface IRenderer<Data extends DTO> extends IResponder {
 export class Renderer<Data extends DTO> extends Responder implements IRenderer<Data> {
 	private view?: { component: ViewComponent, data: Data }
 	private meta?: Partial<PageMeta>
+	
+	private routeName?: string
+	
+	setRouteName(routeName: string): this {
+		this.routeName = routeName
+		return this
+	}
 	
 	render(component: ViewComponent, data: Data): this {
 		this.view = { component, data }
@@ -95,23 +103,22 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 	
 	override async execute(app: IApp, ctx: IContext): Promise<void> {
 		// ensure the app has a renderer
-		if (!app.opts.renderer) {
-			throw new Error("Cannot execute renderer with no app renderer options defined.")
-		}
+		assert.ok(app.opts.renderer, "Cannot execute renderer with no app renderer options defined.")
 		
 		// ensure we have been provided a view before proceeding
-		if (!this.view) {
-			throw new Error("Cannot execute renderer with no view set.")
-		}
+		assert.ok(this.view, "Cannot execute renderer with no view set.")
 		
 		// deconstruct the view provided
 		const { component, data } = this.view
 		
 		// validate we have a component and that it has a file name
-		if (!component?.__FILENAME__) {
-			console.error("Got bad component:", component)
-			throw new Error("Component file name could not be found.")
-		}
+		assert.ok(
+			component?.__FILENAME__,
+			new AppError(
+				AppErrorType.RENDER_FAILED,
+				"SSR render failed: component file name could not be found."
+			)
+		)
 		
 		// calculate the absolute path to the component
 		const absolute = resolve(process.cwd(), component.__FILENAME__)
@@ -133,7 +140,8 @@ export class Renderer<Data extends DTO> extends Responder implements IRenderer<D
 			appLocals: {
 				user: ctx.user?.toJson(),
 				__APP_VERSION__: app.version
-			}
+			},
+			route: this.routeName
 		})
 		
 		// initialize the vue app with the component, layouts, and view data

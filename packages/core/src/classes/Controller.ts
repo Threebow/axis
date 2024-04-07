@@ -9,9 +9,11 @@ import camelcase from "camelcase"
 import assert from "node:assert"
 import { GuardConstructor, GuardResult } from "./Guard"
 import { IContext } from "./Context"
+import { Renderer } from "./Renderer"
 
 type Route = RouteMetadata & Readonly<{
 	name: string
+	fullName: string
 	fullPath: string
 	validators: ValidationMetadata[]
 }>
@@ -80,6 +82,7 @@ export abstract class Controller {
 				
 				// calculate full path
 				let fullPath = metadata.uri
+				let fullName = name
 				
 				let self: Controller = this
 				let parent = this.parent
@@ -91,6 +94,7 @@ export abstract class Controller {
 					assert.ok(mountDef, "could not find mount definition for child controller in parent")
 					
 					fullPath = mountDef.uri + fullPath
+					fullName = mountDef.name + PATH_SEPARATOR + fullName
 					
 					self = parent
 					parent = parent.parent
@@ -104,6 +108,7 @@ export abstract class Controller {
 				return {
 					name,
 					fullPath,
+					fullName,
 					validators: Reflect.getMetadata("validate", this, name) ?? [],
 					isApi: Reflect.getMetadata("api", this, name) ?? false,
 					...metadata
@@ -205,6 +210,11 @@ export abstract class Controller {
 		
 		// run the function and get the result
 		const result = await fn.bind(this)(ctx)
+		
+		// if the result is a renderer, we need to inject the route
+		if (result instanceof Renderer) {
+			result.setRouteName(route.fullName)
+		}
 		
 		// at this point, we are done all controller processing, so we can pass the response
 		// directly to the context to be processed appropriately

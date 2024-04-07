@@ -205,7 +205,7 @@ export abstract class Context<
 		try {
 			// finally, run the provided executable
 			// FIXME: this can't be good practice
-			await data.execute(this.app as IApp<any, any, any, any>, this as IContext<any, any, any>)
+			await data.execute(this.app as IApp<any, any, any, any>, this as IContext<any, any>)
 		} finally {
 			// mark this as processed, so it doesn't get called again
 			this.hasProcessedResponse = true
