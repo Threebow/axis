@@ -57,7 +57,7 @@ describe("Application", () => {
 			const tests: string[] = [
 				"this.route.does.not.exist",
 				"todos.destroy",
-				"nestedLayouts.aNestedLayouts.coolerTest"
+				"nestedLayouts.a.coolerTest"
 			]
 			
 			for (const test of tests) {
@@ -103,20 +103,28 @@ describe("Application", () => {
 					expectedOutput: "/todos"
 				},
 				{
-					input: "nestedLayouts.aNestedLayouts.coolTest",
+					input: "nestedLayouts.a.coolTest",
 					expectedOutput: "/nested-layouts/a/cool-test"
 				},
 				{
-					input: "nestedLayouts.aNestedLayouts.customB.cNestedLayouts.testMiddleware",
+					input: "nestedLayouts.a.customB.c.testMiddleware",
 					expectedOutput: "/nested-layouts/a/b/c/test-middleware"
 				},
 				{
-					input: "nestedLayouts.aNestedLayouts.customB.someMethod",
+					input: "nestedLayouts.a.customB.someMethod",
 					expectedOutput: "/nested-layouts/a/b/some-method"
+				},
+				{
+					input: "nestedLayouts.a2.customB.someMethod",
+					expectedOutput: "/nested-layouts/a2/b/some-method"
 				},
 				{
 					input: "echo",
 					expectedOutput: "/echo/:a/:b/:c"
+				},
+				{
+					input: "guardTest.nested.deep.test",
+					expectedOutput: "/guard-test/nested/deep/test"
 				}
 			]
 			

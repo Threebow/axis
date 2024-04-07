@@ -3,9 +3,10 @@ import { Get, Mount } from "../../../../decorators"
 import { ANestedLayoutsController } from "./A/A.NestedLayouts.controller"
 import { CustomContext } from "../../context"
 
-@Mount("/a", ANestedLayoutsController)
+@Mount("a", ANestedLayoutsController)
+@Mount("a2", ANestedLayoutsController)
 export class NestedLayoutsController extends Controller {
-	@Get("/test-middleware")
+	@Get("test-middleware")
 	testMiddleware(ctx: CustomContext) {
 		return {
 			called: ctx.session.CustomMiddlewareExecuted

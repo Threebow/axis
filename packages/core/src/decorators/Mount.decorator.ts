@@ -1,10 +1,21 @@
 import { ControllerConstructor } from "../classes"
 import { ensureStringStartsWith } from "../helpers/string.helper"
+import camelcase from "camelcase"
+import assert from "node:assert"
 
-export type MountedController = { uri: string, ctor: ControllerConstructor }
+export type MountedController = {
+	name: string
+	uri: string,
+	ctor: ControllerConstructor
+}
 
-export function Mount(uri: string, ctor: ControllerConstructor) {
+export function Mount(uri: string, ctor: ControllerConstructor, name?: string) {
 	uri = ensureStringStartsWith(uri, "/")
+	
+	// calculate default name
+	if (!name) {
+		name = camelcase(uri.slice(1), { preserveConsecutiveUppercase: true })
+	}
 	
 	return (target: any, key?: string | symbol) => {
 		let stack: MountedController[]
@@ -17,7 +28,9 @@ export function Mount(uri: string, ctor: ControllerConstructor) {
 		
 		stack ??= []
 		
-		stack.push({ uri, ctor })
+		assert.ok(name, `Invalid controller name for mount: ${name}`)
+		
+		stack.push({ name, uri, ctor })
 		
 		const fn = Reflect.metadata("mount", stack)
 		

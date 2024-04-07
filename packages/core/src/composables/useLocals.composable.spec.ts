@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import { MOCK_LINKS } from "../_tests/app/modules/middleware/Custom.middleware"
+import { MOCK_LINKS } from "../_tests/app/middleware/Custom.middleware"
 import { createMockAppWithContext } from "../_tests/fixtures"
 import { render } from "../helpers/backend"
 import Locals from "../_tests/app/frontend/components/Locals.vue"

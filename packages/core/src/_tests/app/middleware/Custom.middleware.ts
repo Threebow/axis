@@ -1,5 +1,5 @@
-import { Middleware } from "../../../../classes"
-import { CustomContext } from "../../context"
+import { Middleware } from "../../../classes"
+import { CustomContext } from "../context"
 
 export const MOCK_LINKS = [
 	{ name: "Home", href: "/" },

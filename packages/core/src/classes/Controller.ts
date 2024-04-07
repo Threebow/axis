@@ -1,4 +1,4 @@
-import { isFunction } from "lodash-es"
+import { isFunction, isNumber } from "lodash-es"
 import HTTPError from "http-errors"
 import Router from "koa-router"
 import { Context as KoaContext } from "koa"
@@ -7,6 +7,8 @@ import { IApp } from "./App"
 import { MiddlewareConstructor } from "./Middleware"
 import camelcase from "camelcase"
 import assert from "node:assert"
+import { GuardConstructor, GuardResult } from "./Guard"
+import { IContext } from "./Context"
 
 type Route = RouteMetadata & Readonly<{
 	name: string
@@ -19,7 +21,7 @@ const SLASH = "/"
 
 // TODO: use symbols,constants for all reflect metadata keys
 
-export type ControllerConstructor = new (app: IApp, parent?: Controller, ignorePrefix?: boolean) => Controller
+export type ControllerConstructor = new (app: IApp, parent?: Controller, name?: string) => Controller
 
 // FIXME: use privates and add interface
 export abstract class Controller {
@@ -30,13 +32,13 @@ export abstract class Controller {
 	readonly children: MountedController[] = Reflect.getOwnMetadata("mount", this.constructor) ?? []
 	readonly childInstances: Controller[] = []
 	
+	readonly guard?: GuardConstructor = Reflect.getOwnMetadata("guard", this.constructor)
+	
 	readonly router = new Router()
 	readonly routes: Route[] = []
 	
-	constructor(readonly app: IApp, readonly parent?: Controller, private readonly ignorePrefix = false) {
-		let name = Reflect.getOwnMetadata("name", this.constructor)
-		
-		// if the name has not been set from metadata, convert the class name to camelcase
+	constructor(readonly app: IApp, readonly parent?: Controller, name?: string) {
+		// derive name from constructor name if not provided
 		if (!name) {
 			name = this.constructor.name
 			
@@ -84,7 +86,7 @@ export abstract class Controller {
 				
 				while (parent) {
 					const mountDef = parent.children
-						.find(c => c.ctor === self.constructor)
+						.find(c => c.ctor === self.constructor && c.name === self.name)
 					
 					assert.ok(mountDef, "could not find mount definition for child controller in parent")
 					
@@ -109,37 +111,72 @@ export abstract class Controller {
 			})
 		
 		// register routes
-		this.routes.forEach(route => {
+		for (const route of this.routes) {
 			this.router[route.verb](
 				route.uri,
-				(ctx: KoaContext) => this.onRequest(route, ctx)
+				(ctx: KoaContext) => this.#onRequest(route, ctx)
 			)
-		})
+		}
 		
 		// instantiate child controllers
-		for (const { uri, ctor } of this.children) {
-			const child = new ctor(this.app, this)
+		for (const { name, uri, ctor } of this.children) {
+			const child = new ctor(this.app, this, name)
 			this.childInstances.push(child)
 			
 			this.router.use(uri, child.router.routes(), child.router.allowedMethods({ throw: true }))
 		}
 	}
 	
-	private async onRequest(route: Route, koaCtx: KoaContext) {
+	async #evaluateGuard(ctx: IContext): Promise<GuardResult> {
+		const evaluate = async (ctor: GuardConstructor): Promise<GuardResult> => {
+			const guard = new ctor(this.app)
+			return guard.isAllowed(ctx)
+		}
+		
+		const walk = async (controller: Controller = this): Promise<GuardResult> => {
+			if (controller.guard) {
+				const result = await evaluate(controller.guard)
+				
+				// if any guard doesn't return true, that means it failed, so stop
+				if (result !== true) {
+					return result
+				}
+			}
+			
+			// walk up the parent chain until we find a guard that fails
+			if (controller.parent) {
+				return walk(controller.parent)
+			}
+			
+			// either no guard found in the chain, or all guards passed
+			return true
+		}
+		
+		return walk()
+	}
+	
+	async #onRequest(route: Route, koaCtx: KoaContext) {
 		// init a custom context for this request
 		const ctx = this.app.createContext(koaCtx)
 		await ctx.initialize()
 		
+		// evaluate the guard
+		const allowed = await this.#evaluateGuard(ctx)
+		
+		// in the case a number is returned from the guard, respond early
+		if (isNumber(allowed)) {
+			await ctx.respond(allowed)
+			return
+		}
+		
+		// if the guard returns false, throw a forbidden error as the default behavior
+		if (allowed !== true) {
+			throw new HTTPError.Forbidden()
+		}
+		
 		// store this last loaded route in the user's session
 		if (this.app.useSessions) {
 			ctx.session.lastRequest = koaCtx.request.path
-		}
-		
-		// first of all, if we have validation rules, we need to run them
-		if (route.validators.length > 0) {
-			await Promise.all(
-				route.validators.map(v => ctx.validator.validate(v))
-			)
 		}
 		
 		// run middleware
@@ -149,6 +186,13 @@ export abstract class Controller {
 			if (!await mw.execute(ctx)) {
 				return
 			}
+		}
+		
+		// if we have validation rules, we need to run them
+		if (route.validators.length > 0) {
+			await Promise.all(
+				route.validators.map(v => ctx.validator.validate(v))
+			)
 		}
 		
 		// find executor function

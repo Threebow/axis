@@ -6,7 +6,7 @@ import { RootIndexDTO } from "../_tests/app/modules/Root.dto"
 import { createMockAppWithContext, expectToIncludeInOrder, extractAndParseEncodedViewData } from "../_tests/fixtures"
 import NestedTest from "../_tests/app/modules/NestedLayouts/A/B/C/NestedTest.vue"
 import Root from "../_tests/app/modules/Root.vue"
-import { MOCK_LINKS } from "../_tests/app/modules/middleware/Custom.middleware"
+import { MOCK_LINKS } from "../_tests/app/middleware/Custom.middleware"
 
 describe("Renderer", () => {
 	const mock = createMockAppWithContext({

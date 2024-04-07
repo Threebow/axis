@@ -136,11 +136,7 @@ export class App<
 		
 		// mount the root controller
 		// FIXME: should not be casting to any so aggressively
-		const rootController = new opts.rootController(
-			this as IApp<any, any, any, any>,
-			undefined,
-			true
-		)
+		const rootController = new opts.rootController(this as IApp<any, any, any, any>)
 		
 		// add a simple health check route
 		rootController.router.get("/health-check", async (ctx) => {

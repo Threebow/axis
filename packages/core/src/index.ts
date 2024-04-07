@@ -6,6 +6,7 @@ register("extensionless/register", pathToFileURL("./"))
 export * from "./classes"
 export * from "./decorators"
 export * from "./dto"
+export * from "./guards"
 export * from "./helpers"
 export * from "./helpers/backend"
 export * from "./stdlib"

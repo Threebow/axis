@@ -5,10 +5,8 @@ import { MOCK_TODOS, TodoDTO } from "./Todo.dto"
 import { Body, Get, Params, Post, Query, Use } from "../../../../decorators"
 import { CustomContext } from "../../context"
 import { sleep } from "../../../../helpers"
-import { CustomMiddleware } from "../middleware/Custom.middleware"
-import { Name } from "../../../../decorators/Name.decorator"
+import { CustomMiddleware } from "../../middleware/Custom.middleware"
 
-@Name("todos")
 export class TodosController extends Controller {
 	// this simulates a data source for our test
 	private readonly data: TodoDTO[] = [...MOCK_TODOS]

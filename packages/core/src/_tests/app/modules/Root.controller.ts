@@ -1,4 +1,4 @@
-import { CustomMiddleware } from "./middleware/Custom.middleware"
+import { CustomMiddleware } from "../middleware/Custom.middleware"
 import { TodosController } from "./Todo/Todo.controller"
 import { Delete, Get, Mount, Patch, Post, Query, Use } from "../../../decorators"
 import { Controller } from "../../../classes"
@@ -8,10 +8,12 @@ import Root from "./Root.vue"
 import { z } from "zod"
 import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
 import { render } from "../../../helpers/backend"
+import { GuardTestController } from "./GuardTest/GuardTest.controller"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)
 @Mount("nested-layouts", NestedLayoutsController)
+@Mount("guard-test", GuardTestController)
 export class RootController extends Controller {
 	@Get()
 	index() {
