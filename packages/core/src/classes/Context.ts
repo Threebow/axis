@@ -178,7 +178,7 @@ export abstract class Context<
 		// if we received a function, unwrap it
 		if (isFunction(data)) {
 			// FIXME: any, any, any bad
-			data = data(this as IContext<any, any, any>)
+			data = data(this as IContext<any, any>)
 		}
 		
 		// if we have a promise, await it
