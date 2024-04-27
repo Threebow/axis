@@ -9,7 +9,6 @@ import { z } from "zod"
 import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
 import { render } from "../../../helpers/backend"
 import { GuardTestController } from "./GuardTest/GuardTest.controller"
-import Route from "../frontend/components/Route.vue"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)
@@ -56,6 +55,21 @@ export class RootController extends Controller {
 		return {
 			// this value is set by middleware
 			called: ctx.session.CustomMiddlewareExecuted
+		}
+	}
+	
+	@Get("test-headers")
+	@Query({
+		n: z.coerce.number()
+	})
+	testHeaders(ctx: CustomContext) {
+		ctx.headers.set("X-TeSt-oUtPuT", ctx.query.n)
+		
+		return {
+			incoming: ctx.headers.incoming,
+			outgoing: ctx.headers.outgoing,
+			input: ctx.headers.get("X-tEsT-InPuT"),
+			output: ctx.headers.getOutgoing("x-test-output")
 		}
 	}
 }

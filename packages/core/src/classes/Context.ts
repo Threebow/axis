@@ -10,6 +10,7 @@ import { IValidator, Validator } from "./Validator"
 import { Responder } from "./Responder"
 import { IBaseUser } from "./User"
 import { resolveIpAddressFromIncomingMessage } from "../helpers/backend"
+import { ContextHeaders, IContextHeaders } from "./ContextHeaders"
 
 export type ContextResponse
 	= DTO
@@ -27,6 +28,9 @@ export interface IContext<
 > {
 	// parent app
 	readonly app: IApp<UserDTO, UserClass, LocalsDTO, IContext<UserDTO, UserClass, LocalsDTO, Query, Params, Body>>
+	
+	// request headers
+	readonly headers: IContextHeaders
 	
 	// state
 	readonly koaCtx: KoaContext
@@ -77,7 +81,9 @@ export abstract class Context<
 	readonly isJsonRequest = !this.wantsHtml && this.wantsJson
 	private _ipAddress?: string
 	
-	constructor(
+	readonly headers: IContextHeaders
+	
+	protected constructor(
 		readonly app: IApp<
 			UserDTO,
 			UserClass,
@@ -86,7 +92,7 @@ export abstract class Context<
 		>,
 		readonly koaCtx: KoaContext
 	) {
-		// ...
+		this.headers = new ContextHeaders(this.koaCtx)
 	}
 	
 	get session(): Session {

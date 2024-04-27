@@ -3,6 +3,7 @@ import { sample } from "lodash-es"
 import { redirect, status } from "../helpers/backend"
 import { createMockAppWithContext } from "../_tests/fixtures"
 import { MOCK_USERS } from "../_tests/app/classes/User.class"
+import { ContextHeaders } from "./ContextHeaders"
 
 describe("Context", () => {
 	describe("Initialization", () => {
@@ -10,6 +11,14 @@ describe("Context", () => {
 		
 		it("should not allow re-initialization", () => {
 			return assert.isRejected(mock.ctx.initialize(), "Context already initialized.")
+		})
+	})
+	
+	describe("Headers", () => {
+		const mock = createMockAppWithContext()
+		
+		it("should expose the headers object on the context", () => {
+			expect(mock.ctx.headers).to.be.an.instanceof(ContextHeaders)
 		})
 	})
 	

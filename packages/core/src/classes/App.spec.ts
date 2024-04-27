@@ -50,6 +50,38 @@ describe("Application", () => {
 		})
 	})
 	
+	describe("Headers", () => {
+		createMockApp()
+		
+		const r = createMockRequester()
+		
+		it("should expose the correct headers", async () => {
+			const testInput = uuid()
+			const testN = Math.random()
+			
+			const data = await r(
+				"GET",
+				"/test-headers",
+				{},
+				{ n: testN },
+				{
+					headers: {
+						// inconsistent capitalization on purpose
+						"X-test-inpuT": testInput
+					}
+				}
+			)
+			
+			assert(data.success)
+			expect(data.status).to.equal(200)
+			expect(data.data.incoming.accept).to.equal("application/json")
+			expect(data.data.incoming["content-type"]).to.equal("application/json")
+			expect(data.data.incoming["x-test-input"]).to.equal(testInput)
+			expect(data.data.input).to.equal(testInput)
+			expect(data.data.output).to.equal(testN.toString())
+		})
+	})
+	
 	describe("Named Routes", () => {
 		const app = createMockApp()
 		
