@@ -5,6 +5,15 @@ import { hideBin } from "yargs/helpers"
 import { rmSync, statSync } from "node:fs"
 import yargs from "yargs"
 
+/*
+	Commands:
+		- build <mode>
+		- test
+		- start
+		- up
+		- routes
+ */
+
 const exec = promisify(rawExec)
 
 function isDirectory(str: string) {
