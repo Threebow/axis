@@ -452,6 +452,50 @@ describe("Application", () => {
 			})
 		})
 		
+		describe("Parent/Child Controller", () => {
+			it("should return methods defined on the parent", async () => {
+				const res = await r("GET", "/parent-child")
+				expect(res).to.deep.equal({
+					success: true,
+					status: 200,
+					data: "ParentController#index"
+				})
+			})
+			
+			it("should return methods defined on the child", async () => {
+				const res = await r("POST", "/parent-child")
+				expect(res).to.deep.equal({
+					success: true,
+					status: 201,
+					data: "Created"
+				})
+			})
+			
+			it("should be able to call methods on the child from the parent", async () => {
+				const id = uuid()
+				const n = Math.random()
+				
+				const res = await r("PATCH", `/parent-child/${id}`, {
+					test: n
+				})
+				
+				expect(res).to.deep.equal({
+					success: true,
+					status: 200,
+					data: `ParentController#update:${id}:${n}`
+				})
+			})
+			
+			it("should call deeply nested methods", async () => {
+				const res = await r("DELETE", "/parent-child")
+				expect(res).to.deep.equal({
+					success: true,
+					status: 204,
+					data: ""
+				})
+			})
+		})
+		
 		afterEach(() => restore())
 	})
 })

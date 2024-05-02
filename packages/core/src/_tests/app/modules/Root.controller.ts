@@ -9,11 +9,13 @@ import { z } from "zod"
 import { NestedLayoutsController } from "./NestedLayouts/NestedLayouts.controller"
 import { render } from "../../../helpers/backend"
 import { GuardTestController } from "./GuardTest/GuardTest.controller"
+import { ChildController } from "./ParentChild/Child.controller"
 
 @Use(CustomMiddleware)
 @Mount("/todos", TodosController)
 @Mount("nested-layouts", NestedLayoutsController)
 @Mount("guard-test", GuardTestController)
+@Mount("/parent-child/", ChildController)
 export class RootController extends Controller {
 	@Get()
 	index() {
