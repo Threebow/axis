@@ -17,7 +17,7 @@ export function status(code: number): IResponder {
 		.status(code)
 }
 
-export function json(data: any): IResponder {
+export function json<T>(data: T): IResponder {
 	return new Responder()
 		.send(toJson(data))
 }
