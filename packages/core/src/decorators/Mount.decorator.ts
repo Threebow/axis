@@ -1,5 +1,5 @@
 import { ControllerConstructor } from "../classes"
-import { ensureStringStartsWith } from "../helpers/string.helper"
+import { ensureStringIsURISegment } from "../helpers/string.helper"
 import camelcase from "camelcase"
 import assert from "node:assert"
 
@@ -10,7 +10,8 @@ export type MountedController = {
 }
 
 export function Mount(uri: string, ctor: ControllerConstructor, name?: string) {
-	uri = ensureStringStartsWith(uri, "/")
+	// ensure uri
+	uri = ensureStringIsURISegment(uri)
 	
 	// calculate default name
 	if (!name) {

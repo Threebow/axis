@@ -61,59 +61,74 @@ export abstract class Controller {
 			...this.middleware
 		]
 		
-		// auto-detect registered routes
-		const pt = Object.getPrototypeOf(this)
+		// detect route names from prototype chain
+		let pt = Object.getPrototypeOf(this)
+		const names = new Map<string, PropertyDescriptor | undefined>()
 		
-		this.routes = Object
-			.getOwnPropertyNames(pt)
-			.filter(name => name !== "constructor")
-			.map(name => {
-				const tag = `"${name}@${this.constructor.name}"`
+		// build routes by traversing parents until the top
+		while(pt !== Controller.prototype) {
+			for(const name of Object.getOwnPropertyNames(pt)) {
+				const descriptor = Object.getOwnPropertyDescriptor(pt, name)
 				
-				const desc = Object.getOwnPropertyDescriptor(pt, name)
-				assert.ok(desc, `Invalid route implementation for method ${tag}`)
-				
-				const metadata: RouteMetadata | undefined = Reflect.getMetadata("route", this, name)
-				assert.ok(
-					metadata,
-					`Route metadata not found for method ${tag}. `
-					+ `Did you forget to add the @Get, @Post, etc. decorator?`
-				)
-				
-				// calculate full path
-				let fullPath = metadata.uri
-				let fullName = name
-				
-				let self: Controller = this
-				let parent = this.parent
-				
-				while (parent) {
-					const mountDef = parent.children
-						.find(c => c.ctor === self.constructor && c.name === self.name)
-					
-					assert.ok(mountDef, "could not find mount definition for child controller in parent")
-					
-					fullPath = mountDef.uri + fullPath
-					fullName = mountDef.name + PATH_SEPARATOR + fullName
-					
-					self = parent
-					parent = parent.parent
+				if(descriptor) {
+					names.set(name, descriptor)
 				}
+			}
+			
+			pt = Object.getPrototypeOf(pt)
+		}
+		
+		// register routes
+		for (const [name, descriptor] of names.entries()) {
+			// ignore the constructor
+			if (name === "constructor") {
+				continue
+			}
+			
+			const tag = `"${name}@${this.constructor.name}"`
+			
+			assert.ok(descriptor, `Invalid route implementation for method ${tag}`)
+			
+			const metadata: RouteMetadata | undefined = Reflect.getMetadata("route", this, name)
+			
+			// only continue for routes with metadata defined
+			if(!metadata) {
+				continue
+			}
+			
+			// calculate full path
+			let fullPath = metadata.uri
+			let fullName = name
+			
+			let self: Controller = this
+			let parent = this.parent
+			
+			while (parent) {
+				const mountDef = parent.children
+					.find(c => c.ctor === self.constructor && c.name === self.name)
 				
-				// slice trailing slash if present
-				if (fullPath !== SLASH && fullPath.endsWith(SLASH)) {
-					fullPath = fullPath.slice(0, -SLASH.length)
-				}
+				assert.ok(mountDef, "could not find mount definition for child controller in parent")
 				
-				return {
-					name,
-					fullPath,
-					fullName,
-					validators: Reflect.getMetadata("validate", this, name) ?? [],
-					isApi: Reflect.getMetadata("api", this, name) ?? false,
-					...metadata
-				}
+				fullPath = mountDef.uri + fullPath
+				fullName = mountDef.name + PATH_SEPARATOR + fullName
+				
+				self = parent
+				parent = parent.parent
+			}
+			
+			// slice trailing slash if present
+			if (fullPath !== SLASH && fullPath.endsWith(SLASH)) {
+				fullPath = fullPath.slice(0, -SLASH.length)
+			}
+			
+			this.routes.push({
+				name,
+				fullPath,
+				fullName,
+				validators: Reflect.getMetadata("validate", this, name) ?? [],
+				...metadata
 			})
+		}
 		
 		// register routes
 		for (const route of this.routes) {
