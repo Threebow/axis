@@ -10,12 +10,16 @@ export interface IResponder extends IFlasher {
 	send(data: any): this
 	
 	setError(): this
+	
+	modify(modifier: (ctx: IContext) => void): this
 }
 
 export class Responder extends Flasher implements IResponder {
 	private statusCode?: number
 	private response?: any
 	private isError = false
+	
+	private modifier?: (ctx: IContext) => void
 	
 	status(code: number): this {
 		if (this.statusCode) {
@@ -36,9 +40,19 @@ export class Responder extends Flasher implements IResponder {
 		return this
 	}
 	
+	modify(modifier: (ctx: IContext) => void): this {
+		this.modifier = modifier
+		return this
+	}
+	
 	override async execute(app: IApp, ctx: IContext): Promise<void> {
 		// apply flash messages
 		await super.execute(app, ctx)
+		
+		// modify the context (add headers, etc.)
+		if (this.modifier) {
+			this.modifier(ctx)
+		}
 		
 		// process status code if present
 		if (this.statusCode) {
