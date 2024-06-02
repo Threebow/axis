@@ -28,3 +28,14 @@ export abstract class Middleware implements IMiddleware {
 		return true
 	}
 }
+
+/**
+ * Helper function to define a middleware without having to extend the Middleware class.
+ */
+export function defineMiddleware(action: (ctx: IContext) => Promise<boolean>): MiddlewareConstructor {
+	return class extends Middleware {
+		protected run(ctx: IContext) {
+			return action(ctx)
+		}
+	}
+}
