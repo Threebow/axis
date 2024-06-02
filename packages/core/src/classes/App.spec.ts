@@ -409,18 +409,21 @@ describe("Application", () => {
 			})
 			
 			let todoId: string | null = null
+			let todoCreatedAt: Date | null = null
 			
 			it("should create and return a new todo", async () => {
 				const res = await r("POST", "/todos", { title: "Buy cheese" })
 				
 				assert(res.success)
 				expect(res.status).to.equal(201)
-				expect(res.data).to.have.keys("id", "title", "completed")
+				expect(res.data).to.have.keys("id", "title", "completed", "createdAt")
 				expect(res.data.id).to.be.a.uuid("v4")
 				expect(res.data.title).to.equal("Buy cheese")
 				expect(res.data.completed).to.equal(false)
+				expect(res.data.createdAt).to.be.a("date")
 				
 				todoId = res.data.id
+				todoCreatedAt = res.data.createdAt
 			})
 			
 			it("should return the new list of todos", async () => {
@@ -434,7 +437,8 @@ describe("Application", () => {
 						{
 							id: todoId,
 							title: "Buy cheese",
-							completed: false
+							completed: false,
+							createdAt: todoCreatedAt
 						}
 					]
 				})
