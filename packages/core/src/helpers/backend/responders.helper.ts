@@ -1,6 +1,6 @@
 import { DTO, ViewComponent } from "../../types"
 import { IRedirector, IRenderer, IResponder, Redirector, Renderer, Responder } from "../../classes"
-import { toJson } from "../json.helper"
+import { IJsonResponder, JsonResponder } from "../../classes/JsonResponder"
 
 export function render<Data extends DTO>(component: ViewComponent, props?: Data): IRenderer<Data> {
 	return new Renderer<Data>()
@@ -17,7 +17,7 @@ export function status(code: number): IResponder {
 		.status(code)
 }
 
-export function json<T>(data: T): IResponder {
-	return new Responder()
-		.send(toJson(data))
+export function json<T>(data: T): IJsonResponder<T> {
+	return new JsonResponder()
+		.serializeAndSend(data)
 }
