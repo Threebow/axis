@@ -69,6 +69,31 @@ describe("Context", () => {
 				mock.ctx.logout()
 				expect(mock.ctx.user).to.be.null
 			})
+			
+			it("should allow manual login and logout", async () => {
+				// ensure we are logged in
+				expect(mock.ctx.user).to.equal(testUser)
+				
+				// choose a different user
+				const newTestUser = sample(MOCK_USERS.filter(u => u.id !== testUser.id))!
+				expect(newTestUser.id).to.not.equal(testUser.id)
+				
+				// log in as the different user
+				await mock.ctx.login(newTestUser.id)
+				expect(mock.ctx.user).to.equal(newTestUser)
+				
+				// log back in as the original user
+				await mock.ctx.login(testUser.id)
+				expect(mock.ctx.user).to.equal(testUser)
+				
+				// log out
+				mock.ctx.logout()
+				expect(mock.ctx.user).to.equal(null)
+				
+				// log back in
+				await mock.ctx.login(testUser.id)
+				expect(mock.ctx.user).to.equal(testUser)
+			})
 		})
 		
 		describe("Invalid session", () => {

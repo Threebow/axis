@@ -54,6 +54,16 @@ export interface IContext<
 	
 	respond(data: ContextResponse): Promise<void>
 	
+	/**
+	 * Logs in the user of this context by setting the `userId` key in the session. They are later resolved through
+	 * the app's `resolveUser` method. If the user is currently logged in as another user, this will first log them out.
+	 */
+	login(userId: UserDTO["id"]): Promise<void>
+	
+	/**
+	 * Logs the user out by removing the user ID from the session. This will throw an error if there is no user ID set
+	 * in the session.
+	 */
 	logout(): void
 }
 
@@ -143,6 +153,29 @@ export abstract class Context<
 		return this._ipAddress
 	}
 	
+	/**
+	 * Reads the user ID from the session. If present, calls the app's user resolver, and sets the user property. This
+	 * will throw if the application has sessions disabled.
+	 */
+	private async resolveUser() {
+		if (this.app.opts.sessionKey == null) {
+			throw new Error("Context: cannot resolve user without sessions enabled.")
+		}
+		
+		if (!this.session.userId) {
+			throw new Error("Context: cannot resolve user without a user ID in the session.")
+		}
+		
+		// if this returns false, it means the user was not found
+		const resolved = await this.app.opts
+			.resolveUser?.(this.session.userId) ?? false
+		
+		// set the user property if found
+		if (resolved !== false) {
+			this._user = resolved
+		}
+	}
+	
 	async initialize() {
 		// ensure context is only initialized once
 		if (this.isInitialized) {
@@ -151,12 +184,7 @@ export abstract class Context<
 		
 		// extract user from session if sessions are enabled and a user ID is set
 		if (this.app.opts.sessionKey != null && this.session.userId) {
-			const resolved = await this.app.opts
-				.resolveUser?.(this.session.userId) ?? false
-			
-			if (resolved !== false) {
-				this._user = resolved
-			}
+			await this.resolveUser()
 		}
 		
 		// mark us as initialized
@@ -216,6 +244,19 @@ export abstract class Context<
 			// mark this as processed, so it doesn't get called again
 			this.hasProcessedResponse = true
 		}
+	}
+	
+	async login(userId: UserDTO["id"]): Promise<void> {
+		// log the user out if they aren't already
+		if (this.user) {
+			this.logout()
+		}
+		
+		// set the ID in the session
+		this.session.userId = userId
+		
+		// resolve the user, so we can immediately use the new user property
+		await this.resolveUser()
 	}
 	
 	logout() {
