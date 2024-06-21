@@ -6,6 +6,7 @@ import { KVObject, PageMeta, ViewComponent } from "../types"
 import { PotentialPromise } from "webpack-cli"
 import { bodyParser } from "@koa/bodyparser"
 import { Context as KoaContext, Next as KoaNext } from "koa"
+import session from "koa-session"
 
 // good meme
 export type BodyParserOptions = Omit<NonNullable<Parameters<typeof bodyParser>[0]>, "encoding">
@@ -69,6 +70,11 @@ export type AppOptions<
 	 * The secret used to sign the session cookie.
 	 */
 	sessionKey?: string
+	
+	/**
+	 * Options passed through to koa-session
+	 */
+	sessionOptions?: session.opts<void, Context>
 	
 	/**
 	 * The constructor of the root controller of the app.

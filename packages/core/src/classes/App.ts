@@ -131,7 +131,7 @@ export class App<
 		
 		// enable session middleware if session key is set
 		if (this.useSessions) {
-			this.koa.use(session({}, this.koa))
+			this.koa.use(session(this.opts.sessionOptions ?? {}, this.koa))
 		}
 		
 		// mount the root controller
