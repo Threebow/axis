@@ -74,7 +74,7 @@ export type AppOptions<
 	/**
 	 * Options passed through to koa-session
 	 */
-	sessionOptions?: session.opts<void, Context>
+	sessionOptions?: Partial<session.opts<void, Context>>
 	
 	/**
 	 * The constructor of the root controller of the app.
