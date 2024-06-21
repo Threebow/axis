@@ -7,6 +7,7 @@ import { AppErrorType, IApp, IBaseUser, IContext, isAppError, Responder } from "
 import { handleError } from "../helpers"
 import { render } from "../helpers/backend"
 import { KVObject } from "../types"
+import { isNumber } from "lodash-es"
 
 /**
  * Handle fatal application-level errors. This should be at the top of the middleware stack and should
@@ -88,6 +89,17 @@ export function httpErrorTransformer() {
 				throw new HTTPError.NotFound()
 			}
 		} catch (e: any) {
+			// transform raw numbers into the relevant http error
+			if (isNumber(e)) {
+				// error code, rethrow
+				if (e >= 400 && e <= 599) {
+					throw HTTPError(e)
+				} else {
+					// not an error code, throw internal server error
+					throw new HTTPError.InternalServerError(`non-error code thrown: ${e}`)
+				}
+			}
+			
 			// transform zod errors into bad request errors
 			if (e instanceof ZodError) {
 				const he = new HTTPError.UnprocessableEntity(fromZodError(e).toString())

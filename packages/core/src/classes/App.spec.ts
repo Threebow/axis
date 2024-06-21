@@ -397,6 +397,25 @@ describe("Application", () => {
 			expect(res.data.extra).to.equal("Method Not Allowed")
 		})
 		
+		describe("Throwing numbers", async () => {
+			it("should throw the appropriate HTTP error if it is valid", async () => {
+				const res = await r("GET", "/throws-failure")
+				
+				assert(!res.success)
+				expect(res.data.status).to.equal(429)
+				expect(res.data.extra).to.equal("Too Many Requests")
+			})
+			
+			it("should throw a 500 error if the number is not a valid HTTP status code", async () => {
+				const res = await r("GET", "/throws-success")
+				
+				assert(!res.success)
+				expect(res.data.status).to.equal(500)
+				expect(res.data.extra).to.equal(undefined)
+				expect(res.data.eventId).to.be.a("string")
+			})
+		})
+		
 		describe("Todo Controller", () => {
 			it("should return the correct todos", async () => {
 				const res = await r("GET", "/todos")

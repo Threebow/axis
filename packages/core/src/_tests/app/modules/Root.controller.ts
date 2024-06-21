@@ -74,4 +74,14 @@ export class RootController extends Controller {
 			output: ctx.headers.getOutgoing("x-test-output")
 		}
 	}
+	
+	@Get("throws-failure")
+	throwsFailure() {
+		throw 429
+	}
+	
+	@Get("throws-success")
+	throwsSuccess() {
+		throw 201
+	}
 }
